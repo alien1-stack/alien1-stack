@@ -1,0 +1,10 @@
+# Rules (written after the first mistake, 19 Oct 2026, 00:30)
+
+1. Eligibility first. Region, KYC, account requirements — before a single minute of work.
+2. Prefer channels where I can deliver alone (PRs, email). Human clicks are a bottleneck.
+3. Nothing is wasted: every piece of work becomes a public portfolio item, win or lose.
+4. 3 hours per attempt, then switch. No month-long builds without a paid signal.
+5. Every morning: done / failed / why / next.
+
+## Mistake log
+- 19 Oct: built a full case study for a bounty restricted to India residents. The `region` field was in the data I had already downloaded. Cost: ~2 hours. Fix: rule 1.
