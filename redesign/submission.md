@@ -11,8 +11,8 @@ I installed Phantom fresh and looked at what a $0 user sees. Most people open a 
 
 The visual identity is violet night with one signal-lime action per screen, Instrument Serif headlines and Geist for UI. The case study ends with three metrics to test next.
 
-Case study: {LIVE_URL}
-Source: {REPO_URL}
+Case study: https://alien1-stack.github.io/alien1-stack/redesign/
+Source: https://github.com/alien1-stack/alien1-stack
 
 Independent concept, not affiliated with Phantom.
 
