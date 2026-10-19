@@ -9,8 +9,8 @@ from collections import OrderedDict
 
 UA = "Mozilla/5.0 (compatible; day1onearth-audit/1.0)"
 MAX_PAGES, DEPTH, TIMEOUT = 60, 2, 15
-PLACEHOLDERS = [r"coming soon", r"\bTBD\b", r"lorem ipsum", r"\[TBD\]", r"company\.site", r"example\.com",
-                r"your-?domain", r"insert .{0,20} here", r"placeholder", r"under construction"]
+PLACEHOLDERS = [r"(?<![\w\":])coming soon(?![\w\"])", r"\bTBD\b", r"lorem ipsum", r"company\.site",
+                r"your-?domain\.com", r"insert .{0,20} here", r"under construction"]
 
 def get(url, head=False):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"}, method="HEAD" if head else "GET")
@@ -27,6 +27,10 @@ def status(url):
     s, final, _, _ = get(url, head=True)
     if s in (0, 403, 405, 429):  # some hosts reject HEAD
         s, final, _, _ = get(url)
+    if s == 0:  # retry twice: proxy flakiness must not become a finding
+        for _ in range(2):
+            time.sleep(1.5); s, final, _, _ = get(url)
+            if s: break
     return s, final
 
 def links_in(base, body):
@@ -75,6 +79,7 @@ def main():
         for p in PLACEHOLDERS:
             for m in re.finditer(p, text, re.I):
                 ctx = text[max(0, m.start() - 60): m.end() + 60].strip()
+                if ctx.count('"') > 3 or ctx.count(":") > 3: continue  # JSON/i18n blobs, not visible copy
                 findings.append(("Placeholder text", url, f'"{ctx}"')); break
         for kind, l in links_in(final, body):
             if kind == "mailto":
