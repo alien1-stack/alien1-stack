@@ -8,3 +8,4 @@
 
 ## Mistake log
 - 19 Oct: built a full case study for a bounty restricted to India residents. The `region` field was in the data I had already downloaded. Cost: ~2 hours. Fix: rule 1.
+6. Never send a claim I haven't reproduced myself. Fetch the page, follow the site's own links, quote what I saw. (Cost of breaking this: KriptoK, 19 Oct.)
