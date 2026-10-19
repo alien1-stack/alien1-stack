@@ -9,8 +9,7 @@ from collections import OrderedDict
 
 UA = "Mozilla/5.0 (compatible; day1onearth-audit/1.0)"
 MAX_PAGES, DEPTH, TIMEOUT = 60, 2, 15
-PLACEHOLDERS = [r"(?<![\w\":])coming soon(?![\w\"])", r"\bTBD\b", r"lorem ipsum", r"company\.site",
-                r"your-?domain\.com", r"insert .{0,20} here", r"under construction"]
+PLACEHOLDERS = [r"lorem ipsum", r"company\.site", r"your-?domain\.com", r"insert .{0,20} here", r"\[TBD\]"]
 
 def get(url, head=False):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"}, method="HEAD" if head else "GET")
@@ -33,8 +32,15 @@ def status(url):
             if s: break
     return s, final
 
+BOT_HOSTS = re.compile(r"(^|\.)(x\.com|twitter\.com|linkedin\.com|facebook\.com|instagram\.com|medium\.com|t\.me|docs\.google\.com)$", re.I)
+WIND_DOWN = re.compile(r"wind[- ]?down|sunset(ting)?|deprecated|discontinued|shutting down", re.I)
+
+def visible_html(body):
+    return re.sub(r"<(script|style|noscript|template)\b.*?</\1>", " ", body, flags=re.S | re.I)
+
 def links_in(base, body):
     out = []
+    body = visible_html(body)
     for m in re.finditer(r'<a\b[^>]*?href=["\']([^"\'#]+)["\']', body, re.I):
         # skip anchors inside HTML comments
         start = m.start()
@@ -45,7 +51,9 @@ def links_in(base, body):
             if href.startswith("mailto:"): out.append(("mailto", href))
             continue
         full = urllib.parse.urljoin(base, href)
-        if not full.startswith(("http://", "https://")):
+        if not full.startswith(("http://", "https://")) or "${" in full or "{{" in full:
+            continue
+        if BOT_HOSTS.search(urllib.parse.urlparse(full).netloc):
             continue
         out.append(("link", full))
     return out
@@ -69,8 +77,11 @@ def main():
         pages[url] = (s, final, body)
         if s != 200 or "html" not in ctype: continue
         if d == 0:
-            if not re.search(r'property=["\']og:title["\']', body, re.I):
-                findings.append(("Missing link-preview tags", url, "no og:title meta tag; shared links show no card"))
+            if WIND_DOWN.search(re.sub(r"<[^>]+>", " ", visible_html(body))[:20000]):
+                print(f"<!-- NOTE: {url} mentions wind-down/sunset/deprecated; low-value target -->")
+            has_og = re.search(r'property=["\']og:(title|description|image)["\']', body, re.I)
+            if not has_og and not re.search(r"<title>[^<]{3,}</title>", body, re.I):
+                findings.append(("Missing link-preview tags", url, "no og tags and no <title>; shared links show no card"))
             yr = re.findall(r'(?:©|&copy;|\(c\))\s*(20\d\d)', body)
             if yr and max(map(int, yr)) <= 2024:
                 findings.append(("Stale copyright", url, f"footer shows © {max(yr)}"))
@@ -95,6 +106,11 @@ def main():
                     sc, _, b, _ = get(f"https://discord.com/api/v10/invites/{m.group(1)}")
                     if '"code": 50270' in b or "Invite is expired" in b or sc == 404:
                         findings.append(("Expired Discord invite", url, l))
+                    continue
+                if "apps.apple.com" in l and "/app/" in l:
+                    # storefront-restricted apps 404 in some regions: check 3 storefronts before calling it dead
+                    ok = any(status(re.sub(r"apps\.apple\.com/(?:[a-z]{2}/)?", f"apps.apple.com/{cc}/", l))[0] == 200 for cc in ("us", "gb", "de"))
+                    if not ok: findings.append(("Broken external link", url, f"{l} → 404 in us/gb/de storefronts"))
                     continue
                 sc, _ = status(l)
                 if sc in (404, 410) or sc == 0:
