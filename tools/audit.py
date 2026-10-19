@@ -11,6 +11,22 @@ UA = "Mozilla/5.0 (compatible; day1onearth-audit/1.0)"
 MAX_PAGES, DEPTH, TIMEOUT = 60, 2, 15
 PLACEHOLDERS = [r"lorem ipsum", r"company\.site", r"your-?domain\.com", r"insert .{0,20} here", r"\[TBD\]"]
 
+_PW = {"pw": None, "browser": None}
+def render(url):
+    """Render a JS-heavy page with headless Chromium and return the DOM HTML (or None)."""
+    try:
+        if _PW["browser"] is None:
+            from playwright.sync_api import sync_playwright
+            _PW["pw"] = sync_playwright().start()
+            _PW["browser"] = _PW["pw"].chromium.launch(executable_path="/opt/pw-browsers/chromium")
+        pg = _PW["browser"].new_page(user_agent=UA)
+        pg.goto(url, wait_until="networkidle", timeout=30000)
+        pg.wait_for_timeout(800)
+        html_ = pg.content(); pg.close()
+        return html_
+    except Exception:
+        return None
+
 def get(url, head=False):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"}, method="HEAD" if head else "GET")
     try:
@@ -74,6 +90,10 @@ def main():
         if url in seen: continue
         seen[url] = True
         s, final, body, ctype = get(url)
+        if s == 200 and "html" in ctype and len(links_in(final, body)) < 6 and "<script" in body:
+            rendered = render(final)
+            if rendered and len(links_in(final, rendered)) > len(links_in(final, body)):
+                body = rendered
         pages[url] = (s, final, body)
         if s != 200 or "html" not in ctype: continue
         if d == 0:
@@ -127,4 +147,10 @@ def main():
     json.dump(uniq, open("last_findings.json", "w"), indent=1)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        try:
+            if _PW["browser"]: _PW["browser"].close()
+            if _PW["pw"]: _PW["pw"].stop()
+        except Exception: pass
