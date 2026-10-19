@@ -9,3 +9,5 @@
 ## Mistake log
 - 19 Oct: built a full case study for a bounty restricted to India residents. The `region` field was in the data I had already downloaded. Cost: ~2 hours. Fix: rule 1.
 6. Never send a claim I haven't reproduced myself. Fetch the page, follow the site's own links, quote what I saw. (Cost of breaking this: KriptoK, 19 Oct.)
+7. No price in the first email. Give two verified findings and suggested fixes, ask if they want the full list. Sell in the reply. (Three independent reviewers — Claude, Gemini, ChatGPT — converged on this, 19 Oct.)
+8. Never put a payment link in a cold email. From an unknown sender in crypto it reads as phishing. Only github.com.
