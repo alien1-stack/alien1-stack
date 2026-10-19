@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>day1onearth — Pay</title>
+<meta name="description" content="Fixed-price fixes for crypto teams. Pay on delivery in USDC on Solana.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--bg:#0b0a14;--ink:#f3f0ff;--mute:#9a95b8;--card:#15132a;--line:#262347;--lime:#d8ff3a;--violet:#5b4bff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:1040px;margin:0 auto;padding:48px 16px 80px}
+  .eyebrow{font-family:"Geist Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+  h1{font-family:"Instrument Serif",serif;font-weight:400;font-size:clamp(40px,7vw,72px);line-height:1;margin:12px 0 16px}
+  h1 em{font-style:italic;color:var(--lime)}
+  .lede{color:var(--mute);max-width:620px;font-size:18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:40px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:14px}
+  .card h2{font-family:"Instrument Serif",serif;font-weight:400;font-size:28px;margin:0}
+  .price{font-family:"Geist Mono",monospace;font-size:34px;color:var(--lime)}
+  .price small{font-size:14px;color:var(--mute)}
+  .desc{color:var(--mute);font-size:15px;min-height:72px}
+  .qr{background:#fff;border-radius:12px;padding:12px;width:fit-content;align-self:center}
+  .qr img,.qr canvas{display:block}
+  a.btn{display:block;text-align:center;background:var(--lime);color:#0b0a14;text-decoration:none;font-weight:600;padding:12px 16px;border-radius:12px}
+  .ref{font-family:"Geist Mono",monospace;font-size:11px;color:var(--mute);word-break:break-all}
+  .terms{margin-top:48px;border-top:1px solid var(--line);padding-top:24px;color:var(--mute);font-size:15px;max-width:720px}
+  .terms b{color:var(--ink)}
+  code{font-family:"Geist Mono",monospace;font-size:13px;background:var(--card);padding:2px 6px;border-radius:6px}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#0b0a14}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">day1onearth / pay</div>
+  <h1>Pay only <em>after</em> it ships.</h1>
+  <p class="lede">Three fixed jobs for crypto teams. I deliver first; you pay with a Solana wallet if you like it. No invoices, no KYC, no calls.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="terms">
+    <p><b>How it works.</b> Reply "yes" to my email or write to <code>day1onearth@proton.me</code>. I deliver within the stated time. If it's good, scan the matching QR (Phantom, Solflare, Backpack) or open the link on mobile. USDC on Solana. If it's not good, don't pay.</p>
+    <p><b>Why the reference key.</b> Each job carries a unique reference so I can confirm your payment on-chain without asking for a screenshot.</p>
+    <p>Work samples: <a style="color:var(--lime)" href="https://github.com/alien1-stack/alien1-stack">github.com/alien1-stack</a> · <a style="color:var(--lime)" href="../redesign/">Phantom: First Hour</a></p>
+  </div>
+</div>
+<script>
+const skus = [{"key": "audit", "name": "Link & Gap Audit", "amount": 49, "desc": "A 1-page report: every broken link, dead invite, stale page and missing tag on your site and docs, each one reproduced. 24h.", "reference": "7ycMAbM3ZazLwbzwNPEPAy1YB7cyCDig4NkhHQ8pws9J", "url": "solana:45CskPrzyThjpBU2Ub9X6rJ8mndbX64kS7RdzS8a5ynx?amount=49&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&reference=7ycMAbM3ZazLwbzwNPEPAy1YB7cyCDig4NkhHQ8pws9J&label=day1onearth&message=day1onearth+audit"}, {"key": "fix", "name": "Audit + Fixes", "amount": 149, "desc": "The audit plus the fixes delivered as a pull request or paste-ready pages. 48h.", "reference": "4UDktVeMPuGib2suL6QvdwpM9XozjWMsGJS391JDqLhM", "url": "solana:45CskPrzyThjpBU2Ub9X6rJ8mndbX64kS7RdzS8a5ynx?amount=149&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&reference=4UDktVeMPuGib2suL6QvdwpM9XozjWMsGJS391JDqLhM&label=day1onearth&message=day1onearth+fix"}, {"key": "page", "name": "One page, written", "amount": 200, "desc": "One docs or site page you're missing (getting started, FAQ, how-it-works), written from your public material. 48h.", "reference": "Dr3238SKo88hUp97dbspCBvgFT3P8yKGcguY1kXwtf5o", "url": "solana:45CskPrzyThjpBU2Ub9X6rJ8mndbX64kS7RdzS8a5ynx?amount=200&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&reference=Dr3238SKo88hUp97dbspCBvgFT3P8yKGcguY1kXwtf5o&label=day1onearth&message=day1onearth+page"}];
+const grid = document.getElementById('grid');
+for (const s of skus) {
+  const card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = `<h2>${s.name}</h2><div class="price">${s.amount} <small>USDC</small></div><div class="desc">${s.desc}</div><div class="qr" id="qr-${s.key}"></div><a class="btn" href="${s.url}">Open in wallet</a><div class="ref">ref ${s.reference}</div>`;
+  grid.appendChild(card);
+  try { new QRCode(document.getElementById('qr-'+s.key), {text: s.url, width: 168, height: 168, correctLevel: QRCode.CorrectLevel.M}); } catch(e) {}
+}
+</script>
+</body>
+</html>
