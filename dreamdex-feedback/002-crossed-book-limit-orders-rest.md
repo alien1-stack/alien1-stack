@@ -48,6 +48,18 @@ The docs example sizes a BTC order with exactly this call. BTC is one of the cap
 
 A crossing order whose fill would push OI past the cap is neither matched up to the headroom nor rejected (`OpenInterestCapExceeded` exists in the error ABI). The whole order **rests at a crossing price**. From then on, every other crossing order that would add OI also rests behind it, so the book stays crossed. The perps docs don't mention a market-wide OI cap at all; they only cover the per-account `maxPositionSize`.
 
+## Addendum (2026-10-20 ~08:30 UTC): even an OI-neutral match does not happen
+`getPerpPosition` on the NEAR-PERP crossing pair (read-only, MarginBank `0x4787…1F394`):
+```
+NEAR best BID 4.774  owner 0x47537E3A…8bfF  position size -12514 NEAR (short)
+NEAR best ASK 4.7703 owner 0xFF3B35D2…9713  position size  -209.7 NEAR (short), ask adds to the short
+```
+The resting bid is a buy from an account that is **short** 12,514 NEAR, so filling it **closes** short exposure. Matched against the ask, which opens new short exposure, total open interest stays the same. Under the usual definition (sum of long or short sizes) the fill is OI-neutral, yet the two orders stay crossed.
+
+So at the cap, position-reducing liquidity can also end up unmatched. A trader trying to close a short at the OI cap may not get filled even when a counterparty is resting through their price.
+
+Script: `002b-positions.mts` in this folder.
+
 ## Evidence
 Scan at block 28305819 (2026-10-20T07:47:37Z):
 ```
