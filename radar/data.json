@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T20:36:20.678Z",
+  "updatedAt": "2026-10-20T21:41:32.880Z",
   "live": true,
   "account": "0xEe38f68D3a475d112f82B8a69eE79477bAFEab89",
   "params": {
@@ -11,7 +11,7 @@
     "STOP_LOSS_PCT": 4
   },
   "margin": {
-    "equity": 998.7102867251937,
+    "equity": 1002.6534031906131,
     "unlocked": 995.2409575070694,
     "locked": 0
   },
@@ -21,197 +21,197 @@
       "side": "long",
       "contracts": 31.3,
       "entry": 3.1892,
-      "mark": 3.274765294071,
-      "uPnl": 2.6781937044222963
+      "mark": 3.404401994611,
+      "uPnl": 6.7358224313242925
     },
     {
       "symbol": "BTC/USDso:USDso",
       "side": "short",
       "contracts": 0.0012,
       "entry": 83209.2,
-      "mark": 82632.71941069393,
-      "uPnl": 0.6917767071672831
+      "mark": 82743.90300669702,
+      "uPnl": 0.558356391963578
     }
   ],
   "funding": [
     {
       "symbol": "BTC/USDso:USDso",
-      "apr": 1.3155152260697913,
+      "apr": 1.3230148345459252,
       "paidSide": "short",
-      "mark": 82629.72150445309
+      "mark": 82739.15514325246
     },
     {
       "symbol": "LIT/USDso:USDso",
-      "apr": -0.42324775097064277,
+      "apr": -0.3273376351849786,
       "paidSide": "long",
-      "mark": 3.276263837129
+      "mark": 3.403352949242
     },
     {
       "symbol": "ZRO/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 1.924470975597
+      "mark": 2.013854894164
     },
     {
       "symbol": "VVV/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 25.064125166669
+      "mark": 25.338941566349
     },
     {
       "symbol": "1000PEPE/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.004581044938
+      "mark": 0.004519587176
     },
     {
       "symbol": "PUMP/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.004720908921
+      "mark": 0.004762166429
     },
     {
       "symbol": "ZEC/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 1222.499620503977
+      "mark": 1242.0197621720301
     },
     {
       "symbol": "TAO/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 274.40380498589053
+      "mark": 275.5729787907405
     },
     {
       "symbol": "WLD/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.59063776005
+      "mark": 0.5897191463635
     },
     {
       "symbol": "NEAR/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 4.920034921752
+      "mark": 4.955390703976501
     },
     {
       "symbol": "XLM/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.1807846531485
+      "mark": 0.1811888681445
     },
     {
       "symbol": "AVAX/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 9.691216277168001
+      "mark": 9.7753018734075
     },
     {
       "symbol": "LINK/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 12.2564427304565
+      "mark": 12.264919271731
     },
     {
       "symbol": "SUI/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 1.0300615545965
+      "mark": 1.0285819807115
     },
     {
       "symbol": "ADA/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.222730888514
+      "mark": 0.2230485136165
     },
     {
       "symbol": "BNB/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 739.529312655898
+      "mark": 739.555105032727
     },
     {
       "symbol": "DOGE/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 0.081770236722
+      "mark": 0.0816028693935
     },
     {
       "symbol": "XRP/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 1.331152677837
+      "mark": 1.3293951047875001
     },
     {
       "symbol": "HYPE/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 80.4386396066665
+      "mark": 81.232039409226
     },
     {
       "symbol": "SOL/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 106.458108293737
+      "mark": 106.45443849264001
     },
     {
       "symbol": "ETH/USDso:USDso",
       "apr": 0.1095,
       "paidSide": "short",
-      "mark": 2440.9180985879866
+      "mark": 2447.80629774738
     }
   ],
   "target": [
     {
       "symbol": "BTC/USDso:USDso",
       "side": "short",
-      "apr": 1.3155152260697913,
+      "apr": 1.3230148345459252,
       "notional": 100
     },
     {
       "symbol": "LIT/USDso:USDso",
       "side": "long",
-      "apr": -0.42324775097064277,
+      "apr": -0.3273376351849786,
       "notional": 100
     }
   ],
   "riskOfficer": {
     "mode": "gate",
-    "summary": "short BTC/USDso:USDso 100 USDso at +131.6% APR funding, long LIT/USDso:USDso 100 USDso at -42.3% APR funding, net exposure 0 USDso",
+    "summary": "short BTC/USDso:USDso 100 USDso at +132.3% APR funding, long LIT/USDso:USDso 100 USDso at -32.7% APR funding, net exposure 0 USDso",
     "facts": {
       "legs": [
         {
           "symbol": "BTC-PERP",
           "side": "short",
           "notional": 100,
-          "fundingApr": 1.3155152260697913,
-          "headroom": 19455.16792822348,
+          "fundingApr": 1.3230148345459252,
+          "headroom": 19526.44061380758,
           "limitedBy": "initialMargin"
         },
         {
           "symbol": "LIT-PERP",
           "side": "long",
           "notional": 100,
-          "fundingApr": -0.42324775097064277,
-          "headroom": 4866.562303671417,
+          "fundingApr": -0.3273376351849786,
+          "headroom": 4877.685446853635,
           "limitedBy": "initialMargin"
         }
       ],
       "stopLossPct": 4,
-      "equity": 998.7675919941217
+      "equity": 1002.6075025809721
     },
-    "verdict": "APPROVE",
-    "requestTx": "0xab46b721d6c8b7ef72500ee65bae3d7805bcdc0cdc34e61886ce53d81fc6431b",
-    "resultTx": "0x7a6b7678257abc40b4a39f91e452ab5de843c276cbbf8d71775f45ef2070f1a8",
-    "requestId": "17391011",
-    "response": "APPROVE: all policy criteria are met (net exposure 0.0% of gross, each leg receives funding with positive expected net funding 0.48 USDso/day, max loss 0.8% of equity <= 5%, gross leverage 0.20x <= 3x, all legs fit within pool headroom)",
+    "verdict": "REJECT",
+    "requestTx": "0x0526447ad91577dc20b3867063ac15b6db80898a534e2848675b74a191b4c035",
+    "resultTx": "0x1b705329598faebd997c0f29ff7ac490d6ffff4281d888519885cb402cd0df87",
+    "requestId": "17394968",
+    "response": "REJECT: expected net funding is positive (0.45 USDso/day) but the second leg does not RECEIVES funding (LONG LIT-PERP has funding -32.7% APR, this leg PAYS funding (0.09 USDso/day)).",
     "status": "Success",
     "depositStt": "0.24",
     "links": {
-      "requestTx": "https://shannon-explorer.somnia.network/tx/0xab46b721d6c8b7ef72500ee65bae3d7805bcdc0cdc34e61886ce53d81fc6431b",
-      "resultTx": "https://shannon-explorer.somnia.network/tx/0x7a6b7678257abc40b4a39f91e452ab5de843c276cbbf8d71775f45ef2070f1a8",
+      "requestTx": "https://shannon-explorer.somnia.network/tx/0x0526447ad91577dc20b3867063ac15b6db80898a534e2848675b74a191b4c035",
+      "resultTx": "https://shannon-explorer.somnia.network/tx/0x1b705329598faebd997c0f29ff7ac490d6ffff4281d888519885cb402cd0df87",
       "agentUi": "https://agents.testnet.somnia.network/agent/12847293847561029384",
-      "receipts": "https://receipts.testnet.agents.somnia.host/agent-receipts?contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&requestId=17391011&type=minimal"
+      "receipts": "https://receipts.testnet.agents.somnia.host/agent-receipts?contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&requestId=17394968&type=minimal"
     }
   }
 }
