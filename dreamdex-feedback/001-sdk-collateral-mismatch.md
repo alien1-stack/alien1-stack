@@ -1,8 +1,11 @@
-# SDK `SOMNIA_HIDEKI_TESTNET_ADDRESSES.collateral` points to tUSDC, but perps margin is USDso
+# `getSystemInfo().usdc` and `faucet()` report tUSDC on a perps setup whose margin is USDso
 
-**Severity:** Normal (misleading data; no funds lost; easy to break a bot's balance/approval logic)
-**Area:** SDK (`@somnia-chain/markets-sdk@0.32.1`) + Docs
-**Environment:** Somnia Hideki testnet (chain 50383), RPC `https://api.hideki2.infra.testnet.somnia.network`, Node 22, tsx
+Severity: normal
+Area: SDK
+
+> Note: the perps docs already warn that `SOMNIA_HIDEKI_TESTNET_ADDRESSES.collateral` is a different token (Common pitfalls). This item is about the SDK surfaces that still expose that token with no warning: `getSystemInfo().usdc` and `faucet()`. Neither is mentioned in the pitfall.
+## Environment
+Somnia Hideki testnet (chain 50383), RPC `https://api.hideki2.infra.testnet.somnia.network`, Node 22, tsx
 
 ## Summary
 The perps testnet docs list **Collateral = `0xed7993A74dAe1e6656B704A424DcD8711aAf4F72` (USDso, 18 decimals)**, and the MarginBank agrees.
