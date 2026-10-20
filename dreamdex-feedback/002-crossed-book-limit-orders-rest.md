@@ -60,6 +60,19 @@ So at the cap, position-reducing liquidity can also end up unmatched. A trader t
 
 Script: `002b-positions.mts` in this folder.
 
+## Update (2026-10-20 08:23 UTC): the caps moved, the books uncrossed
+By 08:23 UTC `maxOpenInterest` had risen:
+
+| Market | Old cap | New cap |
+|---|---|---|
+| XRP | 344,632 | 455,775.82 |
+| NEAR | 284,607.9 | 327,299.085 |
+| BTC | 277.75 | 319.4125 |
+
+All three books are now uncrossed. That supports the root cause: lifting the cap let the resting crossing orders match. It does not fix the behaviour. Whenever a market reaches its cap again, a crossing limit order that would add OI rests through the opposite side instead of being rejected with `OpenInterestCapExceeded` or matched up to the headroom.
+
+A live monitor that flags crossed books and cap pressure on all 21 markets is here: https://alien1-stack.github.io/alien1-stack/radar/
+
 ## Evidence
 Scan at block 28305819 (2026-10-20T07:47:37Z):
 ```
