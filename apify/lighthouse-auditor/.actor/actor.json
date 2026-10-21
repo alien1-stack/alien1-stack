@@ -1,0 +1,26 @@
+{
+    "actorSpecification": 1,
+    "name": "bulk-lighthouse-auditor",
+    "title": "Bulk Lighthouse & Core Web Vitals Auditor",
+    "description": "Run Google Lighthouse on up to 500 URLs per run, no API key needed. Scores, lab Core Web Vitals (LCP, CLS, TBT, FCP, TTFB) and the top 5 fixes per page, plus a site summary and CSV export.",
+    "version": "0.1",
+    "buildTag": "latest",
+    "categories": [
+        "SEO_TOOLS",
+        "DEVELOPER_TOOLS"
+    ],
+    "input": "./input_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "output": "./output_schema.json",
+    "dockerfile": "../Dockerfile",
+    "readme": "../README.md",
+    "minMemoryMbytes": 2048,
+    "maxMemoryMbytes": 8192,
+    "defaultRunOptions": {
+        "build": "latest",
+        "memoryMbytes": 4096,
+        "timeoutSecs": 21600
+    }
+}
