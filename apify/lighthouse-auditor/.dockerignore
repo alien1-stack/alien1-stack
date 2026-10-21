@@ -1,0 +1,9 @@
+.git
+.DS_Store
+.idea
+node_modules
+storage
+apify_storage
+scripts
+test
+*.log
