@@ -1,0 +1,21 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Lighthouse audit results",
+    "properties": {
+        "overview": {
+            "type": "string",
+            "title": "Audit results (overview)",
+            "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+        },
+        "issues": {
+            "type": "string",
+            "title": "Fixes and issues per page",
+            "template": "{{links.apiDefaultDatasetUrl}}/items?view=issues"
+        },
+        "summary": {
+            "type": "string",
+            "title": "Run summary (averages, worst pages, most common issues)",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/SUMMARY"
+        }
+    }
+}
