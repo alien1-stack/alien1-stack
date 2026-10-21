@@ -1,0 +1,82 @@
+{
+    "actorSpecification": 1,
+    "fields": {},
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "description": "One row per audited page: scores, lab Core Web Vitals and the top fixes. Good for CSV/Excel export.",
+            "transformation": {
+                "fields": [
+                    "url", "device", "status", "performanceScore", "accessibilityScore", "bestPracticesScore", "seoScore",
+                    "lcpMs", "cls", "tbtMs", "fcpMs", "ttfbMs", "speedIndexMs", "labCoreWebVitals",
+                    "topOpportunities", "finalUrl", "httpStatus", "errorCode", "error", "auditedAt"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "url": { "label": "URL", "format": "link" },
+                    "device": { "label": "Device", "format": "text" },
+                    "status": { "label": "Status", "format": "text" },
+                    "performanceScore": { "label": "Performance", "format": "number" },
+                    "accessibilityScore": { "label": "Accessibility", "format": "number" },
+                    "bestPracticesScore": { "label": "Best practices", "format": "number" },
+                    "seoScore": { "label": "SEO", "format": "number" },
+                    "lcpMs": { "label": "LCP (ms)", "format": "number" },
+                    "cls": { "label": "CLS", "format": "number" },
+                    "tbtMs": { "label": "TBT (ms)", "format": "number" },
+                    "fcpMs": { "label": "FCP (ms)", "format": "number" },
+                    "ttfbMs": { "label": "TTFB (ms)", "format": "number" },
+                    "speedIndexMs": { "label": "Speed Index (ms)", "format": "number" },
+                    "labCoreWebVitals": { "label": "Lab CWV", "format": "text" },
+                    "topOpportunities": { "label": "Top fixes", "format": "text" },
+                    "finalUrl": { "label": "Final URL", "format": "link" },
+                    "httpStatus": { "label": "HTTP", "format": "number" },
+                    "errorCode": { "label": "Error code", "format": "text" },
+                    "error": { "label": "Error", "format": "text" },
+                    "auditedAt": { "label": "Audited at", "format": "date" }
+                }
+            }
+        },
+        "metrics": {
+            "title": "Metrics and ratings",
+            "description": "All lab metrics with good / needs-improvement / poor ratings, page weight and timing.",
+            "transformation": {
+                "fields": [
+                    "url", "device", "status", "performanceScore", "lcpMs", "lcpRating", "cls", "clsRating", "tbtMs", "tbtRating",
+                    "fcpMs", "fcpRating", "ttfbMs", "ttfbRating", "speedIndexMs", "ttiMs", "totalByteWeightKb", "requestCount",
+                    "domSize", "mainThreadWorkMs", "jsExecutionMs", "benchmarkIndex", "throttling", "auditDurationSecs"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "url": { "label": "URL", "format": "link" },
+                    "performanceScore": { "label": "Performance", "format": "number" },
+                    "lcpMs": { "label": "LCP (ms)", "format": "number" },
+                    "cls": { "label": "CLS", "format": "number" },
+                    "tbtMs": { "label": "TBT (ms)", "format": "number" },
+                    "totalByteWeightKb": { "label": "Page weight (KB)", "format": "number" }
+                }
+            }
+        },
+        "issues": {
+            "title": "Fixes and issues",
+            "description": "Top 5 performance opportunities with estimated savings, and failing accessibility / SEO / best-practices audits.",
+            "transformation": {
+                "fields": ["url", "device", "performanceScore", "opportunities", "accessibilityIssues", "seoIssues", "bestPracticesIssues", "reportUrl"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "url": { "label": "URL", "format": "link" },
+                    "opportunities": { "label": "Top opportunities", "format": "array" },
+                    "accessibilityIssues": { "label": "Accessibility issues", "format": "array" },
+                    "seoIssues": { "label": "SEO issues", "format": "array" },
+                    "bestPracticesIssues": { "label": "Best-practices issues", "format": "array" },
+                    "reportUrl": { "label": "HTML report", "format": "link" }
+                }
+            }
+        }
+    }
+}
