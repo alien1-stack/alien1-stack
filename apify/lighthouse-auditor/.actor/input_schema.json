@@ -1,0 +1,161 @@
+{
+    "title": "Bulk Lighthouse & Core Web Vitals Auditor",
+    "description": "Audit up to 500 URLs per run with Google Lighthouse running on headless Chrome. No API key needed.",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "startUrls": {
+            "title": "URLs to audit",
+            "type": "array",
+            "description": "Pages to audit. Add URLs one by one, paste a list, or link a text/CSV file with one URL per line. URLs without http(s):// get https:// added. Duplicates are removed.",
+            "editor": "requestListSources",
+            "prefill": [
+                {
+                    "url": "https://example.com"
+                },
+                {
+                    "url": "https://www.python.org"
+                }
+            ]
+        },
+        "sitemapUrls": {
+            "title": "Sitemap URLs (optional)",
+            "type": "array",
+            "description": "XML sitemaps or sitemap indexes to read URLs from (e.g. https://example.com/sitemap.xml). Their URLs are added to the list above, up to the 'Max URLs' limit.",
+            "editor": "stringList"
+        },
+        "maxUrls": {
+            "title": "Max URLs",
+            "type": "integer",
+            "description": "Stop after this many unique URLs (500 max per run). With device 'Both', each URL is audited twice.",
+            "default": 500,
+            "minimum": 1,
+            "maximum": 500
+        },
+        "device": {
+            "title": "Device",
+            "type": "string",
+            "description": "Emulated device. 'Both' runs a mobile and a desktop audit for every URL (2 audits per URL).",
+            "editor": "select",
+            "enum": [
+                "mobile",
+                "desktop",
+                "both"
+            ],
+            "enumTitles": [
+                "Mobile (Moto G Power, like PageSpeed Insights)",
+                "Desktop",
+                "Both (mobile + desktop)"
+            ],
+            "default": "mobile"
+        },
+        "categories": {
+            "title": "Categories",
+            "type": "array",
+            "description": "Lighthouse categories to run. Fewer categories make audits a little faster. 'Agentic browsing' is a new, experimental Lighthouse 13 category.",
+            "editor": "select",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "performance",
+                    "accessibility",
+                    "best-practices",
+                    "seo",
+                    "agentic-browsing"
+                ],
+                "enumTitles": [
+                    "Performance",
+                    "Accessibility",
+                    "Best practices",
+                    "SEO",
+                    "Agentic browsing (experimental)"
+                ]
+            },
+            "default": [
+                "performance",
+                "accessibility",
+                "best-practices",
+                "seo"
+            ]
+        },
+        "throttling": {
+            "title": "Throttling preset",
+            "type": "string",
+            "description": "Network and CPU conditions simulated by Lighthouse. 'Default' matches PageSpeed Insights: slow 4G + 4x CPU slowdown on mobile, fast broadband on desktop. 'None' measures the page as it loads on the server, without simulation (slower to run, less comparable).",
+            "editor": "select",
+            "enum": [
+                "default",
+                "mobileSlow4G",
+                "mobileRegular3G",
+                "desktopDense4G",
+                "none"
+            ],
+            "enumTitles": [
+                "Default (same as PageSpeed Insights)",
+                "Slow 4G (simulated)",
+                "Regular 3G (simulated)",
+                "Broadband / dense 4G (simulated)",
+                "None (no throttling)"
+            ],
+            "default": "default"
+        },
+        "fastMode": {
+            "title": "Fast mode",
+            "type": "boolean",
+            "description": "Skips the 'Reduce unused CSS' audit, the slowest single step in our tests: it took 22.6 s of a 51 s audit of a CSS-heavy page on one core (about 6% faster on average across our 20-audit test). Scores are not affected, because opportunities carry no weight in the performance score. Turn off to include that audit.",
+            "default": true
+        },
+        "concurrency": {
+            "title": "Parallel audits",
+            "type": "integer",
+            "description": "How many pages to audit at the same time. 0 = automatic: one audit per CPU core (Apify gives 1 CPU core per 4 GB of memory, so 4 GB = 1 audit at a time, 8 GB = 2). Running more audits than cores makes them compete for CPU, which inflates TBT and LCP. Capped by memory (about 1.9 GB per parallel audit).",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 4
+        },
+        "timeoutSecs": {
+            "title": "Timeout per URL (seconds)",
+            "type": "integer",
+            "description": "Hard limit for one audit. A page that takes longer is stopped and recorded as failed (not charged).",
+            "default": 90,
+            "minimum": 30,
+            "maximum": 300,
+            "unit": "seconds"
+        },
+        "maxRetries": {
+            "title": "Retries per URL",
+            "type": "integer",
+            "description": "How many times to retry an audit that failed for a temporary reason (browser crash, page did not paint). DNS errors, HTTP 4xx/5xx and timeouts are not retried.",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 3
+        },
+        "saveHtmlReports": {
+            "title": "Save full HTML reports",
+            "type": "boolean",
+            "description": "Also save the standard Lighthouse HTML report for every page in the run's key-value store, and put its link in 'reportUrl'.",
+            "default": false,
+            "sectionCaption": "Reports and history"
+        },
+        "compareWithPreviousRun": {
+            "title": "Compare with previous run",
+            "type": "boolean",
+            "description": "Keep the latest scores per URL and device in a named key-value store in your account and add '...Delta' fields (e.g. performanceScoreDelta) that show the change since the last audit. Useful for scheduled monitoring.",
+            "default": false
+        },
+        "historyStoreName": {
+            "title": "History store name",
+            "type": "string",
+            "description": "Name of the key-value store used by 'Compare with previous run'. Use different names to keep separate histories (e.g. one per client).",
+            "default": "lighthouse-auditor-history",
+            "editor": "textfield"
+        },
+        "pushSummaryToDataset": {
+            "title": "Add summary row to dataset",
+            "type": "boolean",
+            "description": "The run summary (averages, worst pages, most common issues) is always saved as the key-value store record SUMMARY. Turn this on to also append it as the last dataset item (type: 'summary').",
+            "default": false
+        }
+    },
+    "required": []
+}
