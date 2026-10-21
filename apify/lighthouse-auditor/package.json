@@ -1,0 +1,18 @@
+{
+  "name": "bulk-lighthouse-auditor",
+  "version": "0.1.0",
+  "description": "Bulk Lighthouse & Core Web Vitals auditor for Apify: audits hundreds of URLs with self-hosted Lighthouse on headless Chrome.",
+  "type": "module",
+  "main": "src/main.js",
+  "engines": { "node": ">=22.19" },
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "apify": "3.7.2",
+    "chrome-launcher": "1.2.1",
+    "lighthouse": "13.5.0"
+  },
+  "license": "Apache-2.0"
+}
