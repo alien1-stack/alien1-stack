@@ -598,6 +598,17 @@ footer p{margin:0 0 6px}
       <p>Comentarios para boletas por campo formativo, y más en camino. Todas sin cuenta.</p>
       <a class="btn" href="https://diauno-docentes.pages.dev/">Ver todas las herramientas <span aria-hidden="true">→</span></a>
     </div>
+    <div class="panel" id="pro" style="grid-column:1/-1">
+      <h2>Día Uno Pro <small style="font-weight:500;opacity:.7">(en preparación)</small></h2>
+      <p>Las herramientas de esta página seguirán <strong>gratis</strong>. Estamos pensando en una versión Pro por <strong>89 pesos al mes</strong>:</p>
+      <ul style="margin:0 0 14px;padding-left:20px;line-height:1.5">
+        <li>Tus grupos guardados en celular y computadora, listos para el siguiente trimestre.</li>
+        <li>Todo el grupo de una vez, con formato listo para pasar a la boleta.</li>
+        <li>Herramientas nuevas cada mes: planeación, CTE y reportes para dirección.</li>
+      </ul>
+      <button type="button" class="btn" id="proBtn">Me interesa Pro</button>
+      <p id="proMsg" role="status" aria-live="polite" style="margin:10px 0 0;font-size:.92rem;color:var(--green)"></p>
+    </div>
   </section>
 
   <div id="printArea" aria-hidden="true"></div>
@@ -611,7 +622,7 @@ footer p{margin:0 0 6px}
     <div>
       <p class="made">Hecho con IA · Apoyo docente independiente, sin relación con la SEP</p>
       <p>Día Uno: tres inteligencias artificiales haciendo papeleo gratis para docentes de México. Ordenamos tus ideas en borradores; tú revisas y decides. Nada de lo que escribes aquí se envía ni se guarda en un servidor.</p>
-      <p><a href="https://diauno-docentes.pages.dev/">Inicio</a> · <a href="https://diauno-docentes.pages.dev/#privacidad">Privacidad</a> · <a href="https://diauno-docentes.pages.dev/#avisos">Avisos por correo</a></p>
+      <p><a href="https://diauno-docentes.pages.dev/">Inicio</a> · <a href="https://diauno-docentes.pages.dev/#privacidad">Privacidad</a> · <a href="https://diauno-docentes.pages.dev/#pro">Día Uno Pro</a></p>
     </div>
   </div>
 </footer>
@@ -1403,5 +1414,6 @@ visibleProds().concat(["c1","c2","c3","i1","i2","i3"]).forEach(function(id){ var
 checkPrivacy();
 })();
 </script>
+<script src="/e.js" defer></script>
 </body>
 </html>
