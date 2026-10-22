@@ -1,0 +1,1254 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comentarios para boletas</title>
+<meta name="description" content="Convierte lo que observaste de cada alumno en observaciones y sugerencias claras para la boleta, por campo formativo (NEM, primaria). Gratis, sin registro y sin enviar datos.">
+<meta property="og:title" content="Comentarios para boletas por campo formativo">
+<meta property="og:description" content="Tus observaciones, convertidas en “observaciones y sugerencias” claras y editables. Gratis y sin registro.">
+<meta property="og:url" content="https://diauno.pages.dev/tools/boletas/">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F7FA; --grid:#DCE6F1; --card:#FFFFFF; --ink:#1D2A55; --ink-soft:#4B5675;
+  --line:#C8D2DF; --accent:#B0145A; --accent-ink:#FFFFFF; --accent-soft:#FBE3EE;
+  --green:#1D6A50; --green-soft:#E1F2EA; --margin:#E2577B; --warn:#8A4B00; --warn-soft:#FFF1D6;
+  --focus:#2F6FEB; --shadow:0 1px 0 rgba(29,42,85,.08);
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+    --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+    --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+    --focus:#8DB4FF; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+  --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+  --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+  --focus:#8DB4FF; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.55;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:22px 22px;
+}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.wrap{max-width:1180px; margin:0 auto; padding:0 16px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+/* Header */
+.top{display:flex; align-items:center; gap:10px; padding:14px 0 0}
+.brand{display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink); font-weight:700}
+.brand svg{width:46px; height:26px}
+.intro{padding:18px 0 8px; display:grid; gap:16px}
+@media (min-width:980px){ .intro{grid-template-columns:1fr 360px; align-items:end} }
+h1{font-family:var(--serif); font-weight:400; font-size:clamp(1.9rem, 6.4vw, 3rem); line-height:1.08; margin:0 0 12px; letter-spacing:-.01em}
+.lede{margin:0 0 12px; font-size:1.06rem; color:var(--ink-soft); max-width:40rem}
+.trust{display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none}
+.trust li{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:.92rem}
+.trust strong{color:var(--green)}
+.dates{background:var(--card); border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px; font-size:.95rem}
+.dates h2{font-family:var(--sans); font-size:.98rem; font-weight:700; margin:0 0 6px; display:flex; gap:8px; align-items:center}
+.dates h2 svg{flex:none}
+.dates dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px}
+.dates dt{font-weight:700; white-space:nowrap}
+.dates dd{margin:0; color:var(--ink-soft)}
+
+/* Layout */
+.grid{display:grid; gap:20px; padding:16px 0 28px}
+@media (min-width:980px){
+  .grid{grid-template-columns:minmax(380px, 460px) 1fr; align-items:start}
+  .panel-form{position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto}
+}
+.panel{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 16px; box-shadow:var(--shadow)}
+.panel h2{font-family:var(--serif); font-weight:400; font-size:1.35rem; margin:0 0 12px; line-height:1.2}
+.fields{display:grid; gap:14px}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+label, .lbl{display:block; font-weight:700; font-size:.95rem; margin-bottom:6px}
+.hint{font-size:.88rem; color:var(--ink-soft); margin:4px 0 0}
+select, input[type=text], input[type=email], textarea{
+  width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--paper);
+  border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; min-height:46px;
+}
+select{appearance:none; -webkit-appearance:none; padding-right:34px;
+  background-image:linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size:6px 6px; background-repeat:no-repeat}
+textarea{resize:vertical; line-height:1.5}
+
+/* Segmented controls */
+.seg{display:flex; flex-wrap:wrap; gap:6px; border:0; padding:0; margin:0}
+.seg legend{font-weight:700; font-size:.95rem; margin-bottom:6px; padding:0}
+.seg input{position:absolute; opacity:0; pointer-events:none}
+.seg label{margin:0; font-weight:400; display:inline-flex; align-items:center; min-height:44px; padding:8px 14px;
+  border:1.5px solid var(--line); border-radius:10px; cursor:pointer; background:var(--paper); font-size:.98rem}
+.seg input:checked + label{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.seg input:focus-visible + label{outline:3px solid var(--focus); outline-offset:2px}
+
+/* Class list */
+.privacy{background:var(--warn-soft); color:var(--warn); border-radius:10px; padding:10px 12px; font-size:.92rem; margin:0 0 12px}
+.privacy strong{color:inherit}
+.rows{display:grid; gap:10px; margin:0; padding:0; list-style:none}
+.row{border:1.5px solid var(--line); border-radius:12px; padding:10px; background:var(--paper); display:grid; gap:8px;
+  grid-template-columns:5.6rem 1fr 44px; grid-template-areas:"ini lvl del" "t1 t1 t1" "t2 t2 t2" "ev ev ev"}
+@media (min-width:520px){ .row{grid-template-areas:"ini lvl lvl del" "t1 t1 t2 t2" "ev ev ev ev"; grid-template-columns:5.6rem 1fr 1fr 44px} }
+.row .ini{grid-area:ini} .row .lvl{grid-area:lvl} .row .del{grid-area:del} .row .t1{grid-area:t1} .row .t2{grid-area:t2} .row .ev{grid-area:ev}
+.row input, .row select, .row textarea{background:var(--card)}
+.row input, .row select{min-height:44px; padding:8px 10px}
+.row select{padding-right:30px}
+.row .ini input{text-transform:uppercase; font-weight:700; letter-spacing:.04em}
+.row.flag{border-color:var(--warn)}
+.row .flagmsg{grid-column:1/-1; color:var(--warn); font-size:.86rem; margin:0}
+.del{width:44px; height:44px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink-soft); font-size:1.3rem; line-height:1; cursor:pointer}
+.del:hover{color:var(--accent); border-color:var(--accent)}
+.ev details{border-top:1px dashed var(--line); padding-top:6px}
+.ev summary{cursor:pointer; min-height:44px; display:flex; align-items:center; gap:8px; font-weight:700; color:var(--green); font-size:.95rem; list-style:none}
+.ev summary::-webkit-details-marker{display:none}
+.ev summary::before{content:"+"; display:inline-grid; place-items:center; width:24px; height:24px; border-radius:6px; border:1.5px solid var(--green); font-size:1rem; line-height:1}
+.ev details[open] summary::before{content:"–"}
+.ev .filled{font-weight:400; color:var(--ink-soft); font-size:.86rem}
+.ev .evf{margin:6px 0 10px}
+.ev .evf label{font-size:.88rem; margin-bottom:4px}
+.ev textarea{min-height:64px; font-size:16px}
+.rowtools{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+
+/* Buttons */
+.btn{font:inherit; font-weight:700; font-size:1rem; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:10px 18px; border-radius:12px; border:1.5px solid var(--ink); background:var(--card); color:var(--ink);
+  cursor:pointer; text-decoration:none}
+.btn:hover{background:var(--paper)}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); width:100%; font-size:1.08rem; min-height:54px}
+.btn-primary:hover{filter:brightness(1.06); background:var(--accent)}
+.btn-small{min-height:44px; padding:8px 14px; font-size:.95rem}
+.btn-ghost{border-color:var(--line)}
+.btn-copy{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.btn-copy:hover{background:var(--ink); filter:brightness(1.15)}
+.btn-wa{background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+.btn-wa:hover{background:#1A7A43}
+.check{display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:.95rem; margin:0}
+.check input{width:22px; height:22px; margin:2px 0 0; flex:none; accent-color:var(--accent)}
+
+/* Results: notebook page */
+.results-head{display:grid; gap:12px; margin-bottom:12px}
+.results-title{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px}
+.results-title h2{font-family:var(--serif); font-weight:400; font-size:1.5rem; margin:0}
+.stamp{display:inline-block; font-family:var(--serif); color:var(--accent); border:2px solid var(--accent); border-radius:8px;
+  padding:4px 12px; transform:rotate(-2deg); font-size:1.02rem; background:var(--accent-soft)}
+.actions{display:grid; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px}
+.actions .btns{display:flex; flex-wrap:wrap; gap:8px}
+.actions .meta{display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; font-size:.95rem}
+.approved-count{font-weight:700; color:var(--green)}
+.empty{border:2px dashed var(--line); border-radius:14px; padding:22px 18px; color:var(--ink-soft); background:var(--card)}
+.empty p{margin:0 0 6px}
+.student{background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 0 16px; position:relative; overflow:hidden; box-shadow:var(--shadow)}
+.student::before{content:""; position:absolute; top:0; bottom:0; left:30px; width:2px; background:var(--margin); opacity:.55}
+.student header{display:flex; align-items:center; gap:10px; padding:12px 14px 6px 44px; flex-wrap:wrap}
+.student h3{font-family:var(--serif); font-weight:400; font-size:1.3rem; margin:0}
+.chip{font-size:.85rem; border-radius:999px; padding:2px 10px; border:1px solid var(--line); color:var(--ink-soft)}
+.chip.ref{border-style:dashed}
+.c{padding:8px 14px 14px 44px; border-top:1px dashed var(--line)}
+.c:first-of-type{border-top:0}
+.chead{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:6px 0 8px}
+.c h4{margin:0; font-size:.95rem; color:var(--green); font-weight:700}
+.src{font-size:.8rem; border-radius:999px; padding:1px 9px; border:1px solid var(--line); color:var(--ink-soft)}
+.src.own{border-color:var(--green); color:var(--green); background:var(--green-soft)}
+.editbtn{margin-left:auto; min-height:44px; padding:6px 12px; font-size:.9rem; border-radius:10px; border:1.5px dashed var(--ink-soft); background:transparent; color:var(--ink); font:inherit; font-weight:700; cursor:pointer; display:inline-flex; gap:6px; align-items:center}
+.editbtn:hover{border-style:solid}
+.c textarea{background:var(--paper); border:1.5px dashed var(--line); padding:8px 10px; min-height:0;
+  font-size:1.02rem; line-height:1.6; overflow:hidden; resize:none}
+.c textarea:hover{border-color:var(--ink-soft)}
+.c textarea:focus{border-style:solid; border-color:var(--focus); outline:none; background:var(--card)}
+.c.is-approved textarea{border-style:solid; border-color:var(--green)}
+.cfoot{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px}
+.count{font-size:.85rem; color:var(--ink-soft); margin-right:auto}
+@media (max-width:479px){ .count{flex-basis:100%} }
+.approve{display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:6px 12px 6px 8px; border:1.5px solid var(--line); border-radius:10px; margin:0; font-size:.95rem; cursor:pointer; background:var(--card)}
+.approve input{width:22px; height:22px; margin:0; accent-color:var(--green)}
+.c.is-approved .approve{border-color:var(--green); background:var(--green-soft); color:var(--green)}
+.draft-note{font-size:.85rem; color:var(--accent); margin:0; padding:0 14px 12px 44px}
+.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%) translateY(30px); opacity:0; background:var(--ink); color:var(--card);
+  padding:10px 18px; border-radius:999px; font-weight:700; transition:opacity .2s, transform .2s; z-index:20; pointer-events:none; max-width:calc(100% - 32px); text-align:center}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+/* Details blocks */
+details.box{background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 0 16px; box-shadow:var(--shadow)}
+details.box > summary{cursor:pointer; list-style:none; padding:14px 16px; font-weight:700; display:flex; align-items:center; gap:10px; min-height:52px}
+details.box > summary::-webkit-details-marker{display:none}
+details.box > summary::after{content:"+"; margin-left:auto; font-size:1.4rem; color:var(--ink-soft); line-height:1}
+details.box[open] > summary::after{content:"–"}
+.box-body{padding:0 16px 16px}
+.box-body p, .box-body li{max-width:68ch}
+.box-body ul{padding-left:20px; margin:8px 0}
+.box-body table{border-collapse:collapse; font-size:.92rem; width:100%; margin:8px 0}
+.box-body th, .box-body td{border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top}
+.optional{font-weight:400; font-size:.85rem; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:1px 8px}
+.linkrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+
+/* Share + signup + footer */
+.share{display:grid; gap:16px; padding:0 0 24px}
+@media (min-width:860px){ .share{grid-template-columns:1fr 1fr} }
+.share .panel p{margin:0 0 12px}
+.signup-msg{margin:10px 0 0; font-size:.92rem; color:var(--green)}
+footer{border-top:1px solid var(--line); padding:18px 0 34px; font-size:.95rem; color:var(--ink-soft); background:var(--paper)}
+footer p{margin:0 0 6px}
+.aliens{display:flex; gap:12px; align-items:flex-start}
+.aliens svg{flex:none; width:56px; height:32px; margin-top:2px}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+@media print{
+  body{background:#fff} .panel-form, .share, footer, .actions, .cfoot, details.box, .top, .intro, .editbtn{display:none !important}
+  .grid{display:block} .student{break-inside:avoid; box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="https://diauno.pages.dev/" aria-label="Día Uno: inicio">
+      <svg viewBox="0 0 46 26" aria-hidden="true">
+        <g fill="none" stroke-width="1.6" stroke-linecap="round">
+          <path d="M8 9 L5 3" stroke="var(--accent)"/><circle cx="5" cy="3" r="1.5" fill="var(--accent)" stroke="none"/>
+          <path d="M23 8 L23 2" stroke="var(--ink)"/><circle cx="23" cy="2" r="1.5" fill="var(--ink)" stroke="none"/>
+          <path d="M38 9 L41 3" stroke="var(--green)"/><circle cx="41" cy="3" r="1.5" fill="var(--green)" stroke="none"/>
+        </g>
+        <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+        <g fill="var(--card)"><circle cx="6" cy="16" r="1.3"/><circle cx="10" cy="16" r="1.3"/><circle cx="21" cy="15" r="1.4"/><circle cx="25" cy="15" r="1.4"/><circle cx="36" cy="16" r="1.3"/><circle cx="40" cy="16" r="1.3"/></g>
+      </svg>
+      <span>Día Uno</span>
+    </a>
+  </div>
+
+  <header class="intro">
+    <div>
+      <h1>Comentarios para boletas por campo formativo</h1>
+      <p class="lede">Escribe lo que observaste de cada alumno y conviértelo en “observaciones y sugerencias” claras para la boleta. Tú editas y apruebas cada una antes de copiarla. Para primaria, de 1.º a 6.º, con la Nueva Escuela Mexicana.</p>
+      <ul class="trust">
+        <li><strong>Tus observaciones</strong>, tus palabras</li>
+        <li>Tus datos no salen de tu navegador</li>
+        <li>Gratis, sin registro</li>
+      </ul>
+    </div>
+    <aside class="dates" aria-labelledby="h-dates">
+      <h2 id="h-dates"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Fechas del 1er periodo (confirma con tu escuela)</h2>
+      <dl>
+        <dt>13 nov. 2026</dt><dd>Registro de calificaciones (viernes, sin clases)</dd>
+        <dt>23–26 nov. 2026</dt><dd>Entrega de resultados a las familias</dd>
+      </dl>
+    </aside>
+  </header>
+
+  <main class="grid">
+    <!-- FORM -->
+    <section class="panel panel-form" aria-labelledby="h-form">
+      <h2 id="h-form">Tu grupo</h2>
+      <form id="form" class="fields" novalidate>
+        <div class="two">
+          <div>
+            <label for="grade">Grado</label>
+            <select id="grade" name="grade">
+              <option value="1">1.º de primaria</option>
+              <option value="2">2.º de primaria</option>
+              <option value="3" selected>3.º de primaria</option>
+              <option value="4">4.º de primaria</option>
+              <option value="5">5.º de primaria</option>
+              <option value="6">6.º de primaria</option>
+            </select>
+          </div>
+          <div>
+            <label for="period">Periodo</label>
+            <select id="period" name="period">
+              <option value="1" selected>Primero (nov.)</option>
+              <option value="2">Segundo (mar.)</option>
+              <option value="3">Tercero (jul.)</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="gradeNote"></p>
+
+        <div>
+          <label for="campo">Campo formativo</label>
+          <select id="campo" name="campo">
+            <option value="ALL" selected>Los 4 campos formativos</option>
+            <option value="L">Lenguajes</option>
+            <option value="S">Saberes y Pensamiento Científico</option>
+            <option value="E">Ética, Naturaleza y Sociedades</option>
+            <option value="H">De lo Humano y lo Comunitario</option>
+          </select>
+        </div>
+
+        <fieldset class="seg" id="toneSeg">
+          <legend>Tono</legend>
+          <input type="radio" name="tone" id="tone-f" value="formal" checked><label for="tone-f">Formal</label>
+          <input type="radio" name="tone" id="tone-c" value="calido"><label for="tone-c">Cálido</label>
+        </fieldset>
+
+        <fieldset class="seg" id="lenSeg">
+          <legend>Extensión</legend>
+          <input type="radio" name="len" id="len-b" value="breve" checked><label for="len-b">Breve (2–3 oraciones)</label>
+          <input type="radio" name="len" id="len-c" value="completa"><label for="len-c">Completa (4–5)</label>
+        </fieldset>
+
+        <div>
+          <span class="lbl" id="lbl-list">Lista del grupo</span>
+          <p class="privacy" id="privacy"><strong>Solo iniciales o un apodo.</strong> No escribas nombres completos, CURP ni datos de salud, tampoco en lo que observaste. Los comentarios no incluyen el nombre: lo pones tú en la boleta.</p>
+          <ol class="rows" id="rows" aria-labelledby="lbl-list"></ol>
+          <div class="rowtools">
+            <button type="button" class="btn btn-small" id="addRow">+ Agregar alumno</button>
+            <button type="button" class="btn btn-small btn-ghost" id="sample">Probar con un ejemplo</button>
+            <button type="button" class="btn btn-small btn-ghost" id="clearRows">Vaciar lista</button>
+          </div>
+          <details class="box" style="margin-top:12px">
+            <summary>Pegar varias iniciales a la vez</summary>
+            <div class="box-body">
+              <label for="paste">Una por renglón (por ejemplo: AM, JL, Pao)</label>
+              <textarea id="paste" rows="4" placeholder="AM&#10;JL&#10;Pao"></textarea>
+              <button type="button" class="btn btn-small" id="pasteBtn" style="margin-top:8px">Agregar a la lista</button>
+            </div>
+          </details>
+        </div>
+
+        <label class="check"><input type="checkbox" id="remember"> Recordar mi lista solo en este dispositivo (puedes vaciarla cuando quieras)</label>
+
+        <button type="submit" class="btn btn-primary" id="go">Escribir observaciones y sugerencias</button>
+        <p class="hint" id="formMsg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- RESULTS -->
+    <section aria-labelledby="h-res">
+      <div class="results-head">
+        <div class="results-title">
+          <h2 id="h-res">Observaciones y sugerencias</h2>
+          <span class="stamp" role="note">Borrador: revisa y ajusta antes de entregar</span>
+        </div>
+        <div class="actions" id="actions" hidden>
+          <div class="btns">
+            <button type="button" class="btn btn-small btn-copy" id="copyAll">Copiar todos (tabla)</button>
+            <button type="button" class="btn btn-small" id="csv">Descargar CSV</button>
+            <button type="button" class="btn btn-small btn-ghost" id="regen">Generar otra vez</button>
+          </div>
+          <div class="meta">
+            <span class="approved-count" id="approvedCount" aria-live="polite">Aprobados: 0 de 0</span>
+            <label class="check" style="align-items:center"><input type="checkbox" id="includeAll"> Incluir también los no aprobados al copiar y descargar</label>
+          </div>
+        </div>
+      </div>
+      <div id="out">
+        <div class="empty">
+          <p><strong>Aquí aparecerán tus borradores.</strong></p>
+          <p>Agrega a tus alumnos con iniciales, elige su nivel y, si quieres, escribe lo que observaste en cada campo. Luego toca “Escribir observaciones y sugerencias”. ¿Solo quieres ver cómo funciona? Usa “Probar con un ejemplo”.</p>
+        </div>
+      </div>
+
+      <details class="box" id="aiBox">
+        <summary>Hazlo más personal con ChatGPT/Gemini <span class="optional">opcional</span></summary>
+        <div class="box-body">
+          <p>Si quieres, copia este prompt y pégalo en ChatGPT o Gemini. Usa “Alumno 1, 2, 3…” en lugar de iniciales, para que ningún nombre salga de tu dispositivo. Esta herramienta funciona completa sin este paso.</p>
+          <label for="prompt">Prompt listo para pegar</label>
+          <textarea id="prompt" rows="9" readonly placeholder="Primero escribe los comentarios; aquí aparecerá el prompt."></textarea>
+          <div class="linkrow">
+            <button type="button" class="btn btn-small" id="copyPrompt">Copiar prompt</button>
+            <a class="btn btn-small btn-ghost" href="https://chatgpt.com/" target="_blank" rel="noopener">Abrir ChatGPT</a>
+            <a class="btn btn-small btn-ghost" href="https://gemini.google.com/" target="_blank" rel="noopener">Abrir Gemini</a>
+          </div>
+        </div>
+      </details>
+
+      <details class="box">
+        <summary>Lo que dice la SEP sobre la boleta</summary>
+        <div class="box-body">
+          <p>Según el <strong>Acuerdo 10/09/23</strong> (DOF, 27/09/2023), la boleta de primaria lleva, por cada campo formativo, una calificación por periodo y <strong>“Observaciones y sugerencias”</strong> en cada uno de los tres periodos.</p>
+          <ul>
+            <li>Los 4 campos formativos: Lenguajes; Saberes y Pensamiento Científico; Ética, Naturaleza y Sociedades; De lo Humano y lo Comunitario.</li>
+            <li><strong>1.º y 2.º:</strong> escala de 6 a 10. En 1.º el grado se acredita por haberlo cursado.</li>
+            <li><strong>3.º a 6.º:</strong> escala de 5 a 10; se acredita con promedio final mínimo de 6.</li>
+            <li>Periodos: de inicio de ciclo a noviembre, de diciembre a marzo y de abril a fin de ciclo.</li>
+            <li>Ciclo 2026-2027, 1er periodo: registro de calificaciones el viernes 13 de noviembre y entrega de resultados a las familias del 23 al 26 de noviembre. Tu entidad o tu escuela pueden ajustar fechas: confírmalas.</li>
+          </ul>
+          <p>Los niveles “requiere apoyo, en proceso, logrado y destacado” son una ayuda de esta herramienta, no categorías oficiales. La referencia numérica que verás es orientativa: la calificación la decides tú.</p>
+          <table>
+            <thead><tr><th>Nivel</th><th>1.º–2.º</th><th>3.º–6.º</th></tr></thead>
+            <tbody>
+              <tr><td>Requiere apoyo</td><td>6</td><td>5–6</td></tr>
+              <tr><td>En proceso</td><td>7</td><td>7</td></tr>
+              <tr><td>Logrado</td><td>8–9</td><td>8–9</td></tr>
+              <tr><td>Destacado</td><td>10</td><td>10</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <section class="share" aria-label="Compartir y avisos">
+    <div class="panel">
+      <h2>¿Le sirve a alguien de tu escuela?</h2>
+      <p>La semana de boletas pesa para todo el colectivo. Compártela por WhatsApp; es gratis para cualquier docente.</p>
+      <a class="btn btn-wa" id="waBtn" href="https://wa.me/?text=Encontr%C3%A9%20una%20herramienta%20gratis%20que%20convierte%20lo%20que%20observas%20en%20observaciones%20y%20sugerencias%20para%20la%20boleta%2C%20por%20campo%20formativo.%20No%20pide%20registro%20y%20los%20datos%20no%20salen%20del%20celular%3A%20https%3A%2F%2Fdiauno.pages.dev%2Ftools%2Fboletas%2F" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2c.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg>
+        Compartir con mis compañeros
+      </a>
+    </div>
+    <div class="panel">
+      <h2>¿Te avisamos de la siguiente herramienta?</h2>
+      <p>Cada mes publicamos una herramienta gratis para el trabajo administrativo docente. Un correo cuando salga, nada más.</p>
+      <form id="signup" class="fields" novalidate>
+        <div>
+          <label for="email">Tu correo</label>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@correo.com" required>
+        </div>
+        <label class="check"><input type="checkbox" id="consent" name="consent" required> Acepto recibir correos de Día Uno sobre herramientas para docentes. Puedo darme de baja cuando quiera.</label>
+        <button type="submit" class="btn">Avísame</button>
+        <p class="signup-msg" id="signupMsg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap aliens">
+    <svg viewBox="0 0 46 26" aria-hidden="true">
+      <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+    </svg>
+    <div>
+      <p><a href="https://diauno.pages.dev/">Hecho por 3 IAs de Día Uno · más herramientas gratis</a></p>
+      <p>Somos inteligencias artificiales y lo decimos claro: ordenamos tus observaciones en borradores; tú conoces a tu grupo, tú decides y tú apruebas. Nada de lo que escribes aquí se envía ni se guarda en un servidor.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ------------------------------------------------------------------
+   PHRASE BANK (español de México). Construcciones neutras en género.
+   Fases: 3 = 1.º–2.º, 4 = 3.º–4.º, 5 = 5.º–6.º
+   Prefijo "3|" = solo fase 3; "45|" = solo fases 4 y 5.
+------------------------------------------------------------------- */
+var CAMPOS = {
+  L:"Lenguajes",
+  S:"Saberes y Pensamiento Científico",
+  E:"Ética, Naturaleza y Sociedades",
+  H:"De lo Humano y lo Comunitario"
+};
+var CAMPO_KEYS=["L","S","E","H"];
+var LEVELS = {ra:"Requiere apoyo", ep:"En proceso", lo:"Logrado", de:"Destacado"};
+var EV_PLACEHOLDER = {
+  L:"comprende los cuentos, pero necesita apoyo para escribir oraciones",
+  S:"resuelve sumas con material concreto, aunque le cuesta explicar cómo lo hizo",
+  E:"respeta los acuerdos del grupo y propone ideas en la asamblea",
+  H:"participa con entusiasmo en los juegos, pero le cuesta esperar su turno"
+};
+
+/* Habilidades por campo y fase: siempre van al final de la oración */
+var SKILLS = {
+ L:{
+  3:["reconocer el sonido inicial y final de las palabras","escribir su nombre y palabras conocidas","leer palabras y enunciados cortos","escuchar con atención los cuentos que se leen en voz alta","narrar con sus propias palabras lo que sucede en un cuento","identificar letras y sílabas en palabras de su entorno","expresar ideas y sentimientos con dibujos y textos breves","seguir instrucciones orales de dos o tres pasos","participar en rimas, canciones y juegos de palabras","separar correctamente las palabras al escribir enunciados sencillos","anticipar de qué trata un libro a partir de sus imágenes","escribir listas y recados breves con una intención clara"],
+  4:["leer en voz alta textos breves con buena entonación","identificar la idea principal de un texto","redactar narraciones con inicio, desarrollo y final","usar mayúsculas y punto en sus escritos","exponer un tema frente al grupo con apoyo de un guion","buscar información en distintas fuentes para responder preguntas","distinguir entre textos informativos, narrativos y poéticos","escribir cartas, recados e instructivos con un propósito claro","expresar y justificar su opinión sobre un texto","revisar y corregir sus propios escritos","usar vocabulario nuevo en sus conversaciones y textos","crear producciones artísticas para comunicar ideas y emociones"],
+  5:["comprender textos informativos y argumentativos de mayor extensión","elaborar resúmenes que recuperan las ideas principales","redactar párrafos bien organizados y con conectores adecuados","argumentar su punto de vista con respeto en debates y asambleas","consultar y contrastar información de distintas fuentes","cuidar la ortografía y la puntuación de sus textos","preparar exposiciones orales con apoyos gráficos","analizar el mensaje de anuncios y medios de comunicación","escribir textos literarios con descripciones y diálogos","reconocer y valorar la diversidad lingüística de México","organizar información en fichas, esquemas y mapas","usar los lenguajes artísticos para expresar su punto de vista"]
+ },
+ S:{
+  3:["contar, leer y escribir números en situaciones cotidianas","resolver problemas sencillos de suma y resta","comparar y ordenar colecciones de objetos","reconocer figuras geométricas en su entorno","medir longitudes con unidades no convencionales","observar y describir características de plantas y animales","registrar datos sencillos en tablas y pictogramas","identificar los cambios del día, la noche y el clima","explorar materiales y describir sus características","hacer preguntas sobre lo que observa en la naturaleza","reconocer hábitos de higiene y alimentación que cuidan su cuerpo","hacer cálculos mentales con estrategias propias"],
+  4:["resolver problemas de multiplicación y división","usar fracciones sencillas en situaciones cotidianas","medir y comparar longitudes, masas y capacidades","leer e interpretar información en tablas y gráficas","calcular el perímetro de figuras geométricas","plantear hipótesis y comprobarlas con experimentos sencillos","explicar las funciones de los sistemas del cuerpo humano","describir los estados de la materia y sus cambios","registrar sus observaciones de manera ordenada","reconocer la importancia de una alimentación saludable","identificar regularidades en sucesiones numéricas","estimar resultados antes de hacer una operación"],
+  5:["resolver problemas con fracciones y números decimales","calcular áreas, perímetros y volúmenes","construir e interpretar gráficas para comunicar resultados","diseñar experimentos para responder preguntas científicas","explicar fenómenos naturales a partir de evidencias","aplicar porcentajes y proporciones en situaciones reales","argumentar el procedimiento que usó para resolver un problema","relacionar el cuidado de la salud con el funcionamiento del cuerpo","analizar el impacto de la actividad humana en los ecosistemas","comprobar sus resultados con razonamiento lógico","trabajar con la media, la moda y el rango de un conjunto de datos","proponer soluciones a problemas de su comunidad a partir de datos"]
+ },
+ E:{
+  3:["reconocer las características de su familia y su comunidad","respetar los acuerdos de convivencia del salón","identificar formas de cuidar plantas, animales y su entorno","expresar lo que le gusta de su escuela y de su localidad","reconocer que todas las personas tienen derechos","ubicar lugares con referencias como cerca, lejos, arriba y abajo","conocer celebraciones y tradiciones de su comunidad","proponer acciones sencillas para cuidar el agua","escuchar y respetar las opiniones de sus compañeras y compañeros","identificar situaciones de riesgo y cómo protegerse","reconocer cómo han cambiado su vida y su familia con el tiempo","valorar la diversidad de las personas que conviven en la escuela"],
+  4:["describir las características naturales y sociales de su entidad","reconocer acontecimientos importantes de la historia de su localidad","interpretar mapas y croquis sencillos","construir acuerdos para resolver conflictos","identificar acciones para cuidar el medio ambiente","reconocer sus derechos y los de las demás personas","valorar la diversidad cultural y lingüística de México","relacionar el pasado con el presente de su comunidad","proponer acciones de consumo responsable","identificar a las autoridades y las formas de participación de su comunidad","reconocer situaciones injustas y proponer cómo actuar ante ellas","explicar la relación entre las personas y la naturaleza"],
+  5:["analizar procesos históricos de México y su relación con el presente","localizar y comparar regiones del país y del mundo en mapas","argumentar sobre la importancia de los derechos humanos","analizar problemas ambientales y proponer alternativas","participar de forma democrática en asambleas y votaciones","valorar la diversidad cultural como una riqueza del país","reconocer la igualdad de género en situaciones cotidianas","usar fuentes históricas para explicar acontecimientos","reflexionar sobre sus decisiones y sus consecuencias","identificar el papel de las instituciones en la vida democrática","proponer acciones para la sustentabilidad de su comunidad","resolver desacuerdos mediante el diálogo y la empatía"]
+ },
+ H:{
+  3:["reconocer y nombrar sus emociones","participar en juegos motrices respetando las reglas","practicar hábitos de higiene y alimentación saludable","coordinar movimientos como correr, saltar y lanzar","compartir materiales y esperar su turno","expresar lo que necesita y pedir ayuda","colaborar en tareas sencillas del salón","reconocer lo que le hace especial y lo que puede aprender","cuidar su cuerpo y respetar el de los demás","identificar a las personas que le cuidan y le apoyan","explorar sus posibilidades de movimiento con distintos materiales","mostrar empatía cuando alguien del grupo lo necesita"],
+  4:["regular sus emociones en situaciones de juego y de trabajo","colaborar en proyectos con sus compañeras y compañeros","tomar decisiones que favorecen su salud","participar con entusiasmo en juegos y actividades físicas","reconocer sus fortalezas y sus áreas de oportunidad","resolver conflictos mediante el diálogo","asumir responsabilidades en el salón y en casa","combinar habilidades motrices en juegos cooperativos","proponer mejoras para la convivencia escolar","valorar lo que aporta cada integrante del grupo","reconocer situaciones de riesgo y prevenirlas","expresar con respeto lo que piensa y siente"],
+  5:["manejar sus emociones ante retos y frustraciones","coordinar actividades colectivas de forma respetuosa","tomar decisiones informadas sobre su alimentación y su actividad física","plantearse metas personales y darles seguimiento","participar en proyectos que benefician a la comunidad escolar","hacer actividad física de manera regular y segura","reconocer la importancia del autocuidado y la prevención","establecer relaciones basadas en el respeto y la confianza","diseñar estrategias de juego en equipo","reflexionar sobre su propio proceso de aprendizaje","ofrecer y pedir ayuda de manera asertiva","valorar la diversidad de capacidades de sus compañeras y compañeros"]
+ }
+};
+
+/* Marcos de observación por nivel (borrador general). La habilidad {s} siempre cierra la oración. */
+var FRAMES = {
+ de:["Destaca al {s}.","Sobresale por su capacidad para {s}.","Una de sus grandes fortalezas es {s}.","Muestra un dominio sobresaliente al {s}.","Con gran autonomía y seguridad, logra {s}.","Va más allá de lo esperado al {s}.","Demuestra un desempeño destacado al {s}.","Domina con seguridad la habilidad de {s}.","Con mucha soltura, consigue {s}.","Se distingue por su habilidad para {s}.","Ha consolidado plenamente la habilidad de {s}.","Sus trabajos muestran con claridad que sabe {s}."],
+ lo:["Ya es capaz de {s}.","Muestra seguridad al {s}.","Alcanza lo esperado para el grado al {s}.","Ya sabe {s}.","De forma autónoma, consigue {s}.","Se le facilita {s}.","Demuestra avances sólidos al {s}.","Sin dificultad, puede {s}.","Cumple con lo esperado al {s}.","Ha desarrollado bien la habilidad de {s}.","En sus trabajos se observa que sabe {s}.","Logra de manera adecuada {s}."],
+ ep:["Avanza de manera constante en su capacidad para {s}.","Está consolidando la habilidad de {s}.","Cada vez logra con más seguridad {s}.","Muestra avances al {s}.","Con poco apoyo, consigue {s}.","Va fortaleciendo su capacidad para {s}.","Ha dado pasos importantes para {s}.","Con más autonomía que antes, comienza a {s}.","Se observa progreso cuando intenta {s}.","Va por buen camino en la habilidad de {s}.","Con práctica, mejora su manera de {s}.","Por su cuenta, ya intenta {s}."],
+ ra:["Con acompañamiento, comienza a {s}.","Muestra disposición para aprender a {s}.","Está dando sus primeros pasos para {s}.","Con apoyo cercano, ha logrado avances al {s}.","Con entusiasmo, se esfuerza por {s}.","Tiene buenas bases para seguir aprendiendo a {s}.","Con orientación paso a paso, consigue {s}.","Ha mostrado interés por aprender a {s}.","Con ejemplos concretos, va comprendiendo cómo {s}.","Con práctica guiada, empieza a {s}.","Se valora su esfuerzo al {s}; con acompañamiento seguirá avanzando.","Con apoyo, está fortaleciendo su capacidad para {s}."]
+};
+
+var PERIOD_PREFIX = {
+ 1:["En este primer periodo, ","Desde el inicio del ciclo, ","Durante estos primeros meses, ","En lo que va del ciclo escolar, ","A lo largo de este periodo, "],
+ 2:["En este segundo periodo, ","Respecto al periodo anterior, ","Durante este periodo, ","En estos meses, ","A mitad del ciclo, "],
+ 3:["Al cierre del ciclo escolar, ","En este último periodo, ","A lo largo del ciclo, ","En este tercer periodo, ","Al terminar el grado, "]
+};
+
+/* Evidencias generales por campo × nivel (solo para borradores sin observación docente) */
+var EVID = {
+ L:{
+  de:["Sus textos son claros, ordenados y muestran un vocabulario cada vez más rico.","Participa en las conversaciones del grupo con ideas interesantes y bien expresadas.","Disfruta la lectura y comparte con entusiasmo lo que descubre en los libros.","Escucha con atención y retoma las ideas de otras personas al opinar.","Sus producciones artísticas comunican emociones de forma original.","Se expresa con claridad, tanto de forma oral como por escrito.","Revisa sus escritos por iniciativa propia para mejorarlos.","Su gusto por las palabras enriquece el trabajo de todo el grupo."],
+  lo:["Comunica sus ideas con claridad en las actividades orales y escritas.","Sus escritos muestran orden y un propósito claro.","Lee con interés los textos que trabajamos en clase.","Participa en las conversaciones del grupo respetando los turnos.","Comprende lo que lee y puede comentarlo con sus propias palabras.","Usa el lenguaje artístico para expresar lo que siente.","Toma en cuenta las sugerencias para mejorar sus textos.","Le gusta compartir sus trabajos con el grupo."],
+  ep:["Su lectura es cada vez más fluida y comprende mejor lo que lee.","Sus escritos muestran avances en orden y claridad.","Se anima a participar más en las conversaciones del grupo.","Va incorporando palabras nuevas a su forma de expresarse.","Muestra interés por los cuentos y textos que leemos en clase.","Cuando revisa sus textos con apoyo, logra mejorarlos.","Comparte sus ideas con más confianza que al inicio.","Disfruta las actividades artísticas y se expresa a través de ellas."],
+  ra:["Disfruta escuchar cuentos y lecturas en voz alta.","Se esfuerza en sus escritos y valora que se reconozca su avance.","Participa con más confianza cuando trabaja en grupos pequeños.","Muestra interés por las imágenes y las historias de los libros.","Responde bien cuando la lectura se acompaña de juegos y canciones.","Cada pequeño avance en lectura y escritura le motiva a seguir.","Se expresa con gusto a través del dibujo y otras formas artísticas.","Aprovecha el apoyo individual para avanzar en lectura y escritura."]
+ },
+ S:{
+  de:["Explica con claridad los procedimientos que usa para resolver problemas.","Propone estrategias propias y eficaces ante los retos matemáticos.","Su curiosidad científica le lleva a hacer preguntas muy interesantes.","Registra sus observaciones de manera ordenada y detallada.","Comprueba sus resultados y corrige por iniciativa propia.","Relaciona lo que aprende con situaciones de su vida diaria.","Disfruta los retos y persevera hasta encontrar soluciones.","Apoya a sus compañeras y compañeros explicando sus razonamientos."],
+  lo:["Resuelve los problemas planteados con procedimientos adecuados.","Registra sus observaciones con orden.","Participa con interés en los experimentos y actividades de exploración.","Comprende los conceptos trabajados y los aplica en ejercicios variados.","Muestra seguridad al explicar cómo llegó a un resultado.","Usa el cálculo mental en situaciones cotidianas.","Hace preguntas pertinentes sobre los fenómenos que observa.","Trabaja con orden y cuidado en sus actividades de matemáticas."],
+  ep:["Avanza en la comprensión de los problemas y en la elección de la operación adecuada.","Participa con interés en las actividades de exploración y experimentación.","Cada vez explica mejor cómo resolvió un problema.","Usa material concreto para comprender mejor los procedimientos.","Muestra avances al registrar sus observaciones.","Va ganando confianza ante los retos matemáticos.","Se interesa por entender cómo funcionan las cosas.","Con práctica constante, sus resultados son cada vez más precisos."],
+  ra:["Muestra interés en las actividades con material concreto.","Disfruta observar la naturaleza y hacer preguntas sobre ella.","Se esfuerza al resolver problemas cuando se le acompaña paso a paso.","Aprende mejor con ejemplos cercanos a su vida diaria.","Participa con entusiasmo en los experimentos del grupo.","Ha ganado confianza al trabajar con números.","Valora cuando reconoce sus propios avances en matemáticas.","Responde bien al trabajo en parejas para resolver retos."]
+ },
+ E:{
+  de:["Propone acuerdos que favorecen la convivencia del grupo.","Muestra un gran sentido de justicia y de respeto por los demás.","Relaciona con claridad los hechos del pasado con su vida actual.","Participa en las asambleas con argumentos claros y respetuosos.","Se interesa genuinamente por los problemas de su comunidad.","Promueve el cuidado del medio ambiente con acciones concretas.","Valora y respeta la diversidad de las personas con las que convive.","Investiga por iniciativa propia sobre los temas que trabajamos."],
+  lo:["Respeta los acuerdos de convivencia y ayuda a recordarlos.","Participa con interés en las actividades sobre su comunidad.","Expresa sus opiniones con respeto y escucha las de los demás.","Reconoce la importancia de cuidar el entorno natural.","Comprende los temas de historia y geografía trabajados.","Muestra empatía ante lo que viven otras personas.","Colabora en las acciones colectivas que se proponen en el salón.","Identifica sus derechos y los de sus compañeras y compañeros."],
+  ep:["Avanza en el respeto a los acuerdos del grupo.","Muestra interés por conocer más sobre su comunidad.","Cada vez participa más en las conversaciones sobre convivencia.","Va comprendiendo la relación entre las personas y la naturaleza.","Escucha las opiniones de los demás y empieza a tomarlas en cuenta.","Se interesa por las tradiciones y la historia de su localidad.","Participa en las acciones de cuidado del entorno.","Muestra avances para resolver desacuerdos mediante el diálogo."],
+  ra:["Muestra interés por las historias de su familia y su comunidad.","Con recordatorios, respeta cada vez más los acuerdos del salón.","Disfruta las actividades al aire libre y el contacto con la naturaleza.","Participa con gusto cuando los temas se relacionan con su entorno.","Está aprendiendo a expresar sus desacuerdos con palabras.","Valora cuando el grupo escucha su opinión.","Se integra mejor en actividades colectivas con roles claros.","Ha mostrado avances en el trato respetuoso con sus compañeras y compañeros."]
+ },
+ H:{
+  de:["Reconoce sus emociones y las expresa de manera respetuosa.","Es un gran apoyo para el grupo: escucha, anima y colabora.","Participa en las actividades físicas con entusiasmo y juego limpio.","Toma decisiones que cuidan su salud y la de los demás.","Asume con responsabilidad las tareas que se le asignan.","Resuelve los conflictos mediante el diálogo y propone soluciones.","Muestra empatía y genera un ambiente de confianza en el salón.","Persevera ante los retos y celebra los logros del grupo."],
+  lo:["Convive de manera respetuosa con sus compañeras y compañeros.","Participa con gusto en los juegos y actividades físicas.","Identifica sus emociones y busca formas sanas de expresarlas.","Colabora en los trabajos en equipo.","Practica hábitos de higiene y alimentación saludable.","Cumple con las responsabilidades que asume en el salón.","Respeta las reglas de los juegos y acepta los resultados.","Pide ayuda cuando la necesita y la ofrece a otras personas."],
+  ep:["Avanza en la expresión respetuosa de sus emociones.","Cada vez se integra mejor en los juegos y trabajos en equipo.","Muestra entusiasmo en las actividades físicas.","Va aprendiendo a esperar su turno y a compartir materiales.","Se esfuerza por cumplir los acuerdos del grupo.","Comienza a proponer ideas en los trabajos colectivos.","Muestra avances en sus hábitos de autocuidado.","Con acompañamiento, resuelve mejor los desacuerdos."],
+  ra:["Disfruta los juegos y las actividades al aire libre.","Con apoyo, empieza a nombrar lo que siente.","Se integra con más facilidad en grupos pequeños.","Responde positivamente cuando se reconocen sus esfuerzos.","Muestra interés por participar en actividades de movimiento.","Está aprendiendo a pedir ayuda cuando la necesita.","Con rutinas claras, se siente con más seguridad en el salón.","Valora el apoyo de sus compañeras y compañeros."]
+ }
+};
+
+/* Sugerencias por campo × nivel (frases en infinitivo) */
+var SUG = {
+ L:{
+  de:["seguir leyendo libros de distintos géneros y comentar en familia lo que más le gustó","animarle a escribir un diario o sus propios cuentos","proponerle retos de lectura con textos un poco más extensos","invitarle a compartir sus lecturas favoritas con el grupo","45|animarle a investigar y exponer temas de su interés","visitar juntos una biblioteca o sala de lectura para elegir libros nuevos","platicar en casa sobre noticias, películas o libros para que argumente sus ideas","3|seguir leyendo cuentos juntos y pedirle que invente otros finales","impulsar su creatividad con actividades de teatro, música o dibujo","45|invitarle a escribir cartas o textos para personas reales de su comunidad","3|animarle a escribir recados y listas para la familia"],
+  lo:["dedicar unos minutos diarios a leer textos de su interés","platicar en familia sobre lo que lee para fortalecer su comprensión","animarle a escribir textos breves sobre sus experiencias","45|revisar juntos, de forma amable, la ortografía de sus escritos","pedirle que platique en casa lo que aprendió en la escuela","3|jugar con rimas, adivinanzas y trabalenguas","45|proponerle leer en voz alta para practicar la entonación","visitar la biblioteca escolar o pública para elegir libros nuevos","invitarle a escribir recados, listas o invitaciones en casa","45|motivarle a buscar el significado de palabras nuevas","3|leer juntos cuentos cortos antes de dormir"],
+  ep:["leer juntos en casa al menos diez minutos al día","3|practicar la lectura de palabras de su entorno, como etiquetas y anuncios","pedirle que cuente con sus propias palabras lo que leyó","3|jugar a formar palabras con letras móviles o tarjetas","45|practicar la escritura de textos breves y revisarlos juntos","animarle a escribir mensajes cortos para la familia","45|leer en voz alta en casa para ganar fluidez","reconocer cada avance para fortalecer su confianza al leer y escribir","platicar sobre las imágenes y el contenido de los libros que lee","45|hacerle preguntas sobre lo que lee para mejorar su comprensión","elegir juntos lecturas sobre temas que le apasionen"],
+  ra:["leerle en voz alta todos los días, aunque sea unos minutos","3|jugar a identificar el sonido inicial de las palabras","3|practicar el trazo de letras con juegos y materiales variados","acompañar la lectura de textos breves y celebrar cada avance","leer juntos cuentos con imágenes y platicar sobre ellos","45|practicar con acompañamiento la lectura de textos cortos de su interés","45|escribir juntos oraciones sencillas sobre su día","mantener una comunicación cercana con la escuela para dar seguimiento a sus avances","crear una rutina breve y diaria de lectura en casa","usar juegos de palabras, canciones y adivinanzas para practicar","45|repasar con calma en casa las actividades de clase","reconocer sus esfuerzos para mantener su motivación"]
+ },
+ S:{
+  de:["proponerle retos matemáticos y juegos de lógica","animarle a hacer experimentos sencillos en casa y registrar lo que observa","involucrarle en situaciones reales como compras, recetas o mediciones","45|invitarle a investigar sobre fenómenos naturales que le interesen","45|motivarle a explicar sus estrategias a otras personas","visitar en familia museos, parques o espacios de ciencia","3|jugar a contar, comparar y clasificar objetos de la casa","fomentar su curiosidad con preguntas y libros de divulgación","45|proponerle problemas con más de una forma de solución","3|invitarle a observar plantas o animales y dibujar lo que descubre","jugar en familia juegos de mesa que impliquen estrategia y cálculo"],
+  lo:["practicar el cálculo mental en situaciones cotidianas","involucrarle en compras pequeñas para que cuente y calcule","3|jugar a contar objetos y formar colecciones","45|repasar las tablas de multiplicar con juegos","observar juntos fenómenos de la naturaleza y platicar sobre ellos","45|resolver problemas de la vida diaria con medidas y fracciones","pedirle que explique cómo resolvió sus tareas","45|leer juntos las gráficas o tablas que aparecen en periódicos o etiquetas","promover una alimentación saludable y platicar sobre su importancia","hacer en casa experimentos sencillos y comentar los resultados","3|medir objetos de la casa con pasos, cuartas o listones"],
+  ep:["practicar con objetos de la casa para contar, sumar y restar","45|repasar con juegos las operaciones básicas","resolver juntos problemas sencillos de la vida diaria","pedirle que explique paso a paso lo que hizo en sus tareas","3|usar material concreto, como fichas o semillas, para contar","45|practicar la multiplicación con juegos y canciones","observar la naturaleza y anotar en un cuaderno lo que ve","reconocer sus avances para que gane confianza en matemáticas","45|estimar resultados antes de resolver una operación","involucrarle en actividades como cocinar, donde se mide y se cuenta","3|jugar con las figuras y formas que encuentre en casa"],
+  ra:["usar objetos cotidianos para practicar el conteo y las operaciones","3|practicar el conteo con juegos, canciones y material concreto","dedicar momentos breves y constantes a juegos con números","45|repasar las operaciones básicas con apoyo de material concreto","acompañar sus tareas paso a paso, dándole tiempo para pensar","relacionar las matemáticas con situaciones de su vida diaria","celebrar cada logro para fortalecer su confianza","mantener comunicación con la escuela para dar seguimiento a su avance","45|resolver juntos problemas sencillos con dibujos o esquemas","invitarle a observar y describir lo que pasa en la naturaleza","3|jugar a comparar cantidades: más, menos e igual"]
+ },
+ E:{
+  de:["animarle a participar en acciones que beneficien a su comunidad","platicar en familia sobre noticias y temas de interés social","visitar museos, sitios históricos o espacios naturales de la región","45|invitarle a investigar sobre la historia de su localidad","fomentar su liderazgo en actividades de cuidado del entorno","45|proponerle leer biografías o relatos históricos","3|platicar sobre las tradiciones de la familia y su origen","motivarle a seguir proponiendo acuerdos para convivir mejor","45|animarle a localizar en mapas los lugares de los que escucha hablar","involucrarle en decisiones familiares sencillas para que argumente su opinión","animarle a investigar cómo se resolvían antes los problemas de su comunidad","invitarle a proponer en casa una acción para ahorrar agua o energía"],
+  lo:["platicar en casa sobre los acuerdos de convivencia","involucrarle en el cuidado de plantas, mascotas o el ahorro de agua","platicar sobre la historia de la familia y de la comunidad","45|revisar juntos mapas de su entidad y del país","participar en celebraciones y tradiciones locales y comentar su sentido","promover el respeto y la empatía en las situaciones cotidianas","3|dibujar juntos un croquis de la casa o del camino a la escuela","45|comentar noticias de su comunidad y pedirle su opinión","fomentar la separación de residuos en casa","animarle a expresar sus ideas en las conversaciones familiares","platicar sobre lo que significa tratar a todas las personas con justicia","visitar juntos un lugar emblemático de la localidad y platicar su historia"],
+  ep:["platicar sobre la importancia de respetar los acuerdos en casa y en la escuela","involucrarle en tareas de cuidado del medio ambiente en el hogar","platicar sobre las tradiciones y los lugares importantes de la comunidad","3|identificar juntos lugares cercanos a la casa y cómo llegar a ellos","45|revisar en mapas los lugares que se estudian en clase","practicar el diálogo para resolver desacuerdos en familia","reconocer cuando actúa con respeto y empatía","leer juntos cuentos o relatos sobre la convivencia","45|platicar sobre los derechos de niñas y niños","animarle a dar su opinión y a escuchar la de los demás","preguntarle qué acuerdos se tomaron en el grupo y cómo los cumple","compartir con la familia historias de cómo era antes la comunidad"],
+  ra:["establecer acuerdos claros en casa y recordarlos con calma","platicar sobre cómo se sienten las personas en distintas situaciones","involucrarle en pequeñas tareas de cuidado del entorno","platicar sobre la familia y las personas de la comunidad","reconocer sus actitudes de respeto para que las repita","3|jugar a ubicar objetos con palabras como cerca, lejos, arriba y abajo","45|repasar los temas de clase con ejemplos de su vida diaria","leer cuentos que hablen de convivencia y comentarlos","mantener comunicación con la escuela sobre sus avances en convivencia","mostrar en casa el diálogo como forma de resolver problemas","salir a observar juntos la naturaleza cercana y platicar sobre cómo cuidarla","asignarle una tarea sencilla de cuidado, como regar una planta"]
+ },
+ H:{
+  de:["seguir fomentando su participación en deportes o actividades físicas de su interés","reconocer su capacidad de liderazgo y animarle a ayudar a otras personas","45|invitarle a plantearse metas personales y darles seguimiento","mantener rutinas de alimentación saludable y descanso","platicar sobre sus emociones y sobre cómo las maneja","animarle a participar en actividades comunitarias","3|jugar en familia juegos de movimiento y de reglas","motivarle a seguir colaborando y compartiendo con su grupo","45|involucrarle en la organización de actividades familiares","celebrar su actitud positiva y su empatía con los demás","proponerle aprender un juego o un deporte nuevo","platicar sobre cómo puede apoyar a quien necesita ayuda"],
+  lo:["hacer actividad física en familia al menos tres veces por semana","platicar sobre las emociones del día durante la comida o la cena","mantener horarios regulares de sueño y alimentación","asignarle responsabilidades sencillas en casa","3|jugar juegos de turnos y reglas para fortalecer la convivencia","45|animarle a resolver con diálogo los pequeños desacuerdos","fomentar el consumo de agua simple y alimentos frescos","reconocer cuando colabora y ayuda a otras personas","promover el juego al aire libre y limitar el tiempo frente a pantallas","45|invitarle a reflexionar sobre sus logros y retos de la semana","preparar juntos comidas sencillas y saludables","reconocer en voz alta sus actitudes de respeto y cuidado"],
+  ep:["platicar a diario sobre cómo se siente y por qué","practicar juegos en familia donde haya que esperar turnos","establecer rutinas claras de sueño, alimentación y tareas","asignarle una responsabilidad sencilla en casa y reconocer cuando la cumple","promover actividades físicas que disfrute","3|practicar juegos de equilibrio, saltos y lanzamientos","45|animarle a expresar con palabras lo que necesita","reconocer sus esfuerzos al convivir con otras personas","leer juntos cuentos sobre emociones y comentarlos","45|acordar juntos metas pequeñas y celebrar cuando las logre","salir a caminar o jugar al aire libre con regularidad","preguntarle cada día qué fue lo mejor de su jornada"],
+  ra:["nombrar juntos las emociones en situaciones cotidianas","mantener rutinas predecibles que le den seguridad","compartir juegos de movimiento que disfrute","reconocer de inmediato sus conductas positivas","3|practicar juegos sencillos de turnos y reglas","45|enseñarle estrategias para calmarse, como respirar profundo o contar","platicar con la escuela para acordar estrategias comunes","favorecer espacios de juego con otras niñas y niños","cuidar sus horas de sueño y su alimentación","acompañarle con paciencia cuando algo le frustra","practicar juntos formas de pedir ayuda con palabras","limitar el tiempo frente a pantallas y favorecer el juego activo"]
+ }
+};
+
+/* Sugerencias por tema, para alinear con el área de mejora que escribe la maestra o el maestro */
+var TOPICS = {
+ lectura:{re:/\b(le[eé]r?|lee|leyendo|lectur\w*|libros?|cuentos?|textos?|comprensi[oó]n|de corrido|fluidez)\b/i,
+   sug:["leer juntos en casa unos minutos cada día y platicar sobre lo leído","elegir lecturas cortas de su interés y comentarlas en familia","hacerle preguntas sencillas sobre lo que lee"]},
+ escritura:{re:/\b(escrib\w*|escrit\w*|letras?|ortograf\w*|trazos?|oraciones|oraci[oó]n|redact\w*|caligraf\w*|dictado)\b/i,
+   sug:["escribir juntos oraciones cortas sobre su día","invitarle a escribir recados o listas en casa","revisar juntos, con paciencia, lo que escribe"]},
+ oral:{re:/\b(expres\w*|habla\w*|conversa\w*|expon\w*|exposici\w*|opini[oó]n|opinar|explica\w*|participar en voz alta|voz alta)\b/i,
+   sug:["pedirle que platique en casa lo que aprendió","darle tiempo para expresar sus ideas sin interrumpirle","animarle a explicar con sus palabras cómo hizo sus tareas"]},
+ mate:{re:/\b(sum\w*|rest\w*|multiplic\w*|divi(d|si)\w*|fracci\w*|n[uú]meros?|operaci\w*|c[aá]lculo|calcul\w*|tablas|cont(ar|eo)|cuenta hasta|problemas?|medi[rd]\w*|mide|regla|matem\w*|decimales)\b/i,
+   sug:["practicar operaciones con objetos de la casa","resolver juntos problemas cotidianos, como compras o recetas","repasar con juegos breves lo que trabaja en clase"]},
+ ciencia:{re:/\b(experiment\w*|naturaleza|fen[oó]men\w*|ciencias?|plantas|animales|hip[oó]tesis)\b/i,
+   sug:["observar juntos la naturaleza y platicar sobre lo que ven","hacer experimentos sencillos en casa y comentar los resultados"]},
+ convivencia:{re:/\b(acuerdos?|respet\w*|convivencia|di[aá]logo|desacuerdos?|conflictos?|pelea\w*|reglas|normas|groser\w*|agresiv\w*)\b/i,
+   sug:["establecer acuerdos claros en casa y recordarlos con calma","practicar el diálogo para resolver desacuerdos","reconocer cuando actúa con respeto"]},
+ emociones:{re:/\b(emoci\w*|calma\w*|frustr\w*|enoj\w*|llora\w*|siente|t[ií]mid\w*|insegur\w*|confianza|ansi\w*)\b/i,
+   sug:["platicar a diario sobre cómo se siente","enseñarle estrategias para calmarse, como respirar profundo","reconocer sus esfuerzos para fortalecer su confianza"]},
+ atencion:{re:/\b(atenci[oó]n|concentr\w*|distra\w*|enfoc\w*|inquiet\w*|se para)\b/i,
+   sug:["organizar periodos breves de tarea con pausas activas","procurar un espacio tranquilo y sin pantallas para hacer la tarea","darle instrucciones cortas, una a la vez"]},
+ tareas:{re:/\b(tareas?|entreg\w*|rutinas?|horarios?|organiz\w*|cumpl\w*|puntual\w*)\b/i,
+   sug:["establecer un horario fijo para las tareas","revisar juntos la mochila y los materiales cada noche","acompañar las tareas con una lista sencilla de pendientes"]},
+ equipo:{re:/\b(equipo|compart\w*|turnos?|colabor\w*|integr\w*|compañer\w*)\b/i,
+   sug:["jugar en familia juegos donde haya que esperar turnos","propiciar espacios de juego con otras niñas y niños","reconocer cuando comparte y colabora"]},
+ salud:{re:/\b(aliment\w*|sue[ñn]o|desayun\w*|higiene|ejercicio|actividad f[ií]sica|pantallas?)\b/i,
+   sug:["cuidar sus horas de sueño y su alimentación","procurar que desayune antes de ir a la escuela","promover el juego activo y limitar el tiempo frente a pantallas"]},
+ historia:{re:/\b(mapas?|croquis|ubica\w*|lugares|histori\w*|tradici\w*|comunidad|geograf\w*|localidad)\b/i,
+   sug:["revisar juntos mapas de los lugares que estudia","dibujar juntos un croquis del camino a la escuela","platicar sobre la historia de la familia y de la comunidad"]}
+};
+
+var SUG_FRAMES = {
+ formal:["Se sugiere {x}.","Se recomienda {x}.","Para seguir avanzando, se sugiere {x}.","Como apoyo adicional, se recomienda {x}.","Será de gran ayuda {x}.","Es recomendable {x}.","Para fortalecer este aprendizaje, conviene {x}.","Se propone {x}."],
+ calido:["En casa pueden {x}.","Les invito a {x}.","Una idea para casa: {x}.","Les sugiero {x}; hará una gran diferencia.","Sería muy valioso {x}.","Les animo a {x}.","Para seguir creciendo, les propongo {x}.","Algo que ayuda mucho es {x}."]
+};
+var SUG_FRAMES_P3 = {
+ formal:["Durante las vacaciones, se sugiere {x}.","Para el siguiente grado, se recomienda {x}."],
+ calido:["En vacaciones pueden {x}.","Para el próximo grado, les invito a {x}."]
+};
+
+var OPENERS = {
+ high:["¡Muy buen trabajo en este periodo!","¡Felicidades por su esfuerzo y dedicación!","Es un gusto verle aprender.","¡Qué bonito ha sido ver su avance!","Gracias por su entusiasmo en clase.","¡Excelente actitud!","Se nota cuánto disfruta aprender.","¡Qué orgullo ver su desempeño!"],
+ growth:["Valoro mucho su esfuerzo.","Su empeño es muy valioso.","Confío mucho en su capacidad.","Vamos por buen camino.","Cada día se nota su esfuerzo.","Gracias por intentarlo siempre.","Me da gusto ver sus avances.","Su constancia vale mucho."]
+};
+/* Cierres. "n" = neutros (no afirman logros); se usan también con observación docente */
+var CLOSERS = {
+ formal:[{t:"Se agradece el acompañamiento de la familia.",n:1},{t:"Seguiremos trabajando en conjunto escuela y familia.",n:1},{t:"Se reconoce el apoyo constante desde casa.",n:1},{t:"Se reconoce su compromiso."},{t:"Se valora su disposición para aprender."},{t:"Su esfuerzo es evidente y se valora."}],
+ calido:[{t:"¡Gracias por el apoyo en casa!",n:1},{t:"¡Vamos juntos!",n:1},{t:"¡Gracias por acompañarle!",n:1},{t:"Seguimos en equipo, escuela y familia.",n:1},{t:"¡Sigamos así!"},{t:"¡Seguro seguirá brillando!"},{t:"¡A seguir aprendiendo con alegría!"},{t:"¡Qué gusto ver su avance!"}]
+};
+
+/* Rasgos opcionales. g = rasgo por fortalecer. {c} = contexto del campo */
+var TRAITS = {
+ participa:{label:"Participa en clase", t:["Participa con entusiasmo {c}.","Sus participaciones {c} enriquecen la clase.","Se anima a participar {c} y comparte sus ideas.","Participa de forma constante {c}.","Levanta la mano para aportar ideas {c}.","Su participación activa {c} anima a los demás."]},
+ colabora:{label:"Colabora con otros", t:["Colabora con disposición {c}.","Trabaja bien en equipo {c} y apoya a otras personas.","Su actitud colaborativa {c} favorece al grupo.","Comparte ideas y materiales con generosidad {c}.","Apoya a quien lo necesita {c}.","Escucha y suma las ideas de otras personas {c}."]},
+ lee:{label:"Lee con fluidez", t:["Su lectura fluida le ayuda a comprender mejor las consignas {c}.","Lee con fluidez, lo que favorece su trabajo {c}.","Aprovecha su buena lectura {c}.","Su fluidez lectora es una ventaja {c}.","Lee con soltura los textos que usamos {c}.","Su buena lectura le da autonomía {c}."]},
+ resuelve:{label:"Resuelve problemas", t:["Busca soluciones con creatividad {c}.","Enfrenta los retos {c} con buena disposición.","Muestra habilidad para encontrar soluciones {c}.","Propone alternativas cuando surge un reto {c}.","No se rinde ante las dificultades {c}.","Encuentra caminos propios ante los retos {c}."]},
+ creativo:{label:"Muestra creatividad", t:["Aporta ideas creativas {c}.","Su creatividad se nota {c}.","Imagina soluciones originales {c}.","Da un toque personal a sus trabajos {c}.","Propone ideas novedosas {c}.","Muestra imaginación y originalidad {c}."]},
+ pregunta:{label:"Curiosidad, pregunta", t:["Hace preguntas interesantes {c}.","Su curiosidad le impulsa a aprender más {c}.","Pregunta con interés para comprender mejor {c}.","Muestra una curiosidad que contagia al grupo {c}.","Busca respuestas a sus dudas {c}.","Sus preguntas abren conversaciones valiosas {c}."]},
+ tareas:{label:"Entrega tareas", t:["Cumple puntualmente con sus tareas y trabajos {c}.","Su constancia con las tareas refuerza lo aprendido {c}.","Es responsable con sus tareas y materiales {c}.","Entrega a tiempo y con cuidado sus trabajos {c}.","Cumple con sus compromisos escolares {c}.","Organiza bien sus materiales y sus tiempos {c}."]},
+ respeta:{label:"Respeta acuerdos", t:["Respeta los acuerdos del grupo {c}.","Sigue las normas de convivencia {c} y ayuda a recordarlas.","Su respeto por los acuerdos favorece el trabajo {c}.","Escucha y respeta a los demás {c}.","Respeta los turnos para hablar {c}.","Cuida el ambiente de respeto {c}."]},
+ expresa:{label:"Se expresa con claridad", t:["Se expresa con claridad {c}.","Comunica sus ideas de forma clara {c}.","Explica lo que piensa con orden {c}.","Sus explicaciones {c} son claras y precisas.","Expone sus ideas con seguridad {c}.","Explica con sus propias palabras lo que aprende {c}."]},
+ distrae:{label:"Atención (a mejorar)", g:1, t:["Está aprendiendo a mantener la atención {c}; las actividades breves le ayudan.","Logra concentrarse mejor {c} cuando trabaja en periodos cortos.","Con recordatorios amables, mejora su atención {c}.","Va fortaleciendo su concentración {c}.","Avanza en su capacidad para concentrarse {c}.","Las pausas activas le ayudan a enfocarse {c}."]},
+ entrega:{label:"Tareas (a mejorar)", g:1, t:["Entregar sus tareas completas le ayudará a consolidar lo trabajado {c}.","Con una rutina en casa, podrá cumplir con más regularidad las tareas {c}.","Está fortaleciendo el hábito de entregar a tiempo sus trabajos {c}.","Un horario fijo para las tareas le ayudará a reforzar lo aprendido {c}.","Cumplir con las tareas le permitirá practicar lo visto {c}.","Con acompañamiento en casa, sus entregas pueden ser más constantes {c}."]},
+ equipo:{label:"Equipo (a mejorar)", g:1, t:["Está aprendiendo a trabajar en equipo {c}.","Con roles claros, se integra mejor al trabajo colectivo {c}.","Va mejorando su disposición para colaborar {c}.","Cada vez toma más en cuenta las ideas de los demás {c}.","Está aprendiendo a escuchar y aportar en equipo {c}.","Con práctica, colabora cada vez mejor {c}."]}
+};
+var CTX = {
+ L:["en las actividades de lectura","durante las conversaciones del grupo","al escribir sus textos","en los proyectos de lenguaje","en las actividades artísticas","en la lectura compartida"],
+ S:["en las actividades de matemáticas","en los experimentos","en las actividades de exploración","al trabajar con números","en los retos de lógica","en las actividades de medición"],
+ E:["en las asambleas del grupo","en los proyectos sobre su comunidad","al trabajar temas de historia","en las actividades de cuidado del entorno","al dialogar sobre la convivencia","en las actividades sobre derechos"],
+ H:["en los juegos y actividades físicas","en los trabajos en equipo","en las actividades de convivencia","en Educación Física","en los proyectos colectivos","en las actividades sobre emociones"]
+};
+
+/* Marcos para la observación docente. {l} = logro; {m} = área de mejora (cláusula en 3.ª persona) */
+var EV_LOGRO = {
+ clause:{
+  any:["{L}.","Se observa que {l}.","Durante este periodo, se observó que {l}.","En sus trabajos y participaciones se nota que {l}.","Destaca que {l}.","Es importante reconocer que {l}.","Con base en lo observado, {l}.","Un avance que se observa: {l}."],
+  calido:["Me da mucho gusto ver que {l}.","Quiero reconocer que {l}.","Es una alegría observar que {l}."]
+ },
+ np:{
+  any:["{L}.","Un logro de este periodo: {l}.","Fortaleza observada: {l}.","Lo que más destaca en este periodo: {l}.","Aspecto a reconocer: {l}."],
+  calido:["Algo que celebro: {l}."]
+ }
+};
+var EV_MEJORA = {
+ clause:["Por otra parte, {m}.","Como área de mejora, se observa que {m}.","En este momento, {m}; seguiremos trabajando en ello.","{AUN} {m}, por lo que seguiremos acompañando su proceso.","Un aspecto por fortalecer: {m}.","También se identificó que {m}.","Área de oportunidad: {m}."],
+ np:["Área de oportunidad: {m}.","Aspecto por fortalecer: {m}.","Por trabajar en el siguiente periodo: {m}."]
+};
+var EV_BOTH = ["{L}, aunque {m}.","Se observa que {l}; sin embargo, {m}.","{L}; por otra parte, {m}."];
+
+var REF = {
+ low:{ra:"6", ep:"7", lo:"8–9", de:"10"},
+ high:{ra:"5–6", ep:"7", lo:"8–9", de:"10"}
+};
+
+/* ------------------------------------------------------------------
+   EVIDENCE PARSER (sin LLM): normaliza y separa logro / área de mejora
+------------------------------------------------------------------- */
+var VERBS=("comprende lee escribe resuelve participa identifica reconoce respeta trabaja cumple colabora muestra logra sabe puede tiene hace entrega expresa explica cuenta suma resta multiplica divide mide convive comparte ayuda sigue termina realiza propone escucha pregunta demuestra maneja domina utiliza usa aplica distingue ubica describe narra redacta interpreta organiza analiza argumenta investiga dibuja juega corre salta canta baila disfruta aporta apoya lidera convence opina comenta expone recuerda relaciona compara clasifica ordena estima calcula razona observa registra cuida practica atiende acepta controla regula reconoce mantiene conoce valora integra crea inventa imagina construye necesita requiere falta confunde olvida evita intenta va avanza mejora empieza comienza consigue alcanza presenta se le les lo me ya aún todavía siempre casi también tampoco solo sólo bien no es está ha han hay hizo pudo logró aprendió mejoró").split(" ");
+var VERBSET={}; VERBS.forEach(function(v){ VERBSET[v]=1; });
+var NP_START=/^(el|la|los|las|un|una|unos|unas|su|sus|buen|buena|buenas|buenos|excelente|excelentes|mucha|mucho|muchas|muchos|gran|mejor|poca|poco|muy|avance|avances|dominio|habilidad|facilidad|inter[eé]s|lectura|escritura|comprensi[oó]n|participaci[oó]n|actitud|trabajo|letra|ortograf[ií]a|conducta|dificultad|dificultades|falta de)\b/i;
+var NOUNY_END=/(osa|oso|osas|osos|iva|ivo|ivas|ivos|ada|ado|ida|ido|ída|ora|or|ista|ente|ante|able|ible|al|ción|sión|dad|tad|ura|eza|nta|nto)$/i;
+var MEJORA_START=/^(no (?!se rinde)[a-záéíóúñ]+|aún |aun |todavía |necesita|requiere|le cuesta|le falta|falta|se le dificulta|tiene dificultad|tiene dificultades|presenta dificultad|presenta dificultades|debe |se distrae|se equivoca|se enoja|se frustra|se le olvida|olvida|confunde|le hace falta|le es difícil|batalla|se le complica|pelea|interrumpe)/i;
+
+function lcFirst(s){ return (s.length>1 && s.charAt(1)===s.charAt(1).toLowerCase()) ? s.charAt(0).toLowerCase()+s.slice(1) : s; }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function low(s){ return s.charAt(0).toLowerCase()+s.slice(1); }
+function cleanSeg(s){
+  s=String(s||"").replace(/\s+/g," ").trim();
+  s=s.replace(/^["“'«]+|["”'»]+$/g,"").trim();
+  s=s.replace(/^[\-–•·*,;:]+\s*/,"");
+  s=s.replace(/[\s.;,:!¡¿?]+$/,"");
+  s=s.replace(/^(el|la)\s+(alumn[oa]|niñ[oa]|estudiante)\s+/i,"").replace(/^(alumn[oa]|él|ella)\s+/i,"");
+  s=s.replace(/^(que|y|e)\s+/i,"");
+  return lcFirst(s.trim());
+}
+function isClause(s){
+  var w=(s.match(/^[a-záéíóúñü]+/i)||[""])[0].toLowerCase();
+  if(!w) return false;
+  if(NP_START.test(s)) return false;
+  if(VERBSET[w]) return true;
+  if(NOUNY_END.test(w)) return false;
+  return /(a|e|an|en)$/.test(w);
+}
+function stripAun(m){
+  var had=/^(aún|aun|todavía)\s+/i.test(m);
+  return {m:m.replace(/^(aún|aun|todavía)\s+/i,""), had:had};
+}
+function parseEvidence(text){
+  var raw=String(text||"").replace(/\s+/g," ").trim();
+  if(!raw) return null;
+  var logros=[], mejoras=[], verbs=[], negs=[];
+  function isNeg(x){ return MEJORA_START.test(cleanSeg(x)); }
+  var sentences=raw.replace(/([.;!?])\s+/g,"$1\n").replace(/\s*;\s*/g,"\n").split("\n").map(function(x){ return x.trim(); }).filter(Boolean);
+  sentences.forEach(function(sen){
+    var s=sen.replace(/[.;!?]+$/,"").trim();
+    var m;
+    // "Aunque le cuesta X, Y"
+    if((m=s.match(/^(aunque|si bien)\s+([^,]+),\s*(.+)$/i))){
+      if(isNeg(m[3]) && !isNeg(m[2])){ pushSeg(logros, m[2]); pushSeg(mejoras, m[3]); }
+      else { pushSeg(mejoras, m[2]); pushSeg(logros, m[3]); }
+      return;
+    }
+    var parts=s.split(/\s*(?:,\s*)?\b(?:pero|aunque|sin embargo|no obstante|mientras que)\b\s*,?\s*/i);
+    if(parts.length>1){
+      var rest=parts.slice(1).join(" y ");
+      if(isNeg(parts[0]) && !isNeg(rest)){
+        /* "se enoja, aunque cada vez lo maneja mejor": se conserva la frase tal cual para no romper su sentido */
+        var v=cleanSeg(s); if(v){ verbs.push(v); negs.push(parts[0]); }
+        return;
+      }
+      pushSeg(logros, parts[0]);
+      pushSeg(mejoras, rest);
+      return;
+    }
+    pushSeg(MEJORA_START.test(cleanSeg(s)) ? mejoras : logros, s);
+  });
+  function pushSeg(arr, seg, isMejora){
+    var c=cleanSeg(seg);
+    if(!c) return;
+    if(arr===logros && MEJORA_START.test(c)){ mejoras.push(c); return; }
+    arr.push(c);
+  }
+  var join=function(a){ return a.length<=1 ? (a[0]||"") : (a.length===2 ? a[0]+" y "+low(a[1]) : a.slice(0,-1).join(", ")+" y "+low(a[a.length-1])); };
+  var logro=join(logros), mejora=join(mejoras);
+  if(!logro && !mejora && !verbs.length) return null;
+  return {logro:logro, mejora:mejora, verbatim:verbs, negText:negs.join(" "), logroClause:logro?isClause(logro):false, mejoraClause:mejora?isClause(mejora):false};
+}
+function topicsOf(text){
+  var out=[]; if(!text) return out;
+  Object.keys(TOPICS).forEach(function(k){ if(TOPICS[k].re.test(text)) out.push(k); });
+  return out;
+}
+
+/* ------------------------------------------------------------------
+   ENGINE
+------------------------------------------------------------------- */
+function phaseOf(g){ return g<=2 ? 3 : (g<=4 ? 4 : 5); }
+function forPhase(list, ph){
+  var out=[];
+  list.forEach(function(item, i){
+    var m=item.match(/^(3|45)\|(.*)$/);
+    if(!m){ out.push({t:item, i:i}); return; }
+    if(m[1]==="3" && ph===3) out.push({t:m[2], i:i});
+    if(m[1]==="45" && ph!==3) out.push({t:m[2], i:i});
+  });
+  return out;
+}
+function firstWord(t){ return (t.match(/[A-Za-zÁÉÍÓÚÑáéíóúñü]+/)||[""])[0].toLowerCase(); }
+
+function Engine(){ this.used=new Set(); this.uids=new Set(); this.usage={}; }
+Engine.prototype.pick=function(cands, local, starts){
+  var self=this, best=null, bestScore=Infinity;
+  for(var i=0;i<cands.length;i++){
+    var c=cands[i];
+    if(self.used.has(c.text) || (c.uid && self.uids.has(c.uid))) continue;
+    var sc=Math.random()*0.95;
+    for(var k=0;k<c.keys.length;k++){ sc+= (self.usage[c.keys[k]]||0) + (local && local[c.keys[k]] ? 3 : 0); }
+    if(starts && starts[firstWord(c.text)]) sc+=6;
+    if(sc<bestScore){ bestScore=sc; best=c; }
+  }
+  if(!best) return null;
+  self.used.add(best.text);
+  if(best.uid) self.uids.add(best.uid);
+  if(starts) starts[firstWord(best.text)]=1;
+  best.keys.forEach(function(k){ self.usage[k]=(self.usage[k]||0)+1; if(local) local[k]=1; });
+  return best.text;
+};
+
+function obsCands(campo, level, ph, period, withPrefix){
+  var out=[], skills=SKILLS[campo][ph], frames=FRAMES[level], pre=PERIOD_PREFIX[period];
+  frames.forEach(function(f, fi){
+    var commaFirst=f.indexOf(",")>-1 && f.indexOf(",")<f.indexOf("{s}");
+    skills.forEach(function(s, si){
+      var base=f.replace("{s}", s);
+      var uid="o"+level+fi+"_"+campo+ph+si;
+      if(withPrefix && !commaFirst){
+        pre.forEach(function(p, pi){ out.push({text:p+low(base), uid:uid, keys:["f"+level+fi, "s"+campo+ph+si, "p"+period+pi]}); });
+      } else {
+        out.push({text:base, uid:uid, keys:["f"+level+fi, "s"+campo+ph+si]});
+      }
+    });
+  });
+  return out;
+}
+function sugFrames(tone, period){
+  var frames=SUG_FRAMES[tone].slice();
+  if(period===3) frames=frames.concat(SUG_FRAMES_P3[tone]);
+  return frames;
+}
+function wrapSug(frames, cores, tone, keyPrefix){
+  var out=[];
+  frames.forEach(function(f, fi){
+    cores.forEach(function(c){
+      if((/casa/.test(f) && /casa|hogar/.test(c.t)) || (/familia/.test(f) && /familia/.test(c.t))) return;
+      out.push({text:f.replace("{x}", c.t), keys:["sf"+tone+fi, keyPrefix+c.k]});
+    });
+  });
+  return out;
+}
+function sugCands(campo, level, ph, tone, period){
+  var cores=forPhase(SUG[campo][level], ph).map(function(c){ return {t:c.t, k:campo+level+c.i}; });
+  return wrapSug(sugFrames(tone, period), cores, tone, "sc");
+}
+/* Sugerencias alineadas al área de mejora (o al logro) que escribió la/el docente */
+function alignedSugCands(campo, level, ph, tone, period, text, growth){
+  var tps=topicsOf(text); if(!tps.length) return [];
+  var seen={}, cores=[];
+  function add(t, k){ if(!seen[t]){ seen[t]=1; cores.push({t:t, k:k}); } }
+  /* Área de mejora: banco por tema + niveles "requiere apoyo"/"en proceso" del campo.
+     Solo logro: nivel del alumno + banco por tema. */
+  if(growth) tps.forEach(function(tp){ TOPICS[tp].sug.forEach(function(t, i){ add(t, "tp"+tp+i); }); });
+  var lvls = growth ? ["ra","ep"] : [level];
+  lvls.forEach(function(l){
+    forPhase(SUG[campo][l], ph).forEach(function(c){
+      if(tps.some(function(tp){ return TOPICS[tp].re.test(c.t); })) add(c.t, campo+l+c.i);
+    });
+  });
+  tps.forEach(function(tp){ TOPICS[tp].sug.forEach(function(t, i){ add(t, "tp"+tp+i); }); });
+  return wrapSug(sugFrames(tone, period), cores, tone, "sc");
+}
+function listCands(list, prefix){ return list.map(function(t,i){ return {text:(t.t||t), keys:[prefix+i]}; }); }
+function traitCands(trait, campo){
+  var T=TRAITS[trait], out=[];
+  if(!T) return out;
+  T.t.forEach(function(t, ti){
+    CTX[campo].forEach(function(c, ci){ out.push({text:t.replace("{c}", c), keys:["t"+trait+ti, "c"+campo+ci]}); });
+    out.push({text:t.replace(" {c}", ""), keys:["t"+trait+ti, "cnone"]});
+  });
+  return out;
+}
+function fillEv(f, l, m){
+  m=m||"";
+  if(f.indexOf("{AUN}")>-1){
+    var a=stripAun(m);
+    f=f.replace("{AUN}", a.had ? "Aún" : "Todavía"); m=a.m;
+  }
+  return f.replace("{L}", cap(l||"")).replace("{l}", l||"").replace("{m}", m);
+}
+var EV_VERB=["{V}.","Se observa que {v}.","Durante este periodo, se observó que {v}.","En este momento, {v}."];
+function verbCands(v){
+  return EV_VERB.map(function(f, fi){ return {text:f.replace("{V}", cap(v)).replace("{v}", v), keys:["vf"+fi]}; });
+}
+function logroCands(ev, tone, period){
+  var set=EV_LOGRO[ev.logroClause?"clause":"np"], frames=set.any.concat(tone==="calido"?set.calido:[]), out=[];
+  frames.forEach(function(f, fi){
+    out.push({text:fillEv(f, ev.logro), keys:["lf"+(ev.logroClause?"c":"n")+fi]});
+    if(f==="{L}." && ev.logroClause){
+      PERIOD_PREFIX[period].forEach(function(p, pi){ out.push({text:p+ev.logro+".", keys:["lfp"+pi]}); });
+    }
+  });
+  return out;
+}
+function mejoraCands(ev, afterLogro){
+  var frames=EV_MEJORA[ev.mejoraClause?"clause":"np"].filter(function(f){ return afterLogro || !/^(Por otra parte|También)/.test(f); });
+  return frames.map(function(f, fi){ return {text:fillEv(f, "", ev.mejora).replace(/\s+/g," "), keys:["mf"+fi]}; });
+}
+function bothCands(ev){
+  if(!(ev.logroClause && ev.mejoraClause)) return [];
+  return EV_BOTH.map(function(f, fi){ return {text:fillEv(f, ev.logro, ev.mejora), keys:["bf"+fi]}; });
+}
+
+function buildComment(eng, st, campo, o, local){
+  var ph=phaseOf(o.grade), parts=[], full=o.len==="completa", starts={};
+  var evText=(st.ev||{})[campo]||"";
+  var ev=parseEvidence(evText);
+  var traits=(st.traits||[]).filter(Boolean);
+
+  if(ev){
+    /* Construido alrededor de la observación docente: no se inventan logros */
+    var both=null;
+    if(ev.logro && ev.mejora && Math.random()<0.3) both=eng.pick(bothCands(ev), local, starts);
+    if(both){ parts.push(both); }
+    else{
+      if(ev.logro){ var lg=eng.pick(logroCands(ev, o.tone, o.period), local, starts); if(lg) parts.push(lg); }
+      if(ev.mejora){ var mj=eng.pick(mejoraCands(ev, !!ev.logro), local, starts); if(mj) parts.push(mj); }
+    }
+    (ev.verbatim||[]).forEach(function(v){ var vs=eng.pick(verbCands(v), local, starts); if(vs) parts.push(vs); });
+    var hasNeg = !!(ev.mejora || ev.negText);
+    var tr = full ? traits.slice(0, hasNeg?1:2) : (hasNeg ? [] : traits.slice(0,1));
+    tr.forEach(function(t){ var s=eng.pick(traitCands(t, campo), local, starts); if(s) parts.push(s); });
+    var negT=[ev.mejora, ev.negText].filter(Boolean).join(" ");
+    var sug=(negT ? eng.pick(alignedSugCands(campo, st.level, ph, o.tone, o.period, negT, true), local, starts) : null)
+         || eng.pick(alignedSugCands(campo, st.level, ph, o.tone, o.period, ev.logro + " " + (ev.verbatim||[]).join(" "), !!negT), local, starts)
+         || eng.pick(sugCands(campo, hasNeg && (st.level==="de"||st.level==="lo") ? "ep" : st.level, ph, o.tone, o.period), local, starts);
+    if(sug) parts.push(sug);
+    if(full && Math.random()<0.6){
+      var neutral=CLOSERS[o.tone].filter(function(c){ return c.n; });
+      var cl=eng.pick(listCands(neutral, "cln"+o.tone), local, starts); if(cl) parts.push(cl);
+    }
+    return {text:parts.join(" "), sentences:parts, fromEvidence:true};
+  }
+
+  /* Borrador general, a partir del nivel */
+  var grow=(st.level==="ra"||st.level==="ep"), opened=false;
+  if(o.tone==="calido" && Math.random()<(full ? 0.6 : 0.25)){
+    var op=eng.pick(listCands(OPENERS[grow?"growth":"high"], grow?"og":"oh"), local, starts);
+    if(op){ parts.push(op); opened=true; }
+  }
+  var usePrefix = Math.random() < (full ? 0.55 : 0.4);
+  var obs=eng.pick(obsCands(campo, st.level, ph, o.period, usePrefix), local, starts) || eng.pick(obsCands(campo, st.level, ph, o.period, !usePrefix), local, starts);
+  if(obs) parts.push(obs);
+  if(!full) traits=traits.slice(0,1);
+  if(full && traits.length<2){
+    var evs=eng.pick(listCands(EVID[campo][st.level], "e"+campo+st.level), local, starts);
+    if(evs) parts.push(evs);
+  }
+  traits.forEach(function(t){ var s=eng.pick(traitCands(t, campo), local, starts); if(s) parts.push(s); });
+  var sug2=eng.pick(sugCands(campo, st.level, ph, o.tone, o.period), local, starts);
+  if(sug2) parts.push(sug2);
+  if(full && !opened && Math.random()<0.7){
+    var cl2=eng.pick(listCands(CLOSERS[o.tone], "cl"+o.tone), local, starts);
+    if(cl2) parts.push(cl2);
+  }
+  return {text:parts.join(" "), sentences:parts, fromEvidence:false};
+}
+
+/* ------------------------------------------------------------------
+   UI
+------------------------------------------------------------------- */
+var $=function(id){ return document.getElementById(id); };
+var rowsEl=$("rows"), out=$("out");
+var state={results:[], opts:null, eng:null, students:[]};
+var STORE="diauno_boletas_v1";
+
+function traitOptions(sel){
+  var h='<option value="">Sin rasgo</option>';
+  Object.keys(TRAITS).forEach(function(k){ h+='<option value="'+k+'"'+(k===sel?' selected':'')+'>'+TRAITS[k].label+'</option>'; });
+  return h;
+}
+var rowSeq=0;
+function addRow(data){
+  data=data||{};
+  var ev=data.ev||{};
+  rowSeq++;
+  var id="r"+rowSeq;
+  var li=document.createElement("li");
+  li.className="row";
+  var evHtml=CAMPO_KEYS.map(function(c){
+    return '<div class="evf" data-campo="'+c+'"><label for="'+id+'e'+c+'">'+CAMPOS[c]+'<span class="sr-only">: lo que observaste</span></label>'+
+      '<textarea id="'+id+'e'+c+'" data-campo="'+c+'" maxlength="280" rows="2" placeholder="Ej.: '+esc(EV_PLACEHOLDER[c])+'">'+esc(ev[c]||"")+'</textarea></div>';
+  }).join("");
+  li.innerHTML=
+    '<div class="ini"><label class="sr-only" for="'+id+'i">Iniciales o apodo</label><input type="text" id="'+id+'i" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Iniciales" value="'+esc(data.ini||"")+'"></div>'+
+    '<div class="lvl"><label class="sr-only" for="'+id+'l">Nivel</label><select id="'+id+'l">'+
+      ['ra','ep','lo','de'].map(function(k){ return '<option value="'+k+'"'+((data.level||"lo")===k?' selected':'')+'>'+LEVELS[k]+'</option>'; }).join("")+
+    '</select></div>'+
+    '<button type="button" class="del" aria-label="Quitar alumno">×</button>'+
+    '<div class="t1"><label class="sr-only" for="'+id+'a">Rasgo 1 (opcional)</label><select id="'+id+'a">'+traitOptions((data.traits||[])[0])+'</select></div>'+
+    '<div class="t2"><label class="sr-only" for="'+id+'b">Rasgo 2 (opcional)</label><select id="'+id+'b">'+traitOptions((data.traits||[])[1])+'</select></div>'+
+    '<div class="ev"><details'+(Object.keys(ev).some(function(k){ return ev[k]; })?' open':'')+'><summary>Lo que observaste (evidencia) <span class="filled"></span></summary>'+
+      '<p class="hint" style="margin:0 0 6px">Opcional. Escribe con tus palabras qué viste; el comentario se arma a partir de esto. Sin nombres.</p>'+evHtml+'</details></div>';
+  rowsEl.appendChild(li);
+  li.querySelector(".del").addEventListener("click", function(){ li.remove(); renumber(); persist(); });
+  li.querySelector(".ini input").addEventListener("input", function(){ checkPrivacy(li); persist(); });
+  li.querySelectorAll("select").forEach(function(s){ s.addEventListener("change", persist); });
+  li.querySelectorAll(".ev textarea").forEach(function(t){ t.addEventListener("input", function(){ updateFilled(li); persist(); }); });
+  checkPrivacy(li); syncCampoFields(li); updateFilled(li);
+  renumber();
+  return li;
+}
+function selectedCampos(){ var v=$("campo").value; return v==="ALL" ? CAMPO_KEYS.slice() : [v]; }
+function syncCampoFields(li){
+  var cs=selectedCampos();
+  li.querySelectorAll(".evf").forEach(function(d){ d.hidden = cs.indexOf(d.dataset.campo)<0; });
+  updateFilled(li);
+}
+function updateFilled(li){
+  var cs=selectedCampos(), n=0;
+  li.querySelectorAll(".ev textarea").forEach(function(t){ if(cs.indexOf(t.dataset.campo)>-1 && t.value.trim()) n++; });
+  li.querySelector(".ev .filled").textContent = n ? "("+n+" de "+cs.length+")" : "(opcional)";
+}
+function renumber(){
+  rowsEl.querySelectorAll(".row").forEach(function(li, i){
+    li.querySelector(".del").setAttribute("aria-label", "Quitar alumno "+(i+1));
+  });
+}
+function looksLikeName(v){
+  v=v.trim();
+  if(!v) return false;
+  var words=v.split(/\s+/).filter(function(w){ return w.length>=3; });
+  return words.length>=2 || /[0-9]{6,}/.test(v) || /^[A-Z]{4}[0-9]{6}/i.test(v);
+}
+function checkPrivacy(li){
+  var v=li.querySelector(".ini input").value;
+  var bad=looksLikeName(v);
+  li.classList.toggle("flag", bad);
+  var msg=li.querySelector(".flagmsg");
+  if(bad && !msg){
+    msg=document.createElement("p"); msg.className="flagmsg"; msg.setAttribute("role","alert");
+    msg.textContent="¿Es un nombre completo? Usa solo iniciales o un apodo.";
+    li.appendChild(msg);
+  } else if(!bad && msg){ msg.remove(); }
+}
+function readRows(){
+  var list=[];
+  rowsEl.querySelectorAll(".row").forEach(function(li, i){
+    var ini=li.querySelector(".ini input").value.trim().toUpperCase();
+    var sels=li.querySelectorAll("select");
+    var t=[sels[1].value, sels[2].value].filter(Boolean);
+    if(t.length===2 && t[0]===t[1]) t=[t[0]];
+    var ev={};
+    li.querySelectorAll(".ev textarea").forEach(function(ta){ if(ta.value.trim()) ev[ta.dataset.campo]=ta.value.trim(); });
+    list.push({ini: ini || ("Alumno "+(i+1)), level: sels[0].value, traits: t, ev: ev, flagged: looksLikeName(ini)});
+  });
+  return list;
+}
+function readOpts(){
+  return {
+    grade:+$("grade").value, period:+$("period").value, campo:$("campo").value,
+    tone:document.querySelector('input[name=tone]:checked').value,
+    len:document.querySelector('input[name=len]:checked').value
+  };
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+function updateGradeNote(){
+  var g=+$("grade").value;
+  $("gradeNote").textContent = g===1
+    ? "1.º: escala de 6 a 10; el grado se acredita por haberlo cursado (Acuerdo 10/09/23)."
+    : (g===2 ? "2.º: escala de 6 a 10; se acredita con promedio final mínimo de 6." : "3.º a 6.º: escala de 5 a 10; se acredita con promedio final mínimo de 6.");
+}
+
+function generate(){
+  var students=readRows();
+  if(!students.length){
+    $("formMsg").textContent="Agrega al menos un alumno (o usa “Probar con un ejemplo”).";
+    return;
+  }
+  if(students.some(function(s){ return s.flagged; })){
+    $("formMsg").textContent="Hay renglones que parecen nombres completos. Cámbialos por iniciales antes de continuar.";
+    var f=rowsEl.querySelector(".row.flag input"); if(f) f.focus();
+    return;
+  }
+  $("formMsg").textContent="";
+  var o=readOpts(), eng=new Engine();
+  var campos = o.campo==="ALL" ? CAMPO_KEYS.slice() : [o.campo];
+  var results=[];
+  // Primero los comentarios con observación docente, para que tengan prioridad en los marcos
+  var order=[];
+  students.forEach(function(st, si){ campos.forEach(function(c){ order.push({si:si, c:c, has:!!(st.ev||{})[c]}); }); });
+  order.sort(function(a,b){ return (b.has?1:0)-(a.has?1:0); });
+  var locals={}, tmp={};
+  order.forEach(function(x){
+    var st=students[x.si]; locals[x.si]=locals[x.si]||{};
+    tmp[x.si+"_"+x.c]=buildComment(eng, st, x.c, o, locals[x.si]);
+  });
+  students.forEach(function(st, si){
+    campos.forEach(function(c){
+      var r=tmp[si+"_"+c];
+      results.push({si:si, campo:c, text:r.text, sentences:r.sentences, fromEvidence:r.fromEvidence, approved:false});
+    });
+  });
+  state={results:results, opts:o, eng:eng, students:students};
+  render();
+  buildPrompt();
+  $("actions").hidden=false;
+  if(window.matchMedia("(max-width: 979px)").matches){
+    document.querySelector(".results-head").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"});
+  }
+}
+
+function refFor(level){ return (state.opts.grade<=2?REF.low:REF.high)[level]; }
+
+function render(){
+  var html="";
+  state.students.forEach(function(st, si){
+    html+='<article class="student" aria-labelledby="st'+si+'">';
+    html+='<header><h3 id="st'+si+'">'+esc(st.ini)+'</h3><span class="chip">'+LEVELS[st.level]+'</span><span class="chip ref" title="Referencia orientativa, no es una regla de la SEP">Ref. '+refFor(st.level)+'</span></header>';
+    state.results.forEach(function(r, ri){
+      if(r.si!==si) return;
+      html+='<div class="c'+(r.approved?' is-approved':'')+'" id="c'+ri+'"><div class="chead"><h4 id="h'+ri+'">'+CAMPOS[r.campo]+'</h4>'+
+        '<span class="src'+(r.fromEvidence?' own':'')+'">'+(r.fromEvidence?'Basado en tu observación':'Borrador general: agrega lo que observaste')+'</span>'+
+        '<button type="button" class="editbtn" data-act="edit" data-ri="'+ri+'" aria-controls="t'+ri+'"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>Editar</button></div>'+
+        '<label class="sr-only" for="t'+ri+'">Observaciones y sugerencias de '+esc(st.ini)+', '+CAMPOS[r.campo]+'</label>'+
+        '<textarea id="t'+ri+'" data-ri="'+ri+'" rows="2">'+esc(r.text)+'</textarea>'+
+        '<div class="cfoot"><span class="count" id="n'+ri+'">'+r.text.length+' caracteres</span>'+
+        '<label class="approve"><input type="checkbox" data-act="approve" data-ri="'+ri+'"'+(r.approved?' checked':'')+'> Aprobado por mí</label>'+
+        '<button type="button" class="btn btn-small btn-copy" data-act="copy" data-ri="'+ri+'">Copiar</button>'+
+        '<button type="button" class="btn btn-small btn-ghost" data-act="again" data-ri="'+ri+'">Otra versión</button></div></div>';
+    });
+    html+='<p class="draft-note">Borrador: revisa y ajusta antes de entregar.</p></article>';
+  });
+  out.innerHTML=html;
+  out.querySelectorAll("textarea").forEach(autosize);
+  updateApproved();
+}
+function autosize(t){ t.style.height="auto"; t.style.height=(t.scrollHeight+2)+"px"; }
+function updateApproved(){
+  var n=state.results.filter(function(r){ return r.approved; }).length;
+  $("approvedCount").textContent="Aprobados: "+n+" de "+state.results.length;
+}
+
+out.addEventListener("input", function(e){
+  var t=e.target; if(t.tagName!=="TEXTAREA") return;
+  var ri=+t.dataset.ri; state.results[ri].text=t.value; state.results[ri].edited=true;
+  $("n"+ri).textContent=t.value.length+" caracteres"; autosize(t); buildPrompt();
+});
+out.addEventListener("change", function(e){
+  var c=e.target; if(c.dataset.act!=="approve") return;
+  var ri=+c.dataset.ri; state.results[ri].approved=c.checked;
+  $("c"+ri).classList.toggle("is-approved", c.checked);
+  updateApproved();
+  if(c.checked) toast("Aprobado");
+});
+out.addEventListener("click", function(e){
+  var b=e.target.closest("button[data-act]"); if(!b) return;
+  var ri=+b.dataset.ri, r=state.results[ri];
+  if(b.dataset.act==="edit"){ var ta=$("t"+ri); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  if(b.dataset.act==="copy"){ copyText(r.text, "Copiado"); }
+  if(b.dataset.act==="again"){
+    var st=state.students[r.si], eng=state.eng;
+    var nr=buildComment(eng, st, r.campo, state.opts, {});
+    r.text=nr.text; r.sentences=nr.sentences; r.edited=false; r.fromEvidence=nr.fromEvidence;
+    r.approved=false;
+    var t=$("t"+ri); t.value=nr.text; autosize(t); $("n"+ri).textContent=nr.text.length+" caracteres";
+    var cb=$("c"+ri).querySelector('input[data-act=approve]'); cb.checked=false; $("c"+ri).classList.remove("is-approved");
+    updateApproved(); buildPrompt(); toast("Nueva versión lista: revísala y apruébala");
+  }
+});
+
+function exportSet(){
+  var all=$("includeAll").checked;
+  return state.results.filter(function(r){ return all || r.approved; });
+}
+function rowsForExport(list){
+  return list.map(function(r){
+    var st=state.students[r.si];
+    return [st.ini, CAMPOS[r.campo], LEVELS[st.level], refFor(st.level), r.text, r.fromEvidence?"Sí":"No", r.approved?"Sí":"No"];
+  });
+}
+var HEAD=["Alumno","Campo formativo","Nivel","Referencia orientativa","Observaciones y sugerencias","Basado en mi observación","Aprobado por mí"];
+function noneMsg(){ toast("Aún no apruebas ninguno: marca “Aprobado por mí” o activa “Incluir también los no aprobados”"); }
+
+function copyAll(){
+  var list=exportSet(); if(!list.length){ noneMsg(); return; }
+  var rows=rowsForExport(list);
+  var tsv=[HEAD].concat(rows).map(function(r){ return r.map(function(c){ return String(c).replace(/[\t\n]+/g," "); }).join("\t"); }).join("\n");
+  var htmlT='<table><thead><tr>'+HEAD.map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+'</tr></thead><tbody>'+
+    rows.map(function(r){ return "<tr>"+r.map(function(c){ return "<td>"+esc(c)+"</td>"; }).join("")+"</tr>"; }).join("")+'</tbody></table>';
+  var msg="Tabla copiada ("+list.length+"): pégala en Excel, Sheets o Word";
+  try{
+    if(navigator.clipboard && window.ClipboardItem && window.isSecureContext){
+      var item=new ClipboardItem({"text/plain":new Blob([tsv],{type:"text/plain"}), "text/html":new Blob([htmlT],{type:"text/html"})});
+      navigator.clipboard.write([item]).then(function(){ toast(msg); }, function(){ copyText(tsv, msg); });
+      return;
+    }
+  }catch(e){}
+  copyText(tsv, msg);
+}
+function downloadCSV(){
+  var list=exportSet(); if(!list.length){ noneMsg(); return; }
+  var rows=[HEAD].concat(rowsForExport(list));
+  var csv=rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(","); }).join("\r\n");
+  var blob=new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  var o=state.opts;
+  a.download="observaciones-y-sugerencias-"+o.grade+"grado-periodo"+o.period+".csv";
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast("CSV descargado ("+list.length+")");
+}
+
+function buildPrompt(){
+  if(!state.opts) return;
+  var o=state.opts;
+  var campos = o.campo==="ALL" ? "los 4 campos formativos (Lenguajes; Saberes y Pensamiento Científico; Ética, Naturaleza y Sociedades; De lo Humano y lo Comunitario)" : "el campo formativo “"+CAMPOS[o.campo]+"”";
+  var per=["","primer","segundo","tercer"][o.period];
+  var p="Soy docente de primaria en México (Nueva Escuela Mexicana). Ayúdame a mejorar el apartado “Observaciones y sugerencias” de la boleta del "+per+" periodo, para "+o.grade+".º grado, en "+campos+".\n\n"+
+    "Reglas:\n- Tono "+(o.tone==="formal"?"formal y respetuoso":"cálido y cercano, dirigido a la familia")+".\n- Basa cada comentario SOLO en mi observación; no inventes logros ni dificultades.\n- Primero un logro observable y después una sugerencia concreta para casa.\n- 2 a 3 oraciones por campo, máximo 350 caracteres.\n- Lenguaje neutro en género y sin nombres: conserva las etiquetas “Alumno 1”, “Alumno 2”…\n- Español de México, sin tecnicismos.\n- No repitas la misma frase entre alumnos.\n\n"+
+    "Estos son mis borradores y mis observaciones:\n\n";
+  state.students.forEach(function(st, si){
+    p+="Alumno "+(si+1)+" (nivel: "+LEVELS[st.level].toLowerCase()+(st.traits.length? "; rasgos: "+st.traits.map(function(t){ return TRAITS[t].label.toLowerCase(); }).join(", "):"")+")\n";
+    state.results.forEach(function(r){
+      if(r.si!==si) return;
+      var ev=(st.ev||{})[r.campo];
+      p+="  · "+CAMPOS[r.campo]+(ev? " | Mi observación: "+ev : "")+" | Borrador: "+r.text+"\n";
+    });
+  });
+  p+="\nDevuélveme una tabla con columnas: Alumno | Campo formativo | Observaciones y sugerencias.";
+  $("prompt").value=p;
+}
+
+/* Clipboard + toast */
+function copyText(text, msg){
+  function fallback(){
+    var ta=document.createElement("textarea"); ta.value=text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast(msg||"Copiado"); }catch(e){ toast("No se pudo copiar; selecciona el texto y cópialo"); }
+    ta.remove();
+  }
+  try{
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(function(){ toast(msg||"Copiado"); }, fallback); }
+    else fallback();
+  }catch(e){ fallback(); }
+}
+var toastT;
+function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 2400); }
+
+/* Persistence (opt-in, this device only) */
+function persist(){
+  try{
+    if(!$("remember").checked){ localStorage.removeItem(STORE); return; }
+    var data={rows:readRows().map(function(r){ return {ini:r.ini.indexOf("Alumno ")===0?"":r.ini, level:r.level, traits:r.traits, ev:r.ev}; }), opts:readOpts()};
+    localStorage.setItem(STORE, JSON.stringify(data));
+  }catch(e){}
+}
+function restore(){
+  try{
+    var raw=localStorage.getItem(STORE); if(!raw) return false;
+    var d=JSON.parse(raw); if(!d || !d.rows) return false;
+    $("remember").checked=true;
+    if(d.opts){ $("grade").value=d.opts.grade; $("period").value=d.opts.period; $("campo").value=d.opts.campo;
+      var t=document.querySelector('input[name=tone][value="'+d.opts.tone+'"]'); if(t) t.checked=true;
+      var l=document.querySelector('input[name=len][value="'+d.opts.len+'"]'); if(l) l.checked=true; }
+    d.rows.forEach(addRow);
+    return d.rows.length>0;
+  }catch(e){ return false; }
+}
+
+var SAMPLE=[
+  {ini:"AM", level:"de", traits:["participa","lee"], ev:{L:"lee con fluidez y comenta los cuentos con detalle", E:"propone acuerdos en las asambleas y escucha a los demás"}},
+  {ini:"JL", level:"lo", traits:["colabora"], ev:{L:"comprende los cuentos, pero necesita apoyo para escribir oraciones", S:"resuelve sumas y restas con material concreto, aunque le cuesta explicar cómo lo hizo"}},
+  {ini:"Pao", level:"ep", traits:["distrae","creativo"], ev:{H:"participa con entusiasmo en los juegos, pero le cuesta esperar su turno"}},
+  {ini:"RG", level:"ra", traits:["entrega"], ev:{L:"aún confunde algunas letras al escribir", S:"cuenta hasta 20 con apoyo de objetos"}},
+  {ini:"SV", level:"lo", traits:["resuelve","pregunta"], ev:{E:"Respeta los acuerdos del grupo. Le cuesta dar su opinión en la asamblea."}},
+  {ini:"Toño", level:"ep", traits:[], ev:{}}
+];
+
+/* Wire up */
+$("form").addEventListener("submit", function(e){ e.preventDefault(); generate(); });
+$("addRow").addEventListener("click", function(){ var li=addRow(); li.querySelector("input").focus(); persist(); });
+$("sample").addEventListener("click", function(){ rowsEl.innerHTML=""; SAMPLE.forEach(addRow); persist(); toast("Ejemplo ficticio cargado: 6 alumnos"); });
+$("clearRows").addEventListener("click", function(){ rowsEl.innerHTML=""; addRow(); persist(); });
+$("pasteBtn").addEventListener("click", function(){
+  var lines=$("paste").value.split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+  if(!lines.length) return;
+  rowsEl.querySelectorAll(".row").forEach(function(li){ if(!li.querySelector("input").value.trim()) li.remove(); });
+  lines.forEach(function(l){ addRow({ini:l.slice(0,12)}); });
+  $("paste").value=""; persist(); toast(lines.length+" alumnos agregados");
+});
+$("remember").addEventListener("change", persist);
+["grade","period"].forEach(function(id){ $(id).addEventListener("change", function(){ updateGradeNote(); persist(); }); });
+$("campo").addEventListener("change", function(){ rowsEl.querySelectorAll(".row").forEach(syncCampoFields); persist(); });
+document.querySelectorAll('input[name=tone],input[name=len]').forEach(function(r){ r.addEventListener("change", persist); });
+$("copyAll").addEventListener("click", copyAll);
+$("csv").addEventListener("click", downloadCSV);
+$("regen").addEventListener("click", generate);
+$("copyPrompt").addEventListener("click", function(){ if($("prompt").value) copyText($("prompt").value, "Prompt copiado"); else toast("Primero escribe los comentarios"); });
+$("signup").addEventListener("submit", function(e){
+  e.preventDefault();
+  var em=$("email"), ok=em.value && em.checkValidity(), c=$("consent").checked, msg=$("signupMsg");
+  if(!ok){ msg.textContent="Escribe un correo válido."; em.focus(); return; }
+  if(!c){ msg.textContent="Marca la casilla de consentimiento para continuar."; $("consent").focus(); return; }
+  msg.textContent="Gracias. Este registro aún no está conectado: por ahora no enviamos ni guardamos tu correo.";
+});
+
+updateGradeNote();
+if(!restore()){ addRow(); addRow(); addRow(); }
+
+/* Exposed for automated checks only */
+})();
+</script>
+</body>
+</html>
