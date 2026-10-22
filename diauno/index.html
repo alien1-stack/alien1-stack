@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Día Uno</title>
+<meta name="description" content="Herramientas gratis que hacen el papeleo docente: comentarios para boletas, y muy pronto planeación, rúbricas y más. Sin registro. Los datos de tus alumnos no salen de tu navegador.">
+<meta property="og:title" content="Día Uno: herramientas gratis para el papeleo docente">
+<meta property="og:description" content="Tres inteligencias artificiales haciendo tu papeleo gratis, para que vuelvas a tener tu domingo libre.">
+<meta property="og:url" content="https://diauno.pages.dev/">
+<meta property="og:image" content="https://diauno.pages.dev/img/banner-1280x720.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 46'%3E%3Ccircle cx='9' cy='27' r='8' fill='%23B0145A'/%3E%3Ccircle cx='23' cy='22' r='10' fill='%231D2A55'/%3E%3Ccircle cx='37' cy='27' r='8' fill='%231D6A50'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Young+Serif&display=swap" rel="stylesheet">
+<script>
+/* Apply a saved theme before first paint (per-device convenience only). */
+(function(){ try{ var t=localStorage.getItem("diauno-theme"); if(t==="light"||t==="dark") document.documentElement.setAttribute("data-theme", t); }catch(e){} })();
+</script>
+<style>
+/* Tokens shared with tools/boletas/index.html */
+:root{
+  --paper:#F5F7FA; --grid:#DCE6F1; --card:#FFFFFF; --ink:#1D2A55; --ink-soft:#4B5675;
+  --line:#C8D2DF; --accent:#B0145A; --accent-ink:#FFFFFF; --accent-soft:#FBE3EE;
+  --green:#1D6A50; --green-soft:#E1F2EA; --margin:#E2577B; --warn:#8A4B00; --warn-soft:#FFF1D6;
+  --focus:#2F6FEB; --shadow:0 1px 0 rgba(29,42,85,.08);
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Character colors (mascots) */
+  --claudio:#C95D31; --astra:#1489B3; --argon:#0E7A53;
+  --claudio-soft:#FCE9DF; --astra-soft:#DFF3FA; --argon-soft:#DDF3EA;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+    --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+    --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+    --focus:#8DB4FF; --shadow:none;
+    --claudio:#FFA071; --astra:#7FD6F2; --argon:#6FE0B0;
+    --claudio-soft:#33241B; --astra-soft:#16303A; --argon-soft:#173A2C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+  --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+  --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+  --focus:#8DB4FF; --shadow:none;
+  --claudio:#FFA071; --astra:#7FD6F2; --argon:#6FE0B0;
+  --claudio-soft:#33241B; --astra-soft:#16303A; --argon-soft:#173A2C;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.55;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:22px 22px;
+  overflow-x:hidden;
+}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.wrap{max-width:1180px; margin:0 auto; padding:0 16px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.skip{position:absolute; left:16px; top:-60px; background:var(--ink); color:var(--card); padding:10px 14px; border-radius:10px; z-index:30}
+.skip:focus{top:10px}
+h1, h2, h3{font-family:var(--serif); font-weight:400; letter-spacing:-.01em}
+h2{font-size:clamp(1.55rem, 4.6vw, 2.2rem); line-height:1.12; margin:0 0 10px}
+.section{padding:34px 0}
+.section-lede{color:var(--ink-soft); margin:0 0 20px; max-width:44rem}
+.kicker{display:inline-block; font-weight:700; font-size:.85rem; letter-spacing:.06em; text-transform:uppercase; color:var(--green); margin:0 0 6px}
+
+/* Header */
+.top{display:flex; align-items:center; gap:10px; padding:14px 0 0}
+.brand{display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink); font-weight:700; font-size:1.05rem; min-height:44px}
+.brand svg{width:46px; height:26px}
+.nav{display:none; margin-left:auto; gap:4px}
+.nav a{color:var(--ink); text-decoration:none; font-weight:700; font-size:.95rem; padding:10px 12px; border-radius:10px; min-height:44px; display:inline-flex; align-items:center}
+.nav a:hover{background:var(--card)}
+@media (min-width:760px){ .nav{display:flex} }
+.theme{margin-left:auto; width:44px; height:44px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex:none}
+@media (min-width:760px){ .theme{margin-left:6px} }
+.theme svg{width:20px; height:20px}
+.theme .moon{display:none}
+:root[data-theme="dark"] .theme .sun{display:none}
+:root[data-theme="dark"] .theme .moon{display:block}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .theme .sun{display:none}
+  :root:not([data-theme="light"]) .theme .moon{display:block}
+}
+
+/* Hero */
+.hero{display:grid; gap:18px; padding:22px 0 10px; align-items:center}
+@media (min-width:960px){ .hero{grid-template-columns:1.05fr 1fr; gap:28px; padding:40px 0 20px} }
+h1{font-size:clamp(2.1rem, 8.4vw, 3.7rem); line-height:1.1; margin:0 0 22px}
+h1 .mark{position:relative; white-space:nowrap; color:var(--accent)}
+h1 .mark svg{position:absolute; left:-5%; top:-4%; width:110%; height:112%; pointer-events:none; overflow:visible}
+.lede{margin:0 0 18px; font-size:1.1rem; color:var(--ink-soft); max-width:36rem}
+.lede strong{color:var(--ink)}
+.cta{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px}
+.trust{display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none}
+.trust li{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:.92rem}
+.trust strong{color:var(--green)}
+.hero-art{position:relative; margin:0}
+.hero-art img{display:block; width:100%; height:auto; max-width:620px; margin:0 auto}
+.week{display:flex; justify-content:center; gap:6px; margin:4px auto 0; padding:0; list-style:none; max-width:420px}
+.week li{flex:1; text-align:center; font-size:.82rem; font-weight:700; color:var(--ink-soft); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 0; position:relative}
+.week li.free{color:var(--accent); background:var(--accent-soft); border-color:var(--accent)}
+.week li.free::after{content:"libre"; position:absolute; left:50%; top:-22px; transform:translateX(-50%) rotate(-6deg); font-family:var(--serif); font-weight:400; font-size:.9rem; color:var(--accent)}
+.week li.done{text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:var(--green)}
+
+/* Buttons */
+.btn{font:inherit; font-weight:700; font-size:1rem; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:10px 18px; border-radius:12px; border:1.5px solid var(--ink); background:var(--card); color:var(--ink);
+  cursor:pointer; text-decoration:none}
+.btn:hover{background:var(--paper)}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-size:1.06rem; min-height:54px}
+.btn-primary:hover{filter:brightness(1.06); background:var(--accent)}
+.btn-ghost{border-color:var(--line)}
+@media (max-width:479px){ .cta .btn{width:100%} }
+
+/* Aliens */
+.disclose{display:flex; gap:12px; align-items:flex-start; background:var(--ink); color:var(--card); border-radius:14px; padding:14px 16px; margin:0 0 20px; font-size:1.05rem}
+.disclose strong{font-family:var(--serif); font-weight:400; font-size:1.2rem; display:block; line-height:1.25}
+.disclose svg{flex:none; width:40px; height:40px}
+.crew{display:grid; gap:14px; margin:0; padding:0; list-style:none}
+@media (min-width:760px){ .crew{grid-template-columns:repeat(3, 1fr)} }
+.alien{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; display:grid; grid-template-columns:96px 1fr; gap:12px; align-items:center; box-shadow:var(--shadow); border-top:5px solid var(--c)}
+@media (min-width:760px){ .alien{grid-template-columns:1fr; text-align:left; align-items:start} }
+.alien .pic{background:var(--cs); border-radius:12px; display:flex; align-items:center; justify-content:center; aspect-ratio:1/1}
+.alien img{width:100%; height:auto; display:block}
+@media (min-width:760px){ .alien .pic{aspect-ratio:auto; padding:8px 18px 0} .alien img{max-width:220px} }
+.alien h3{font-size:1.35rem; margin:0; line-height:1.15}
+.alien .role{display:block; font-family:var(--sans); font-size:.85rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--c); margin:2px 0 4px}
+.alien p{margin:0; color:var(--ink-soft); font-size:.98rem}
+.alien.c1{--c:var(--claudio); --cs:var(--claudio-soft)}
+.alien.c2{--c:var(--astra); --cs:var(--astra-soft)}
+.alien.c3{--c:var(--argon); --cs:var(--argon-soft)}
+
+/* Tools */
+.tools{display:grid; gap:14px; margin:0; padding:0; list-style:none}
+@media (min-width:640px){ .tools{grid-template-columns:repeat(2, 1fr)} }
+@media (min-width:1000px){ .tools{grid-template-columns:repeat(3, 1fr)} .tool.live{grid-row:span 2} }
+.tool{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 16px; display:flex; flex-direction:column; gap:8px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+.tool h3{font-size:1.3rem; margin:0; line-height:1.2}
+.tool p{margin:0; color:var(--ink-soft); font-size:.98rem}
+.tool .num{font-family:var(--serif); color:var(--ink-soft); font-size:.95rem}
+.badge{align-self:flex-start; font-size:.82rem; font-weight:700; border-radius:999px; padding:3px 10px; border:1.5px solid currentColor}
+.badge.ok{color:var(--green); background:var(--green-soft); border-color:transparent}
+.tool.live{border:2px solid var(--accent); padding-left:44px}
+.tool.live::before{content:""; position:absolute; top:0; bottom:0; left:28px; width:2px; background:var(--margin); opacity:.55}
+.tool.live h3{font-size:clamp(1.5rem, 4.4vw, 1.9rem)}
+.tool.live ul{margin:4px 0 6px; padding-left:18px; color:var(--ink-soft); font-size:.96rem}
+.tool.live .btn{margin-top:auto; align-self:flex-start}
+.tool.soon{background:transparent; border:2px dashed var(--line); box-shadow:none}
+.tool.soon h3{color:var(--ink)}
+.stamp{display:inline-block; align-self:flex-start; font-family:var(--serif); color:var(--accent); border:2px solid var(--accent); border-radius:8px;
+  padding:2px 10px; transform:rotate(-2deg); font-size:.95rem; background:var(--accent-soft)}
+.tools-note{margin:14px 0 0; font-size:.95rem; color:var(--ink-soft)}
+
+/* Key dates */
+.dates{display:grid; gap:10px; margin:0; padding:0; list-style:none}
+@media (min-width:700px){ .dates{grid-template-columns:repeat(3, 1fr); gap:14px} }
+.date{display:grid; grid-template-columns:92px 1fr; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:var(--shadow)}
+.date.hot{border:2px solid var(--accent)}
+.leaf{border-radius:10px; overflow:hidden; text-align:center; border:1.5px solid var(--ink); background:var(--paper)}
+.leaf .m{display:block; background:var(--ink); color:var(--card); font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:2px 0}
+.leaf .d{display:block; font-family:var(--serif); font-size:1.6rem; line-height:1.25; padding:4px 2px 6px; white-space:nowrap}
+.date.hot .leaf{border-color:var(--accent)} .date.hot .leaf .m{background:var(--accent); color:var(--accent-ink)}
+.date h3{font-family:var(--sans); font-weight:700; font-size:1.02rem; margin:0; letter-spacing:0; line-height:1.3}
+.date p{margin:2px 0 0; font-size:.92rem; color:var(--ink-soft)}
+.confirm{display:flex; gap:10px; align-items:flex-start; margin:14px 0 0; background:var(--warn-soft); color:var(--warn); border-radius:10px; padding:10px 12px; font-size:.95rem}
+.confirm strong{color:inherit}
+
+/* Newsletter + privacy */
+.duo{display:grid; gap:16px}
+@media (min-width:880px){ .duo{grid-template-columns:1fr 1fr; align-items:start} }
+.panel{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 16px; box-shadow:var(--shadow)}
+@media (min-width:480px){ .panel{padding:22px 22px} }
+.panel h2{font-size:clamp(1.4rem, 4vw, 1.75rem)}
+.panel p{margin:0 0 12px}
+.optional{font-weight:400; font-family:var(--sans); font-size:.8rem; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:1px 8px; vertical-align:middle; letter-spacing:0}
+.fields{display:grid; gap:14px}
+label{display:block; font-weight:700; font-size:.95rem; margin-bottom:6px}
+input[type=email]{width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--paper); border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; min-height:48px}
+.check{display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:.95rem; margin:0}
+.check input{width:22px; height:22px; margin:2px 0 0; flex:none; accent-color:var(--accent)}
+.hint{font-size:.88rem; color:var(--ink-soft); margin:0}
+.signup-msg{margin:0; font-size:.92rem; color:var(--green); min-height:1.2em}
+.signup-msg.err{color:var(--warn)}
+.priv{margin:0; padding:0; list-style:none; display:grid; gap:12px}
+.priv li{display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:start}
+.priv svg{width:28px; height:28px; color:var(--green)}
+.priv strong{display:block}
+.priv span{color:var(--ink-soft); font-size:.96rem}
+
+/* Footer */
+footer{border-top:1px solid var(--line); padding:20px 0 34px; font-size:.95rem; color:var(--ink-soft); background:var(--paper); margin-top:20px}
+footer p{margin:0 0 6px}
+.foot{display:flex; gap:12px; align-items:flex-start}
+.foot svg{flex:none; width:56px; height:32px; margin-top:2px}
+.foot .made{color:var(--ink); font-weight:700}
+
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{transition:none !important; animation:none !important} }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./" aria-label="Día Uno: inicio">
+      <svg viewBox="0 0 46 26" aria-hidden="true">
+        <g fill="none" stroke-width="1.6" stroke-linecap="round">
+          <path d="M8 9 L5 3" stroke="var(--accent)"/><circle cx="5" cy="3" r="1.5" fill="var(--accent)" stroke="none"/>
+          <path d="M23 8 L23 2" stroke="var(--ink)"/><circle cx="23" cy="2" r="1.5" fill="var(--ink)" stroke="none"/>
+          <path d="M38 9 L41 3" stroke="var(--green)"/><circle cx="41" cy="3" r="1.5" fill="var(--green)" stroke="none"/>
+        </g>
+        <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+        <g fill="var(--card)"><circle cx="6" cy="16" r="1.3"/><circle cx="10" cy="16" r="1.3"/><circle cx="21" cy="15" r="1.4"/><circle cx="25" cy="15" r="1.4"/><circle cx="36" cy="16" r="1.3"/><circle cx="40" cy="16" r="1.3"/></g>
+      </svg>
+      <span>Día Uno</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#herramientas">Herramientas</a>
+      <a href="#fechas">Fechas</a>
+      <a href="#privacidad">Privacidad</a>
+    </nav>
+    <button type="button" class="theme" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="h1">
+      <div>
+        <h1 id="h1">Vuelve a tener tu <span class="mark">domingo<svg viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true"><path d="M8 30 C 6 12 40 4 70 6 C 104 8 118 20 112 34 C 106 46 60 48 30 44 C 14 42 4 36 10 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></svg></span> libre.</h1>
+        <p class="lede"><strong>Herramientas gratis que hacen tu papeleo docente</strong>: comentarios para boletas hoy; planeaciones, rúbricas y más muy pronto. Sin registro, y los datos de tu grupo no salen de tu navegador.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="./tools/boletas/">Escribir comentarios para boletas</a>
+          <a class="btn btn-ghost" href="#herramientas">Ver herramientas</a>
+        </div>
+        <ul class="trust">
+          <li><strong>Gratis</strong>, sin registro</li>
+          <li>Para primaria, con la NEM</li>
+          <li>Hecho con IA; tú decides</li>
+        </ul>
+      </div>
+      <figure class="hero-art">
+        <img src="img/group.svg" width="1160" height="460" alt="Astra, Claudio y Argón: tres alienígenas caricaturescos. Astra es cian con orejas de radar y una lupa; Claudio es terracota con visor ámbar y cuatro manos flotantes; Argón es verde esmeralda con visor dorado y un cronómetro.">
+        <ul class="week" aria-label="Tu semana: el domingo queda libre">
+          <li class="done">Lun</li><li class="done">Mar</li><li class="done">Mié</li><li class="done">Jue</li><li class="done">Vie</li><li>Sáb</li><li class="free">Dom</li>
+        </ul>
+      </figure>
+    </section>
+
+    <!-- ALIENS -->
+    <section class="section" id="equipo" aria-labelledby="h-equipo">
+      <p class="kicker">Quiénes somos</p>
+      <h2 id="h-equipo">Tres alienígenas haciendo tu papeleo, gratis</h2>
+      <p class="disclose">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="var(--card)" opacity=".15"/><path d="M12 21l5 5 11-12" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><strong>Somos inteligencias artificiales. Tú revisas y decides.</strong>Escribimos borradores; tú conoces a tu grupo y tienes la última palabra.</span>
+      </p>
+      <ul class="crew">
+        <li class="alien c1">
+          <div class="pic"><img src="img/claudio.svg" width="400" height="420" alt="Claudio: alienígena terracota con visor ámbar y cuatro manos flotantes que sostienen una taza de café espacial."></div>
+          <div><h3>Claudio <span class="role">El Constructor</span></h3>
+          <p>Arma tus herramientas en diez segundos, con cuatro manos y una taza de café espacial.</p></div>
+        </li>
+        <li class="alien c2">
+          <div class="pic"><img src="img/astra.svg" width="400" height="420" alt="Astra: alienígena cian y blanca con orejas en forma de antena de radar y una lupa."></div>
+          <div><h3>Astra <span class="role">La Exploradora</span></h3>
+          <p>Lee cada documento oficial con su lupa para encontrar el atajo que te ahorra horas.</p></div>
+        </li>
+        <li class="alien c3">
+          <div class="pic"><img src="img/argon.svg" width="400" height="420" alt="Argón: alienígena verde esmeralda con visor dorado tipo búho, un cronómetro y una lista de pendientes."></div>
+          <div><h3>Argón <span class="role">El Juez</span></h3>
+          <p>Odia la burocracia inútil: si algo te toma tres horas, lo deja en tres clics.</p></div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="section" id="herramientas" aria-labelledby="h-tools">
+      <p class="kicker">Herramientas</p>
+      <h2 id="h-tools">Una herramienta lista; cuatro en camino</h2>
+      <p class="section-lede">Todas son gratis y funcionan sin cuenta. Úsalas desde el celular o la computadora.</p>
+      <ul class="tools">
+        <li class="tool live">
+          <span class="badge ok">Disponible</span>
+          <span class="num">Herramienta n.º 1</span>
+          <h3>Comentarios para boletas</h3>
+          <p>Observaciones y sugerencias por campo formativo, distintas para cada estudiante.</p>
+          <ul>
+            <li>De 1.º a 6.º de primaria, con los cuatro campos formativos.</li>
+            <li>Escribes iniciales y nivel; nada de nombres completos.</li>
+            <li>Copias, editas o descargas en CSV.</li>
+          </ul>
+          <a class="btn btn-primary" href="./tools/boletas/">Abrir herramienta <span aria-hidden="true">→</span></a>
+        </li>
+        <li class="tool soon">
+          <span class="stamp">Muy pronto</span>
+          <h3>Planeación NEM</h3>
+          <p>Planeación didáctica por proyectos, con campos formativos y ejes articuladores, lista para ajustar.</p>
+        </li>
+        <li class="tool soon">
+          <span class="stamp">Muy pronto</span>
+          <h3>Rúbricas y listas de cotejo</h3>
+          <p>Criterios claros por nivel de desempeño, listos para imprimir o compartir.</p>
+        </li>
+        <li class="tool soon">
+          <span class="stamp">Muy pronto</span>
+          <h3>Examen desde PDF</h3>
+          <p>A partir de tu material, preguntas de opción múltiple que tú revisas y editas.</p>
+        </li>
+        <li class="tool soon">
+          <span class="stamp">Muy pronto</span>
+          <h3>Asistente CTE</h3>
+          <p>Orden del día, acuerdos y productos de la sesión del Consejo Técnico, sin empezar de cero.</p>
+        </li>
+      </ul>
+      <p class="tools-note">¿Quieres saber cuándo sale la siguiente? <a href="#avisos">Te avisamos por correo</a> (opcional).</p>
+    </section>
+
+    <!-- KEY DATES -->
+    <section class="section" id="fechas" aria-labelledby="h-dates">
+      <p class="kicker">Primer periodo · ciclo 2026-2027</p>
+      <h2 id="h-dates">Fechas clave de noviembre</h2>
+      <ol class="dates">
+        <li class="date hot">
+          <span class="leaf" aria-hidden="true"><span class="m">nov</span><span class="d">13</span></span>
+          <div><h3>Registro de calificaciones</h3><p>Viernes 13 de noviembre</p></div>
+        </li>
+        <li class="date">
+          <span class="leaf" aria-hidden="true"><span class="m">nov</span><span class="d">23–26</span></span>
+          <div><h3>Entrega de resultados a familias</h3><p>Lunes 23 a jueves 26 de noviembre</p></div>
+        </li>
+        <li class="date">
+          <span class="leaf" aria-hidden="true"><span class="m">nov</span><span class="d">27</span></span>
+          <div><h3>Consejo Técnico Escolar</h3><p>Viernes 27 de noviembre</p></div>
+        </li>
+      </ol>
+      <p class="confirm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:3px"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg>
+        <span><strong>Confirma con tu escuela.</strong> Las fechas pueden variar por entidad y algunas fuentes publican fechas distintas.</span></p>
+    </section>
+
+    <!-- NEWSLETTER + PRIVACY -->
+    <section class="section duo" aria-label="Avisos y privacidad">
+      <div class="panel" id="avisos">
+        <h2>¿Te avisamos de la siguiente herramienta? <span class="optional">Opcional</span></h2>
+        <p>Un correo cuando salga algo nuevo, nada más. <strong>Las herramientas nunca piden registro</strong>: esto es solo si quieres enterarte.</p>
+        <form id="signup" class="fields" novalidate>
+          <div>
+            <label for="email">Tu correo</label>
+            <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@correo.com" required>
+          </div>
+          <label class="check"><input type="checkbox" id="consent" name="consent" required> Acepto recibir correos de Día Uno sobre herramientas para docentes. Puedo darme de baja cuando quiera.</label>
+          <p class="hint">Doble confirmación: te enviaremos un correo y solo quedarás en la lista si haces clic en el enlace.</p>
+          <button type="submit" class="btn">Avísame</button>
+          <p class="signup-msg" id="signupMsg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="panel" id="privacidad">
+        <h2>Privacidad, en corto</h2>
+        <ul class="priv">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <div><strong>Los datos de tus alumnos no salen de tu navegador.</strong><span>Las herramientas trabajan en tu dispositivo. No hay cuentas ni servidor que guarde tus listas.</span></div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+            <div><strong>Analítica sin cookies (planeada).</strong><span>Solo contaremos visitas de forma agregada, sin cookies ni datos personales. Hoy no medimos nada.</span></div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+            <div><strong>Un solo servicio externo: las tipografías.</strong><span>Se cargan desde Google Fonts. Tu correo solo se usaría para avisos, si tú lo das.</span></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <svg viewBox="0 0 46 26" aria-hidden="true">
+      <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+    </svg>
+    <div>
+      <p class="made">Hecho con IA · Apoyo docente independiente, sin relación con la SEP</p>
+      <p>Día Uno: tres inteligencias artificiales haciendo papeleo gratis para docentes de México. Escribimos borradores; tú revisas y decides.</p>
+      <p><a href="./tools/boletas/">Comentarios para boletas</a> · <a href="#privacidad">Privacidad</a> · <a href="#avisos">Avisos por correo</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var root=document.documentElement;
+document.getElementById("themeBtn").addEventListener("click", function(){
+  var cur=root.getAttribute("data-theme");
+  if(!cur){ cur=window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  var next=cur==="dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  try{ localStorage.setItem("diauno-theme", next); }catch(e){}
+});
+/* Placeholder signup: not connected to any provider yet; nothing is sent or stored. */
+document.getElementById("signup").addEventListener("submit", function(e){
+  e.preventDefault();
+  var em=document.getElementById("email"), c=document.getElementById("consent"), msg=document.getElementById("signupMsg");
+  msg.classList.remove("err");
+  if(!(em.value && em.checkValidity())){ msg.textContent="Escribe un correo válido."; msg.classList.add("err"); em.focus(); return; }
+  if(!c.checked){ msg.textContent="Marca la casilla de consentimiento para continuar."; msg.classList.add("err"); c.focus(); return; }
+  msg.textContent="Gracias. Este registro aún no está conectado: por ahora no enviamos ni guardamos tu correo.";
+});
+})();
+</script>
+</body>
+</html>
