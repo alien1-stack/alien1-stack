@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistente CTE</title>
+<meta name="description" content="Prepara tu sesión de Consejo Técnico Escolar: agenda con horarios, tus notas y los productos de la sesión, escritos a partir de tu propio contexto. Gratis, sin registro y sin enviar datos.">
+<meta property="og:title" content="Asistente para tu sesión de Consejo Técnico Escolar">
+<meta property="og:description" content="Agenda con horarios, notas y productos de la sesión de CTE a partir de tu contexto. Gratis y sin registro.">
+<meta property="og:url" content="https://diauno.pages.dev/tools/cte/">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 46'%3E%3Ccircle cx='9' cy='27' r='8' fill='%23B0145A'/%3E%3Ccircle cx='23' cy='22' r='10' fill='%231D2A55'/%3E%3Ccircle cx='37' cy='27' r='8' fill='%231D6A50'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Young+Serif&display=swap" rel="stylesheet">
+<script>
+(function(){ try{ var t=localStorage.getItem("diauno-theme"); if(t==="light"||t==="dark") document.documentElement.setAttribute("data-theme", t); }catch(e){} })();
+</script>
+<style>
+/* Tokens shared with tools/boletas/index.html and site/index.html */
+:root{
+  --paper:#F5F7FA; --grid:#DCE6F1; --card:#FFFFFF; --ink:#1D2A55; --ink-soft:#4B5675;
+  --line:#C8D2DF; --accent:#B0145A; --accent-ink:#FFFFFF; --accent-soft:#FBE3EE;
+  --green:#1D6A50; --green-soft:#E1F2EA; --margin:#E2577B; --warn:#8A4B00; --warn-soft:#FFF1D6;
+  --focus:#2F6FEB; --shadow:0 1px 0 rgba(29,42,85,.08);
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+    --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+    --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+    --focus:#8DB4FF; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11201A; --grid:#182B23; --card:#16281F; --ink:#ECF0E6; --ink-soft:#AFBCB3;
+  --line:#2D453A; --accent:#FF7EAD; --accent-ink:#2A0716; --accent-soft:#3A1A28;
+  --green:#86D7B3; --green-soft:#183A2C; --margin:#FF7EAD; --warn:#FFD08A; --warn-soft:#3A2B12;
+  --focus:#8DB4FF; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.55;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:22px 22px;
+  overflow-x:hidden;
+}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.wrap{max-width:1180px; margin:0 auto; padding:0 16px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.skip{position:absolute; left:16px; top:-60px; background:var(--ink); color:var(--card); padding:10px 14px; border-radius:10px; z-index:30}
+.skip:focus{top:10px}
+[hidden]{display:none !important}
+
+/* Header */
+.top{display:flex; align-items:center; gap:10px; padding:14px 0 0}
+.brand{display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink); font-weight:700; font-size:1.05rem; min-height:44px}
+.brand svg{width:46px; height:26px}
+.theme{margin-left:auto; width:44px; height:44px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex:none}
+.theme svg{width:20px; height:20px}
+.theme .moon{display:none}
+:root[data-theme="dark"] .theme .sun{display:none}
+:root[data-theme="dark"] .theme .moon{display:block}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .theme .sun{display:none}
+  :root:not([data-theme="light"]) .theme .moon{display:block}
+}
+.intro{padding:18px 0 8px; display:grid; gap:16px}
+@media (min-width:980px){ .intro{grid-template-columns:1fr 380px; align-items:end} }
+h1{font-family:var(--serif); font-weight:400; font-size:clamp(1.9rem, 6.4vw, 3rem); line-height:1.08; margin:0 0 12px; letter-spacing:-.01em}
+.lede{margin:0 0 12px; font-size:1.06rem; color:var(--ink-soft); max-width:42rem}
+.trust{display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none}
+.trust li{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:.92rem}
+.trust strong{color:var(--green)}
+.dates{background:var(--card); border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px; font-size:.95rem}
+.dates h2{font-family:var(--sans); font-size:.98rem; font-weight:700; margin:0 0 6px; display:flex; gap:8px; align-items:center}
+.dates h2 svg{flex:none}
+.dates ol{margin:0; padding:0; list-style:none; display:grid; gap:2px}
+.dates li{display:grid; grid-template-columns:7.6rem minmax(0,1fr); gap:10px}
+.dates li b{min-width:0}
+.dates li span{color:var(--ink-soft)}
+.dates li.now b, .dates li.now span{color:var(--accent); font-weight:700}
+
+/* Notices */
+.notice{display:flex; gap:10px; align-items:flex-start; border-radius:12px; padding:12px 14px; margin:0 0 14px; font-size:.97rem}
+.notice svg{flex:none; margin-top:3px}
+.notice p{margin:0 0 6px} .notice p:last-child{margin:0}
+.notice.warn{background:var(--warn-soft); color:var(--warn)}
+.notice.ok{background:var(--green-soft); color:var(--ink); border:1px solid var(--green)}
+.notice.ok svg{color:var(--green)}
+.notice strong{color:inherit}
+
+/* Layout */
+.grid{display:grid; gap:20px; padding:16px 0 28px}
+@media (min-width:980px){
+  .grid{grid-template-columns:minmax(360px, 420px) 1fr; align-items:start}
+  .side{position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto}
+}
+.side{display:grid; gap:16px}
+.panel{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 16px; box-shadow:var(--shadow)}
+.panel h2{font-family:var(--serif); font-weight:400; font-size:1.35rem; margin:0 0 12px; line-height:1.2}
+.fields{display:grid; gap:14px}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.two > *{min-width:0}
+label, .lbl{display:block; font-weight:700; font-size:.95rem; margin-bottom:6px}
+.hint{font-size:.88rem; color:var(--ink-soft); margin:4px 0 0}
+select, input[type=text], input[type=number], input[type=time], input[type=date], textarea{
+  width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--paper);
+  border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; min-height:46px; max-width:100%;
+}
+select{appearance:none; -webkit-appearance:none; padding-right:34px;
+  background-image:linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size:6px 6px; background-repeat:no-repeat}
+textarea{resize:vertical; line-height:1.5; min-height:72px}
+.seg{display:flex; flex-wrap:wrap; gap:6px; border:0; padding:0; margin:0; min-width:0}
+.seg legend{font-weight:700; font-size:.95rem; margin-bottom:6px; padding:0}
+.seg input{position:absolute; opacity:0; pointer-events:none}
+.seg label{margin:0; font-weight:400; display:inline-flex; align-items:center; min-height:44px; padding:8px 14px;
+  border:1.5px solid var(--line); border-radius:10px; cursor:pointer; background:var(--paper); font-size:.98rem}
+.seg input:checked + label{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.seg input:focus-visible + label{outline:3px solid var(--focus); outline-offset:2px}
+.chips{display:flex; flex-wrap:wrap; gap:6px; border:0; padding:0; margin:0; min-width:0}
+.chips legend{font-weight:700; font-size:.95rem; margin-bottom:6px; padding:0}
+.chips input{position:absolute; opacity:0; pointer-events:none}
+.chips label{margin:0; font-weight:400; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:6px 12px;
+  border:1.5px solid var(--line); border-radius:999px; cursor:pointer; background:var(--paper); font-size:.93rem}
+.chips label::before{content:""; width:14px; height:14px; border-radius:4px; border:1.5px solid var(--ink-soft); flex:none}
+.chips input:checked + label{border-color:var(--green); background:var(--green-soft)}
+.chips input:checked + label::before{background:var(--green); border-color:var(--green)}
+.chips input:focus-visible + label{outline:3px solid var(--focus); outline-offset:2px}
+.check{display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:.95rem; margin:0}
+.check input{width:22px; height:22px; margin:2px 0 0; flex:none; accent-color:var(--accent)}
+.privacy{background:var(--warn-soft); color:var(--warn); border-radius:10px; padding:10px 12px; font-size:.92rem; margin:0}
+.privacy strong{color:inherit}
+
+/* Buttons */
+.btn{font:inherit; font-weight:700; font-size:1rem; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:10px 18px; border-radius:12px; border:1.5px solid var(--ink); background:var(--card); color:var(--ink);
+  cursor:pointer; text-decoration:none; text-align:center}
+.btn:hover{background:var(--paper)}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-size:1.04rem}
+.btn-primary:hover{filter:brightness(1.06); background:var(--accent)}
+.btn-small{min-height:44px; padding:8px 14px; font-size:.95rem}
+.btn-ghost{border-color:var(--line)}
+.btn-copy{background:var(--ink); color:var(--card); border-color:var(--ink)}
+.btn-copy:hover{background:var(--ink); filter:brightness(1.15)}
+.btn-wa{background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+.btn-wa:hover{background:#1A7A43}
+.btnrow{display:flex; flex-wrap:wrap; gap:8px}
+
+/* Agenda */
+.agenda{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.agenda li{display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:start; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--paper)}
+.agenda input{width:22px; height:22px; margin:2px 0 0; accent-color:var(--green)}
+.agenda label{font-weight:400; margin:0; cursor:pointer}
+.agenda .t{display:block; font-weight:700; font-size:.88rem; color:var(--green); letter-spacing:.02em}
+.agenda .n{display:block; font-weight:700}
+.agenda .d{display:block; font-size:.9rem; color:var(--ink-soft)}
+.agenda li.done{border-color:var(--green); background:var(--green-soft)}
+.agenda li.done .n{text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:var(--green)}
+.agenda li.opt .n::after{content:" (sugerido)"; font-weight:400; color:var(--ink-soft); font-size:.86rem}
+.agmeta{display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:.88rem; color:var(--ink-soft); margin:10px 0 0}
+.subh{font-family:var(--sans); font-weight:700; font-size:1rem; margin:16px 0 8px}
+
+/* Products */
+.results-title{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:0 0 12px}
+.results-title h2{font-family:var(--serif); font-weight:400; font-size:1.5rem; margin:0}
+.stamp{display:inline-block; font-family:var(--serif); color:var(--accent); border:2px solid var(--accent); border-radius:8px;
+  padding:4px 12px; transform:rotate(-2deg); font-size:1.02rem; background:var(--accent-soft)}
+.prod{background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 0 16px; position:relative; box-shadow:var(--shadow); overflow:hidden}
+.prod::before{content:""; position:absolute; top:0; bottom:0; left:24px; width:2px; background:var(--margin); opacity:.5}
+.prod > header{padding:14px 14px 4px 40px}
+.prod h3{font-family:var(--serif); font-weight:400; font-size:1.3rem; margin:4px 0 4px; line-height:1.2}
+.prod .why{margin:0; color:var(--ink-soft); font-size:.95rem}
+.tags{display:flex; flex-wrap:wrap; gap:6px}
+.tag{font-size:.8rem; border-radius:999px; padding:1px 10px; border:1px solid var(--line); color:var(--ink-soft); font-weight:700}
+.tag.off{border-color:var(--green); color:var(--green); background:var(--green-soft)}
+.tag.sug{border-style:dashed}
+.tag.who{color:var(--ink)}
+.prod .body{padding:8px 14px 16px 40px; display:grid; gap:14px}
+@media (max-width:479px){ .prod::before{left:14px} .prod > header{padding-left:26px} .prod .body{padding-left:26px; padding-right:12px} }
+.theme-q{border-top:1px dashed var(--line); padding-top:12px}
+.theme-q h4{margin:0 0 6px; font-size:1rem}
+.theme-q p{margin:0 0 6px; font-size:.95rem; color:var(--ink-soft)}
+.out{display:grid; gap:8px; border-top:1px dashed var(--line); padding-top:12px}
+.out label{color:var(--green)}
+.out textarea{background:var(--paper); border:1.5px dashed var(--line); font-size:1rem; line-height:1.6; min-height:160px}
+.out textarea:focus{border-style:solid; border-color:var(--focus); outline:none; background:var(--card)}
+.out .count{font-size:.85rem; color:var(--ink-soft)}
+.rowset{display:grid; gap:10px}
+.vrow{display:grid; grid-template-columns:1fr 6.5rem; gap:8px}
+.arow{display:grid; gap:8px; grid-template-columns:1fr; border:1.5px solid var(--line); border-radius:12px; padding:10px; background:var(--paper)}
+@media (min-width:600px){ .arow{grid-template-columns:2fr 1fr 1fr} }
+.arow input{background:var(--card)}
+.ctheme{border:1.5px solid var(--line); border-radius:12px; padding:12px; background:var(--paper); display:grid; gap:10px}
+.ctheme input, .ctheme select, .ctheme textarea{background:var(--card)}
+.ctheme .ttl{font-weight:700; margin:0}
+.ctheme .ttl b{display:inline-grid; place-items:center; width:28px; height:28px; border-radius:8px; background:var(--ink); color:var(--card); margin-right:8px; font-size:.95rem}
+.ctheme .src{margin:0; font-size:.86rem; color:var(--ink-soft)}
+
+/* Export */
+.exportbar{display:grid; gap:10px; background:var(--card); border:1.5px solid var(--ink); border-radius:14px; padding:14px; margin:0 0 16px}
+.exportbar p{margin:0; font-size:.95rem; color:var(--ink-soft)}
+
+/* Details blocks */
+details.box{background:var(--card); border:1px solid var(--line); border-radius:14px; margin:0 0 16px; box-shadow:var(--shadow)}
+details.box > summary{cursor:pointer; list-style:none; padding:14px 16px; font-weight:700; display:flex; align-items:center; gap:10px; min-height:52px}
+details.box > summary::-webkit-details-marker{display:none}
+details.box > summary::after{content:"+"; margin-left:auto; font-size:1.4rem; color:var(--ink-soft); line-height:1}
+details.box[open] > summary::after{content:"–"}
+.box-body{padding:0 16px 16px}
+.box-body p, .box-body li{max-width:70ch}
+.box-body ul{padding-left:20px; margin:8px 0}
+.box-body textarea{min-height:200px; font-size:.95rem}
+.optional{font-weight:400; font-size:.85rem; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:1px 8px}
+.linkrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+.facts{display:grid; gap:4px; margin:8px 0; padding:0; list-style:none}
+.facts li{display:grid; grid-template-columns:auto minmax(0,1fr); gap:8px}
+.facts li > span:last-child, .box-body{overflow-wrap:anywhere}
+.vbadge{font-size:.78rem; font-weight:700; border-radius:999px; padding:0 8px; border:1px solid var(--green); color:var(--green); background:var(--green-soft); white-space:nowrap; align-self:start; margin-top:2px}
+.vbadge.inf{border-color:var(--warn); color:var(--warn); background:var(--warn-soft)}
+.wordbreak{overflow-wrap:anywhere}
+
+/* Share + footer */
+.share{display:grid; gap:16px; padding:0 0 24px}
+@media (min-width:860px){ .share{grid-template-columns:1fr 1fr} }
+.share .panel p{margin:0 0 12px}
+footer{border-top:1px solid var(--line); padding:20px 0 34px; font-size:.95rem; color:var(--ink-soft); background:var(--paper); margin-top:20px}
+footer p{margin:0 0 6px}
+.foot{display:flex; gap:12px; align-items:flex-start}
+.foot svg{flex:none; width:56px; height:32px; margin-top:2px}
+.foot .made{color:var(--ink); font-weight:700}
+.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%) translateY(30px); opacity:0; background:var(--ink); color:var(--card);
+  padding:10px 18px; border-radius:999px; font-weight:700; transition:opacity .2s, transform .2s; z-index:20; pointer-events:none; max-width:calc(100% - 32px); text-align:center}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+#printArea{display:none}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+@media print{
+  @page{margin:16mm 14mm}
+  body{background:#fff !important; color:#000; font-size:11.5pt}
+  .wrap > *:not(#printArea), footer, .toast, .skip{display:none !important}
+  #printArea{display:block !important}
+  #printArea h1{font-size:18pt; margin:0 0 4pt}
+  #printArea .pmeta{margin:0 0 10pt; font-size:10pt; color:#333}
+  #printArea h2{font-family:var(--serif); font-weight:400; font-size:14pt; margin:14pt 0 6pt; border-bottom:1px solid #999; padding-bottom:2pt}
+  #printArea ul{list-style:none; padding:0; margin:0}
+  #printArea li{margin:0 0 3pt}
+  #printArea pre{white-space:pre-wrap; font-family:var(--sans); font-size:11pt; margin:0; break-inside:auto}
+  #printArea .pfoot{margin-top:16pt; font-size:9pt; color:#444; border-top:1px solid #999; padding-top:4pt}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="https://diauno.pages.dev/" aria-label="Día Uno: inicio">
+      <svg viewBox="0 0 46 26" aria-hidden="true">
+        <g fill="none" stroke-width="1.6" stroke-linecap="round">
+          <path d="M8 9 L5 3" stroke="var(--accent)"/><circle cx="5" cy="3" r="1.5" fill="var(--accent)" stroke="none"/>
+          <path d="M23 8 L23 2" stroke="var(--ink)"/><circle cx="23" cy="2" r="1.5" fill="var(--ink)" stroke="none"/>
+          <path d="M38 9 L41 3" stroke="var(--green)"/><circle cx="41" cy="3" r="1.5" fill="var(--green)" stroke="none"/>
+        </g>
+        <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+        <g fill="var(--card)"><circle cx="6" cy="16" r="1.3"/><circle cx="10" cy="16" r="1.3"/><circle cx="21" cy="15" r="1.4"/><circle cx="25" cy="15" r="1.4"/><circle cx="36" cy="16" r="1.3"/><circle cx="40" cy="16" r="1.3"/></g>
+      </svg>
+      <span>Día Uno</span>
+    </a>
+    <button type="button" class="theme" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    </button>
+  </header>
+
+  <header class="intro">
+    <div>
+      <h1>Asistente para tu sesión de Consejo Técnico</h1>
+      <p class="lede">Elige la sesión, tu nivel y tu grado. Te damos la agenda con horarios para ir palomeando y te ayudamos a preparar los productos a partir de <strong>tu</strong> contexto y <strong>tus</strong> palabras. Preescolar, primaria y secundaria.</p>
+      <ul class="trust">
+        <li><strong>Tu reflexión</strong>, no respuestas copiadas</li>
+        <li>Tus datos no salen de tu navegador</li>
+        <li>Gratis, sin registro</li>
+      </ul>
+    </div>
+    <aside class="dates" aria-labelledby="h-dates">
+      <h2 id="h-dates"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Sesiones ordinarias 2026-2027 (confirma con tu escuela)</h2>
+      <ol id="dateList"></ol>
+    </aside>
+  </header>
+
+  <main id="main" class="grid">
+    <!-- SIDE: settings + agenda -->
+    <div class="side">
+      <section class="panel" aria-labelledby="h-set">
+        <h2 id="h-set">Tu sesión</h2>
+        <form id="setForm" class="fields" novalidate>
+          <div>
+            <label for="sess">Sesión</label>
+            <select id="sess"></select>
+          </div>
+          <fieldset class="seg" id="lvlSeg">
+            <legend>Nivel</legend>
+            <input type="radio" name="lvl" id="lvl-pre" value="pre"><label for="lvl-pre">Preescolar</label>
+            <input type="radio" name="lvl" id="lvl-pri" value="pri" checked><label for="lvl-pri">Primaria</label>
+            <input type="radio" name="lvl" id="lvl-sec" value="sec"><label for="lvl-sec">Secundaria</label>
+          </fieldset>
+          <div class="two">
+            <div>
+              <label for="grade">Grado</label>
+              <select id="grade"></select>
+            </div>
+            <div>
+              <label for="nStu" id="nStuLbl">Estudiantes en tu grupo</label>
+              <input type="number" id="nStu" min="1" max="60" inputmode="numeric" placeholder="Ej. 28">
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="multi"> Mi grupo es multigrado</label>
+          <div>
+            <label for="fn">Tu función</label>
+            <select id="fn">
+              <option value="doc" selected>Docente frente a grupo</option>
+              <option value="dir">Dirección</option>
+              <option value="atp">Asesoría técnico-pedagógica</option>
+              <option value="esp">Educación especial (USAER u otra)</option>
+              <option value="ef">Educación física</option>
+              <option value="otra">Otra función docente</option>
+            </select>
+          </div>
+          <div id="themeWrap" hidden>
+            <label for="theme">Tema que eligió tu colectivo en el Itinerario</label>
+            <select id="theme"></select>
+            <div id="themeOtherWrap" hidden style="margin-top:8px">
+              <label for="themeOther">Escribe el tema</label>
+              <input type="text" id="themeOther" maxlength="140" placeholder="Ej. Asistencia y participación de las familias">
+            </div>
+            <p class="hint">Temas propuestos por la SEP para 2026-2027. Tu colectivo pudo elegir otro o repetir uno.</p>
+          </div>
+          <div class="two">
+            <div>
+              <label for="start">Hora de inicio</label>
+              <input type="time" id="start" value="08:00">
+            </div>
+            <div>
+              <label for="dur">Duración</label>
+              <select id="dur">
+                <option value="180">3 horas</option>
+                <option value="210">3 h 30 min</option>
+                <option value="240" selected>4 horas</option>
+                <option value="270">4 h 30 min</option>
+                <option value="300">5 horas</option>
+              </select>
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="remember"> Recordar lo que escribo solo en este dispositivo</label>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="h-ag">
+        <h2 id="h-ag">Agenda de la sesión</h2>
+        <p class="hint" id="agNote" style="margin:0 0 10px"></p>
+        <ol class="agenda" id="agenda"></ol>
+        <div class="agmeta"><span id="agProgress" aria-live="polite"></span><button type="button" class="btn btn-small btn-ghost" id="agReset">Desmarcar todo</button></div>
+        <div id="prepWrap">
+          <h3 class="subh">Antes de la sesión</h3>
+          <ol class="agenda" id="prep"></ol>
+        </div>
+      </section>
+    </div>
+
+    <!-- PRODUCTS -->
+    <section aria-labelledby="h-prod">
+      <div id="sessNotice"></div>
+      <div class="results-title">
+        <h2 id="h-prod">Productos de la sesión</h2>
+        <span class="stamp" role="note">Borradores: revísalos y hazlos tuyos</span>
+      </div>
+      <p class="privacy" id="privacy" style="margin:0 0 14px"><strong>Sin nombres de estudiantes ni CURP.</strong> Habla de tu grupo en general. Tu CURP la necesitas para la plataforma de la Consulta, pero no la escribas aquí.</p>
+      <p class="privacy" id="curpWarn" role="alert" hidden style="margin:0 0 14px"><strong>Parece que escribiste una CURP.</strong> Bórrala: aquí no hace falta.</p>
+
+      <!-- ===== SESSION 2: CONSULTA ===== -->
+      <div id="prodConsulta">
+        <article class="prod" id="p-c1" data-prod="c1">
+          <header>
+            <div class="tags"><span class="tag who">Individual</span><span class="tag off">Para la Consulta (paso 4 de la guía)</span></div>
+            <h3>Mis notas para la Consulta Nacional</h3>
+            <p class="why">La Consulta se responde de forma individual en la plataforma. Aquí ordenas lo que tú piensas de cada uno de los cinco temas, para llegar con tus ideas claras. La herramienta no opina ni te sugiere una postura: solo acomoda lo que escribes y, si dejas un tema en blanco, te deja preguntas para pensarlo.</p>
+          </header>
+          <div class="body">
+            <div>
+              <label for="c1-yrs">Años de servicio <span class="optional">opcional</span></label>
+              <select id="c1-yrs">
+                <option value="">Prefiero no decirlo</option>
+                <option value="menos de 5 años">Menos de 5</option>
+                <option value="entre 5 y 14 años">De 5 a 14</option>
+                <option value="entre 15 y 24 años">De 15 a 24</option>
+                <option value="25 años o más">25 o más</option>
+              </select>
+            </div>
+            <div id="c1-themes" class="rowset"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="c1">Ordenar mis notas</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="c1">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-c1">Tu borrador (puedes editarlo)</label><textarea id="out-c1" data-out="c1" placeholder="Escribe en los temas que quieras y toca “Ordenar mis notas”."></textarea><span class="count" data-count="c1"></span></div>
+          </div>
+        </article>
+
+        <article class="prod" id="p-c2" data-prod="c2">
+          <header>
+            <div class="tags"><span class="tag who">Moderación</span><span class="tag off">Pasos 2 y 3 de la guía</span></div>
+            <h3>Guion para moderar y presentar resultados</h3>
+            <p class="why">Solo si el colectivo te elige como moderadora o moderador. Arma un guion neutral para presentar los resultados del Cuestionario Diagnóstico (Anexo 1), con tiempos según los minutos que tengas.</p>
+          </header>
+          <div class="body">
+            <div class="two">
+              <div><label for="c2-n">Integrantes del colectivo</label><input type="number" id="c2-n" min="2" max="200" inputmode="numeric" placeholder="Ej. 14"></div>
+              <div><label for="c2-min">Minutos para presentar</label>
+                <select id="c2-min"><option value="10">10 min</option><option value="15">15 min</option><option value="20" selected>20 min</option><option value="30">30 min</option><option value="40">40 min</option></select></div>
+            </div>
+            <fieldset class="chips" id="c2-res"><legend>Resultados del Anexo 1 que quieres presentar</legend></fieldset>
+            <div><label for="c2-mode">¿Cómo verán la Carpeta de trabajo (Anexo 2)?</label>
+              <select id="c2-mode"><option value="proy">Proyectada</option><option value="imp">En copias impresas</option><option value="cel">En el celular de cada quien</option></select></div>
+            <div><label for="c2-q">Una pregunta tuya para abrir el diálogo <span class="optional">opcional</span></label>
+              <input type="text" id="c2-q" maxlength="200" placeholder="Ej. ¿Qué dato les sorprendió y por qué?"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="c2">Armar mi guion</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="c2">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-c2">Tu guion (puedes editarlo)</label><textarea id="out-c2" data-out="c2" placeholder="Aquí aparecerá tu guion."></textarea><span class="count" data-count="c2"></span></div>
+          </div>
+        </article>
+
+        <article class="prod" id="p-c3" data-prod="c3">
+          <header>
+            <div class="tags"><span class="tag who">Colectivo</span><span class="tag off">Pasos 2 y 5 de la guía</span></div>
+            <h3>Votación y datos para el Acta</h3>
+            <p class="why">La guía pide registrar los votos de la elección de moderación y, al final, completar, leer y firmar el Acta de la Consulta. Junta aquí los datos para pasarlos al formato oficial.</p>
+          </header>
+          <div class="body">
+            <div>
+              <span class="lbl" id="c3-lbl">Personas propuestas para moderar y votos</span>
+              <p class="hint" style="margin:0 0 8px">Son colegas adultos: puedes usar nombre o iniciales. Nada sale de tu dispositivo.</p>
+              <div class="rowset" id="c3-rows" aria-labelledby="c3-lbl"></div>
+            </div>
+            <div class="two">
+              <div><label for="c3-pres">Integrantes presentes</label><input type="number" id="c3-pres" min="1" max="200" inputmode="numeric"></div>
+              <div><label for="c3-on">Respondieron en línea</label><input type="number" id="c3-on" min="0" max="200" inputmode="numeric"></div>
+            </div>
+            <div class="two">
+              <div><label for="c3-pap">Respondieron en papel</label><input type="number" id="c3-pap" min="0" max="200" inputmode="numeric"></div>
+              <div><label for="c3-h1">Hora de inicio</label><input type="time" id="c3-h1"></div>
+            </div>
+            <div class="two">
+              <div><label for="c3-h2">Hora de término</label><input type="time" id="c3-h2"></div>
+              <div></div>
+            </div>
+            <div><label for="c3-inc">Incidencias <span class="optional">opcional</span></label>
+              <input type="text" id="c3-inc" maxlength="240" placeholder="Ej. sin internet de 9:00 a 9:40"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="c3">Preparar datos del Acta</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="c3">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-c3">Resumen (puedes editarlo)</label><textarea id="out-c3" data-out="c3" placeholder="Aquí aparecerá el resumen para el Acta."></textarea><span class="count" data-count="c3"></span></div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ===== SESSIONS 3+: ITINERARIO ===== -->
+      <div id="prodItin" hidden>
+        <article class="prod" id="p-i1" data-prod="i1">
+          <header>
+            <div class="tags"><span class="tag who">Individual</span><span class="tag sug">Sugerencia de Día Uno</span></div>
+            <h3>Mi reflexión sobre el tema, desde mi grupo</h3>
+            <p class="why">Para llegar al diálogo con algo concreto: cómo se ve el tema en tu grupo, qué necesitan tus estudiantes y qué ya intentaste.</p>
+          </header>
+          <div class="body">
+            <fieldset class="chips" id="i1-needs"><legend>Lo que más necesita tu grupo ahora (elige hasta 3)</legend></fieldset>
+            <div><label for="i1-other">Otra necesidad, en tus palabras <span class="optional">opcional</span></label>
+              <input type="text" id="i1-other" maxlength="200" placeholder="Ej. varios llegan sin desayunar y les cuesta concentrarse"></div>
+            <div><label for="i1-sit">Una situación reciente que lo muestre (sin nombres)</label>
+              <textarea id="i1-sit" maxlength="500" placeholder="Ej. en la asamblea del lunes, tres equipos no lograron ponerse de acuerdo y terminaron discutiendo"></textarea></div>
+            <div><label for="i1-ya">¿Qué has intentado hasta ahora? <span class="optional">opcional</span></label>
+              <input type="text" id="i1-ya" maxlength="240" placeholder="Ej. acuerdos de convivencia al inicio de cada semana"></div>
+            <div><label for="i1-res">¿Cómo te ha ido con eso?</label>
+              <select id="i1-res"><option value="na">Aún no he probado nada específico</option><option value="ok">Me ha funcionado</option><option value="mid">Ha funcionado a medias</option><option value="no">Todavía no veo cambios</option></select></div>
+            <div class="theme-q" id="i1-q"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="i1">Escribir mi reflexión</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="i1">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-i1">Tu borrador (puedes editarlo)</label><textarea id="out-i1" data-out="i1" placeholder="Aquí aparecerá tu reflexión."></textarea><span class="count" data-count="i1"></span></div>
+          </div>
+        </article>
+
+        <article class="prod" id="p-i2" data-prod="i2">
+          <header>
+            <div class="tags"><span class="tag who">Individual</span><span class="tag sug">Sugerencia de Día Uno</span></div>
+            <h3>Mi estrategia para las próximas semanas</h3>
+            <p class="why">Una acción pequeña y medible para tu grupo, con fecha para revisarla en el siguiente Consejo.</p>
+          </header>
+          <div class="body">
+            <div><label for="i2-estr">¿Qué vas a probar? En una o dos frases</label>
+              <textarea id="i2-estr" maxlength="400" placeholder="Ej. cerrar cada viernes con 10 minutos de asamblea para revisar cómo nos tratamos y qué acuerdo ajustamos"></textarea></div>
+            <div class="two">
+              <div><label for="i2-quien">¿Con quiénes?</label>
+                <select id="i2-quien"><option value="all">Todo el grupo</option><option value="apoyo">Estudiantes que requieren más apoyo</option><option value="equipos">Equipos pequeños, por turnos</option><option value="fam">Con participación de las familias</option></select></div>
+              <div><label for="i2-freq">¿Cada cuándo?</label>
+                <select id="i2-freq"><option value="diario">Diario</option><option value="2-3" selected>2 o 3 veces por semana</option><option value="semanal">Una vez por semana</option></select></div>
+            </div>
+            <div class="two">
+              <div><label for="i2-dur">¿Durante cuánto tiempo?</label>
+                <select id="i2-dur"><option value="2">2 semanas</option><option value="4" selected>4 semanas</option><option value="6">6 semanas</option><option value="8">8 semanas</option></select></div>
+              <div><label for="i2-fecha">Fecha para revisar</label><input type="date" id="i2-fecha"></div>
+            </div>
+            <fieldset class="chips" id="i2-evid"><legend>¿Cómo sabrás si funciona?</legend></fieldset>
+            <div><label for="i2-senal">Una señal de avance que esperas ver <span class="optional">opcional</span></label>
+              <input type="text" id="i2-senal" maxlength="200" placeholder="Ej. menos discusiones en el recreo y que pidan la palabra en la asamblea"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="i2">Escribir mi plan</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="i2">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-i2">Tu plan (puedes editarlo)</label><textarea id="out-i2" data-out="i2" placeholder="Aquí aparecerá tu plan."></textarea><span class="count" data-count="i2"></span></div>
+          </div>
+        </article>
+
+        <article class="prod" id="p-i3" data-prod="i3">
+          <header>
+            <div class="tags"><span class="tag who">Colectivo</span><span class="tag sug">Sugerencia de Día Uno</span></div>
+            <h3>Acuerdos del colectivo y seguimiento al Programa de Mejora Continua</h3>
+            <p class="why">Anota los acuerdos tal como los tomaron en la sesión, con responsable y fecha. Te los dejamos en limpio.</p>
+          </header>
+          <div class="body">
+            <div class="rowset" id="i3-rows"></div>
+            <div class="btnrow"><button type="button" class="btn btn-small" id="i3-add">+ Agregar acuerdo</button></div>
+            <div><label for="i3-pmc">¿Con qué problemática o meta del Programa de Mejora Continua se relaciona? <span class="optional">opcional</span></label>
+              <input type="text" id="i3-pmc" maxlength="240" placeholder="Ej. mejorar la convivencia en el recreo"></div>
+            <div class="btnrow">
+              <button type="button" class="btn btn-primary" data-gen="i3">Pasar acuerdos en limpio</button>
+              <button type="button" class="btn btn-small btn-ghost" data-regen="i3">Otra redacción</button>
+            </div>
+            <div class="out"><label for="out-i3">Acuerdos (puedes editarlos)</label><textarea id="out-i3" data-out="i3" placeholder="Aquí aparecerán los acuerdos."></textarea><span class="count" data-count="i3"></span></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="exportbar" aria-labelledby="h-exp">
+        <h3 id="h-exp" class="subh" style="margin:0">Llévatelo</h3>
+        <p>Incluye la agenda (con lo que ya palomeaste) y todos los borradores, con tus cambios.</p>
+        <div class="btnrow">
+          <button type="button" class="btn btn-small btn-copy" id="copyAll">Copiar todo</button>
+          <button type="button" class="btn btn-small" id="dlTxt">Descargar .txt</button>
+          <button type="button" class="btn btn-small" id="printBtn">Imprimir o guardar PDF</button>
+        </div>
+      </div>
+
+      <details class="box" id="aiBox">
+        <summary>Hazlo más personal con ChatGPT/Gemini <span class="optional">opcional</span></summary>
+        <div class="box-body">
+          <p id="aiIntro">Copia este prompt y pégalo en ChatGPT o Gemini. Lleva tu contexto y tus borradores, sin nombres ni CURP. Esta herramienta funciona completa sin este paso.</p>
+          <label for="aiFor">¿Para qué producto?</label>
+          <select id="aiFor" style="margin-bottom:10px"></select>
+          <label for="prompt">Prompt listo para pegar</label>
+          <textarea id="prompt" readonly></textarea>
+          <div class="linkrow">
+            <button type="button" class="btn btn-small" id="copyPrompt">Copiar prompt</button>
+            <a class="btn btn-small btn-ghost" href="https://chatgpt.com/" target="_blank" rel="noopener">Abrir ChatGPT</a>
+            <a class="btn btn-small btn-ghost" href="https://gemini.google.com/" target="_blank" rel="noopener">Abrir Gemini</a>
+          </div>
+        </div>
+      </details>
+
+      <details class="box" id="srcBox">
+        <summary>Qué dice la guía oficial y de dónde sale cada dato</summary>
+        <div class="box-body" id="srcBody"></div>
+      </details>
+    </section>
+  </main>
+
+  <section class="share" aria-label="Compartir">
+    <div class="panel">
+      <h2>¿Le sirve a alguien de tu escuela?</h2>
+      <p>Compártela con tu colectivo por WhatsApp. Es gratis para cualquier docente y no pide registro.</p>
+      <a class="btn btn-wa" id="waBtn" href="https://wa.me/?text=Encontr%C3%A9%20un%20asistente%20gratis%20para%20preparar%20la%20sesi%C3%B3n%20del%20Consejo%20T%C3%A9cnico%3A%20agenda%20con%20horarios%20y%20productos%20a%20partir%20de%20tu%20propio%20contexto.%20Sin%20registro%20y%20los%20datos%20no%20salen%20del%20celular%3A%20https%3A%2F%2Fdiauno.pages.dev%2Ftools%2Fcte%2F" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2c.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg>
+        Compartir con mi colectivo
+      </a>
+    </div>
+    <div class="panel">
+      <h2>Más herramientas gratis</h2>
+      <p>Comentarios para boletas por campo formativo, y más en camino. Todas sin cuenta.</p>
+      <a class="btn" href="https://diauno.pages.dev/">Ver todas las herramientas <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <div id="printArea" aria-hidden="true"></div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <svg viewBox="0 0 46 26" aria-hidden="true">
+      <circle cx="8" cy="17" r="7" fill="var(--accent)"/><circle cx="23" cy="16" r="8" fill="var(--ink)"/><circle cx="38" cy="17" r="7" fill="var(--green)"/>
+    </svg>
+    <div>
+      <p class="made">Hecho con IA · Apoyo docente independiente, sin relación con la SEP</p>
+      <p>Día Uno: tres inteligencias artificiales haciendo papeleo gratis para docentes de México. Ordenamos tus ideas en borradores; tú revisas y decides. Nada de lo que escribes aquí se envía ni se guarda en un servidor.</p>
+      <p><a href="https://diauno.pages.dev/">Inicio</a> · <a href="https://diauno.pages.dev/#privacidad">Privacidad</a> · <a href="https://diauno.pages.dev/#avisos">Avisos por correo</a></p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+/* ---------------- Data ---------------- */
+var MONTHS=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+var MON3=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var SESSIONS=[
+  {n:1, date:"2026-09-25", kind:"past", short:"Codiseño del PA, Mejora Continua e Itinerario"},
+  {n:2, date:"2026-10-30", kind:"consulta", short:"Consulta Nacional sobre el nuevo sistema de carrera docente"},
+  {n:3, date:"2026-11-27", kind:"itin", short:"Tema de tu Itinerario"},
+  {n:4, date:"2027-01-29", kind:"itin", short:"Tema de tu Itinerario"},
+  {n:5, date:"2027-02-26", kind:"itin", short:"Tema de tu Itinerario"},
+  {n:6, date:"2027-03-26", alt:"o 30 abr", kind:"itin", short:"Tema de tu Itinerario (fecha por confirmar)"},
+  {n:7, date:"2027-05-28", kind:"itin", short:"Tema de tu Itinerario"},
+  {n:8, date:"2027-06-25", kind:"itin", short:"Tema de tu Itinerario o cierre del ciclo"}
+];
+var ORD=["","1.ª","2.ª","3.ª","4.ª","5.ª","6.ª","7.ª","8.ª"];
+function pd(s){ var p=s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+function longDate(s){ var d=pd(s); return d.getDate()+" de "+MONTHS[d.getMonth()]+" de "+d.getFullYear(); }
+function shortDate(s){ var d=pd(s); return d.getDate()+" "+MON3[d.getMonth()]+" "+d.getFullYear(); }
+function sessById(n){ for(var i=0;i<SESSIONS.length;i++){ if(SESSIONS[i].n===n) return SESSIONS[i]; } return SESSIONS[1]; }
+function nextSess(n){ for(var i=0;i<SESSIONS.length;i++){ if(SESSIONS[i].n===n+1) return SESSIONS[i]; } return null; }
+
+/* SEP-proposed themes for the 2026-2027 Itinerario (Orientaciones 1.ª sesión, pp. 15-17, per infographic) */
+var THEMES={
+  common:[
+    {id:"t1", t:"Apuntes sobre el plano didáctico en la Nueva Escuela Mexicana",
+     q:["¿Qué parte de mi planeación me sirve de verdad en el aula y cuál hago solo por cumplir?","¿Cómo se nota el contexto de mis estudiantes en las actividades que propongo?","¿Qué evidencias de aprendizaje recojo y qué decisiones tomo con ellas?"]},
+    {id:"t2", t:"Estrategias para generar ambientes escolares pacíficos",
+     q:["¿En qué momentos del día aparecen más conflictos en mi grupo?","¿Qué acuerdos de convivencia funcionan y cuáles se quedaron en el papel?","¿Cómo participan mis estudiantes en la solución de los conflictos?"]},
+    {id:"t3", t:"Ajustes razonables en la atención de niñas, niños y adolescentes con discapacidad y aptitudes sobresalientes",
+     q:["¿Qué barreras para el aprendizaje y la participación identifico en mi aula?","¿Qué ajuste sencillo podría hacer en materiales, tiempos o formas de participar?","¿Con quién me coordino (familia, USAER, colegas) para dar seguimiento?"]},
+    {id:"t4", t:"Uso de pantallas, redes sociales e inteligencia artificial en niñas, niños y adolescentes de Educación Básica",
+     q:["¿Qué sé del uso de pantallas de mis estudiantes fuera de la escuela?","¿Qué efectos observo en la atención, el descanso o la convivencia?","¿Qué mensaje común podríamos compartir con las familias?"]},
+    {id:"t5", t:"Infancias y adolescencias trans y no binarias: orientaciones para una práctica docente inclusiva en el aula desde la Nueva Escuela Mexicana",
+     q:["¿Qué prácticas de mi aula ayudan a que todas y todos se sientan respetados?","¿Cómo respondo ante burlas o exclusión por identidad o expresión de género?","¿Qué información necesito para actuar con respeto y conforme a los protocolos de mi escuela?"]},
+    {id:"t6", t:"Cuidarnos para enseñar y convivir: bienestar socioemocional docente",
+     q:["¿Qué situaciones del trabajo me desgastan más?","¿Qué práctica de cuidado podríamos sostener como colectivo?","¿Cómo nos pedimos y nos damos apoyo entre colegas?"]}
+  ],
+  pre:[
+    {id:"p1", t:"El juego como herramienta para la vinculación entre los Campos formativos en la Fase 2",
+     q:["¿Qué juegos eligen mis alumnas y alumnos cuando pueden decidir?","¿Qué campos formativos se ponen en juego en una misma actividad lúdica?","¿Cómo registro lo que aprenden mientras juegan?"]},
+    {id:"p2", t:"Desarrollo del pensamiento científico a partir de la curiosidad y la exploración del entorno",
+     q:["¿Qué preguntas hacen mis estudiantes sobre lo que les rodea?","¿Qué espacios y materiales tengo para explorar y experimentar?","¿Cómo les ayudo a registrar lo que observan?"]}
+  ],
+  pri:[
+    {id:"r1", t:"Educación financiera para el bienestar personal, familiar y comunitario en el marco de la Nueva Escuela Mexicana",
+     q:["¿Qué situaciones con dinero, ahorro o consumo viven mis estudiantes?","¿En qué proyectos o contenidos puedo vincular el tema sin sumar carga?","¿Cómo involucro a las familias con respeto a su realidad económica?"]}
+  ],
+  sec:[
+    {id:"s1", t:"Vinculación de los elementos curriculares en la Fase 6",
+     q:["¿Con qué colegas de otras disciplinas comparto contenidos o proyectos?","¿Qué contenido de mi disciplina se conecta con un problema de la comunidad?","¿Cómo podríamos acordar evidencias comunes entre disciplinas?"]}
+  ],
+  multi:[
+    {id:"m1", t:"Trayectorias de aprendizaje en aulas multigrado: continuidad, transiciones y progresión",
+     q:["¿Cómo sé en qué punto de su trayectoria está cada estudiante?","¿Qué contenido podría trabajar con todo el grupo, con distinto nivel de profundidad?","¿Cómo acompaño a quien cambia de ciclo o de fase?"]},
+    {id:"m2", t:"Interculturalidad crítica, lenguas y saberes en escuelas multigrado",
+     q:["¿Qué lenguas y saberes de la comunidad están presentes en mi aula?","¿Cómo los incorporo como contenido y no solo como ejemplo?","¿Quién de la comunidad podría compartir sus saberes con el grupo?"]},
+    {id:"m3", t:"La autonomía de niñas, niños y adolescentes en el aula multigrado",
+     q:["¿Qué pueden resolver mis estudiantes sin esperar mi indicación?","¿Cómo organizo el apoyo entre estudiantes de distintos grados?","¿Qué materiales les permiten trabajar por su cuenta?"]},
+    {id:"m4", t:"Organización del tiempo y del aula multigrado",
+     q:["¿En qué parte de la jornada pierdo más tiempo?","¿Qué rutina me ayudaría a atender a varios grados a la vez?","¿Cómo distribuyo el espacio para trabajar en paralelo?"]},
+    {id:"m5", t:"Integración de la comunidad en las aulas multigrado",
+     q:["¿Qué participación de la comunidad ya tenemos y cuál nos falta?","¿Qué problema de la comunidad podría convertirse en proyecto?","¿Cómo comunico a las familias lo que aprenden sus hijas e hijos?"]}
+  ],
+  other:{id:"otro", t:"", q:["¿Por qué elegimos este tema como colectivo?","¿Cómo se ve este tema en mi grupo, con un ejemplo concreto?","¿Qué cambio pequeño podría probar antes de la siguiente sesión?"]}
+};
+
+/* Consulta: five themes, verbatim from the SEP guide (p. 7) */
+var CTHEMES=[
+  {k:"A", s:"Instrumento de valoración para plazas y ascensos", t:"La aplicación de un instrumento de valoración de conocimientos y aptitudes para la asignación de plazas y ascensos.",
+   q:["¿Qué tendría que valorar un instrumento para reflejar bien el trabajo docente?","¿Qué riesgos ves en que un instrumento defina plazas y ascensos, y cómo se podrían evitar?","¿Cómo te afectaría en tu caso un instrumento así, y cómo te afectaría no tenerlo?"]},
+  {k:"B", s:"Valoración entre pares electos democráticamente", t:"Valoración entre pares electos democráticamente, a través de una convocatoria por nivel educativo.",
+   q:["¿Qué ventajas tendría que te valoren colegas de tu mismo nivel?","¿Qué condiciones harían falta para que una valoración entre pares sea justa e imparcial?","¿Cómo debería organizarse la elección de esas personas?"]},
+  {k:"C", s:"Práctica frente a grupo y Plan y Programas en el instrumento", t:"Priorizar en el contenido del instrumento de valoración el conocimiento de la práctica docente frente a grupo, así como del Plan y Programas de Estudio.",
+   q:["¿Qué parte de tu práctica frente a grupo debería poder mostrarse en una valoración?","¿Cómo se podría valorar el conocimiento del Plan y Programas sin volverlo memorización?","¿Qué otros saberes de tu función crees que deberían contar?"]},
+  {k:"D", s:"Más valor a la antigüedad y la preparación profesional", t:"Asignar mayor valor a la antigüedad y la preparación profesional como elementos para la asignación de plazas y promociones.",
+   q:["¿Cuánto debería pesar la antigüedad frente a otros criterios, y por qué?","¿Qué tipo de preparación profesional debería reconocerse?","¿Cómo afectaría este criterio a quienes tienen menos años de servicio, y a quienes tienen más?"]},
+  {k:"E", s:"Transparencia y denuncia de corrupción", t:"Transparencia en la asignación de plazas y denuncias ante las autoridades por actos de corrupción en los procesos para la asignación de plazas y promociones.",
+   q:["¿Qué información sobre plazas y promociones debería ser pública?","¿Qué haría falta para que denunciar sea seguro y tenga consecuencias?","¿Qué práctica de transparencia has visto funcionar?"]}
+];
+var POSTURAS=[["nd","Aún no lo decido"],["si","De acuerdo"],["cond","De acuerdo, con condiciones"],["no","En desacuerdo"]];
+
+/* Anexo 1: results of the Cuestionario Diagnóstico (SEP, Oct 2026) */
+var RESULTS=[
+  {s:"1. Instrumento o Comisiones Mixtas", t:"79.6 % prefirió que plazas y promociones se asignen mediante un instrumento de valoración de conocimientos y aptitudes; 20.4 % eligió el reparto a través de Comisiones Mixtas."},
+  {s:"2. Quién elabora el instrumento", t:"Sobre quién debería participar, junto con la autoridad federal, en elaborar el instrumento (opción múltiple): docentes del nivel que se evalúa, 43.2 % de las menciones; personas académicas y especialistas, 24.8 %; autoridades educativas estatales, 14.9 %; docentes de Normales o de la UPN, 13.4 %; organizaciones de la sociedad civil, 3.7 %."},
+  {s:"3. Cómo elegir a quienes lo elaboran", t:"Para elegir a esas personas: concurso público con convocatoria abierta, 73.9 %; designación por la autoridad educativa, 13.1 %; elección democrática entre pares, 13.0 %."},
+  {s:"4. Qué debe valorar", t:"Aspectos que debería tomar en cuenta el instrumento (opción múltiple): habilidades para la práctica docente frente a grupo, 26.6 %; Plan y Programas de estudio vigentes, 26.1 %; conocimientos del nivel educativo, 25.1 %; normas, lineamientos y protocolos, 17.0 %; plan de trabajo y exposición de motivos, 5.3 %."},
+  {s:"5. Peso de cada criterio", t:"Al repartir 100 puntos entre criterios, el promedio quedó así: instrumento de valoración, 24.1; antigüedad, 22.7; posgrado, 20.4; formación y actualización, 20.0; evidencias del trabajo con estudiantes, 12.8. Las opiniones variaron bastante, sobre todo en antigüedad (±15.4 puntos)."},
+  {s:"6. Vigencia de puntajes", t:"92.6 % está de acuerdo en que los puntajes del instrumento sigan vigentes durante un ciclo escolar completo; 7.4 % no."},
+  {s:"7. Modalidad", t:"68.3 % preferiría un proceso híbrido (presencial y en línea) y 31.7 %, uno totalmente en línea."},
+  {s:"8. Difusión de plazas", t:"96.7 % está de acuerdo en que las plazas disponibles se informen y difundan públicamente y de inmediato."},
+  {s:"9. Plaza definitiva", t:"91.3 % está de acuerdo en respetar el derecho a una plaza definitiva aun con nombramiento temporal."},
+  {s:"10. Denuncia de corrupción", t:"98.1 % está de acuerdo en denunciar ante las autoridades los actos de corrupción y falta de transparencia en plazas y promociones, para que se sancionen."}
+];
+
+var NEEDS={
+  base:[
+    ["lee","Lectura y escritura","la lectura y la escritura"],
+    ["mat","Pensamiento matemático","el pensamiento matemático"],
+    ["conv","Convivencia y conflictos","la convivencia y el manejo de conflictos"],
+    ["asis","Asistencia y puntualidad","la asistencia y la puntualidad"],
+    ["emo","Manejo de emociones","el manejo de las emociones"],
+    ["aten","Atención y participación","la atención y la participación en clase"],
+    ["bap","Barreras para el aprendizaje","las barreras para el aprendizaje y la participación"],
+    ["pant","Uso de pantallas","el uso excesivo de pantallas"],
+    ["fam","Participación de las familias","la participación de las familias"],
+    ["leng","Diversidad de lenguas y culturas","la diversidad de lenguas y culturas en el aula"]
+  ],
+  pre:{lee:["Lenguaje oral","el lenguaje oral y las primeras escrituras"], mat:["Nociones de número y espacio","las nociones de número, forma y espacio"]},
+  sec:{lee:["Comprensión lectora y escritura","la comprensión lectora y la escritura de textos propios"], mat:["Razonamiento matemático","el razonamiento matemático"]}
+};
+var EVID=[
+  ["prod","Revisaré sus producciones","revisaré sus producciones"],
+  ["obs","Registro breve de observación","llevaré un registro breve de observación"],
+  ["lista","Lista de cotejo sencilla","usaré una lista de cotejo sencilla"],
+  ["auto","Autoevaluación del grupo","pediré al grupo una autoevaluación"],
+  ["asis","Asistencia o participación","compararé la asistencia o la participación antes y después"]
+];
+var FN={doc:"docente frente a grupo", dir:"directivo o directiva", atp:"asesor o asesora técnico-pedagógica", esp:"docente de educación especial", ef:"docente de educación física", otra:"docente"};
+var LVL={pre:"preescolar", pri:"primaria", sec:"secundaria"};
+var GRADES={pre:3, pri:6, sec:3};
+
+/* ---------------- Seeded variation ---------------- */
+function hash(str){ var h=2166136261>>>0; for(var i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+function rng(seed){ var a=seed>>>0; return function(){ a=(a+0x6D2B79F5)>>>0; var t=a; t=Math.imul(t^(t>>>15), t|1); t^=t+Math.imul(t^(t>>>7), t|61); return ((t^(t>>>14))>>>0)/4294967296; }; }
+function pick(r, arr){ return arr[Math.floor(r()*arr.length)]; }
+function pickN(r, arr, n){ var a=arr.slice(), out=[]; while(a.length && out.length<n){ out.push(a.splice(Math.floor(r()*a.length),1)[0]); } return out; }
+var variant={c1:0,c2:0,c3:0,i1:0,i2:0,i3:0};
+
+/* ---------------- Text helpers ---------------- */
+function clean(s){ return String(s||"").replace(/\s+/g," ").trim().replace(/[.;,:\s]+$/,""); }
+function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+function low(s){ return (s && s.length>1 && s.charAt(1)===s.charAt(1).toLowerCase()) ? s.charAt(0).toLowerCase()+s.slice(1) : s; }
+function joinY(list){ if(list.length<=1) return list.join(""); var hasY=list.some(function(x){ return / y /.test(x); }); return list.slice(0,-1).join(", ")+(hasY?", y ":" y ")+list[list.length-1]; }
+function cleanName(s){ return String(s||"").replace(/\s+/g," ").trim().replace(/[;,:\s]+$/,""); }
+function fill(tpl, o){ return tpl.replace(/\{(\w+)\}/g, function(_,k){ return o[k]!=null ? o[k] : ""; }); }
+function radioVal(name){ var r=document.querySelector('input[name="'+name+'"]:checked'); return r ? r.value : ""; }
+function checkedVals(name){ return [].slice.call(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(i){ return i.value; }); }
+
+/* ---------------- Context ---------------- */
+function ctx(){
+  var lvl=radioVal("lvl")||"pri", g=+$("grade").value||1, n=parseInt($("nStu").value,10), multi=$("multi").checked, fn=$("fn").value;
+  var sess=sessById(+$("sess").value);
+  return {lvl:lvl, g:g, n:(n>0&&n<200)?n:0, multi:multi, fn:fn, sess:sess};
+}
+function gradeTxt(c){ return c.multi ? "grupo multigrado de "+LVL[c.lvl] : c.g+".º de "+LVL[c.lvl]; }
+function groupPhrase(c){
+  if(c.fn==="dir") return "la escuela "+LVL[c.lvl]+" que dirijo";
+  if(c.fn==="atp") return "las escuelas de "+LVL[c.lvl]+" que acompaño";
+  var base = c.multi ? "un grupo multigrado de "+LVL[c.lvl] : (c.lvl==="sec" ? "mis grupos de "+c.g+".º de secundaria" : "un grupo de "+c.g+".º de "+LVL[c.lvl]);
+  if(c.n) base += c.lvl==="sec" && !c.multi ? " (unos "+c.n+" estudiantes por grupo)" : " con "+c.n+" estudiantes";
+  return base;
+}
+function themeList(c){
+  var l=THEMES.common.slice();
+  l=l.concat(THEMES[c.lvl]||[]);
+  if(c.multi) l=l.concat(THEMES.multi);
+  return l;
+}
+function curTheme(){
+  var c=ctx(), id=$("theme").value;
+  if(id==="otro"){ var t=clean($("themeOther").value); return {id:"otro", t:t||"el tema elegido por el colectivo", q:THEMES.other.q, own:true}; }
+  var l=themeList(c);
+  for(var i=0;i<l.length;i++){ if(l[i].id===id) return l[i]; }
+  return l[0];
+}
+
+/* ---------------- Agenda ---------------- */
+var AG={
+  consulta:[
+    {k:"a1", n:"Mensaje del Secretario de Educación Pública", d:"Video que orienta el trabajo de la sesión.", w:6},
+    {k:"a2", n:"Elección de moderadora o moderador", d:"Propuestas y votación. Registren los votos: se piden en el Acta.", w:8},
+    {k:"a3", n:"Resultados del Cuestionario Diagnóstico y Carpeta de trabajo", d:"La persona moderadora presenta el Anexo 1; después revisan el Anexo 2.", w:28},
+    {k:"rx", n:"Receso", d:"Si tu escuela lo acostumbra.", w:7, opt:true},
+    {k:"a4", n:"Consulta Nacional (individual)", d:"Cada quien responde en consultanacional.sep.gob.mx con su CURP. Sin conexión: Anexo 3 en papel y registro posterior.", w:39},
+    {k:"a5", n:"Firma del Acta", d:"Revisar en plenaria, completar, leer y firmar. La dirección la envía a la Supervisión.", w:12}
+  ],
+  itin:[
+    {k:"b1", n:"Encuadre", d:"Propósito del tema y forma de trabajo de la sesión.", w:7},
+    {k:"b2", n:"Insumo inicial", d:"Mensaje, video o lectura que propone la guía del tema.", w:12},
+    {k:"b3", n:"Ideas centrales del tema", d:"Lectura y diálogo sobre lo esencial.", w:19},
+    {k:"b4", n:"Análisis de nuestra práctica", d:"Cómo se ve el tema en nuestros grupos. Aquí sirve tu reflexión.", w:22},
+    {k:"rx", n:"Receso", d:"Si tu escuela lo acostumbra.", w:7, opt:true},
+    {k:"b5", n:"Acuerdos y estrategias", d:"Qué haremos, quién y cuándo.", w:18},
+    {k:"b6", n:"Seguimiento al Programa de Mejora Continua", d:"Revisar avances de las acciones acordadas.", w:15}
+  ]
+};
+var PREP={
+  consulta:[
+    {k:"q1", n:"Ten a la mano tu CURP", d:"La pide la plataforma. No la escribas en esta página."},
+    {k:"q2", n:"Celular o computadora con internet", d:"La guía pide un dispositivo con conexión por docente."},
+    {k:"q3", n:"Lee el Anexo 1 y hojea el Anexo 2", d:"Resultados del Cuestionario Diagnóstico y Carpeta de trabajo."},
+    {k:"q4", n:"Si la conexión es mala, imprime el Anexo 3", d:"Se publica el 30 de octubre. Respondes en papel y luego registras en la plataforma."},
+    {k:"q5", n:"Dirección: descarga el Acta", d:"Disponible desde el 26 de octubre en actaconsulta.sep.gob.mx."}
+  ],
+  itin:[
+    {k:"q6", n:"Confirma el tema de tu Itinerario", d:"Pregunta a tu dirección qué tema toca en esta sesión."},
+    {k:"q7", n:"Revisa la guía y los insumos del tema", d:"Se publican en gestion.cte.sep.gob.mx/insumos, normalmente unos días antes."},
+    {k:"q8", n:"Lleva una evidencia de tu grupo", d:"Una producción, un registro o un dato, sin nombres."},
+    {k:"q9", n:"Ten a la mano tu Programa de Mejora Continua", d:"Para revisar el seguimiento de las acciones."}
+  ]
+};
+var agChecks={};
+function fmtT(m){ m=((m%1440)+1440)%1440; var h=Math.floor(m/60), mm=m%60; return h+":"+(mm<10?"0":"")+mm; }
+function agendaItems(){
+  var c=ctx(), kind=c.sess.kind==="consulta" ? "consulta" : "itin";
+  var items=AG[kind], tot=+$("dur").value||240, sw=0;
+  items.forEach(function(i){ sw+=i.w; });
+  var st=$("start").value||"08:00", p=st.split(":"), t=(+p[0])*60+(+p[1]||0), out=[];
+  var acc=0;
+  items.forEach(function(i, idx){
+    var from=t+Math.round(acc/5)*5; acc+=tot*i.w/sw;
+    var to=(idx===items.length-1) ? t+tot : t+Math.round(acc/5)*5;
+    out.push({k:kind+"-"+i.k, n:i.n, d:i.d, opt:i.opt, from:fmtT(from), to:fmtT(to)});
+  });
+  return out;
+}
+function renderAgenda(){
+  var c=ctx(), kind=c.sess.kind==="consulta" ? "consulta" : "itin";
+  var items=agendaItems();
+  $("agenda").innerHTML=items.map(function(i){
+    var id="ag-"+i.k, on=!!agChecks[i.k];
+    return '<li class="'+(on?"done ":"")+(i.opt?"opt":"")+'"><input type="checkbox" id="'+id+'" data-ag="'+i.k+'"'+(on?" checked":"")+'><label for="'+id+'"><span class="t">'+i.from+'–'+i.to+'</span><span class="n">'+esc(i.n)+'</span><span class="d">'+esc(i.d)+'</span></label></li>';
+  }).join("");
+  $("prep").innerHTML=PREP[kind].map(function(i){
+    var id="pr-"+i.k, on=!!agChecks[i.k];
+    return '<li class="'+(on?"done":"")+'"><input type="checkbox" id="'+id+'" data-ag="'+i.k+'"'+(on?" checked":"")+'><label for="'+id+'"><span class="n">'+esc(i.n)+'</span><span class="d">'+esc(i.d)+'</span></label></li>';
+  }).join("");
+  $("agNote").textContent = kind==="consulta"
+    ? "Los cinco pasos son los de la guía oficial. La guía no fija tiempos: los horarios son una sugerencia según tu hora de inicio y duración."
+    : "Estructura sugerida a partir de las orientaciones por tema del ciclo pasado. Cuando se publique la guía de tu tema, ajústala.";
+  updateProgress();
+}
+function updateProgress(){
+  var boxes=[].slice.call($("agenda").querySelectorAll("input")), done=boxes.filter(function(b){ return b.checked; }).length;
+  $("agProgress").textContent="Hecho: "+done+" de "+boxes.length;
+}
+
+/* ---------------- Settings rendering ---------------- */
+function renderSessions(){
+  var today=new Date(); today.setHours(0,0,0,0);
+  var def=null;
+  $("sess").innerHTML=SESSIONS.filter(function(s){ return s.kind!=="past"; }).map(function(s){
+    if(def===null && pd(s.date)>=today) def=s.n;
+    return '<option value="'+s.n+'">'+ORD[s.n]+' sesión · '+shortDate(s.date)+(s.alt?" ("+s.alt+")":"")+' · '+esc(s.kind==="consulta"?"Consulta Nacional":"Tema del Itinerario")+'</option>';
+  }).join("");
+  $("sess").value=String(def||8);
+}
+function renderDates(){
+  var cur=+$("sess").value;
+  $("dateList").innerHTML=SESSIONS.map(function(s){
+    return '<li class="'+(s.n===cur?"now":"")+'"><b>'+ORD[s.n]+" · "+shortDate(s.date).replace(/ \d{4}$/,"")+(s.alt?" "+s.alt:"")+'</b><span>'+esc(s.short)+'</span></li>';
+  }).join("");
+}
+function renderGrades(){
+  var lvl=radioVal("lvl")||"pri", prev=$("grade").value, n=GRADES[lvl], h="";
+  for(var i=1;i<=n;i++) h+='<option value="'+i+'">'+i+'.º de '+LVL[lvl]+'</option>';
+  $("grade").innerHTML=h;
+  if(prev && +prev<=n) $("grade").value=prev; else $("grade").value=String(Math.min(lvl==="pri"?3:1, n));
+  $("nStuLbl").textContent = lvl==="sec" ? "Estudiantes por grupo" : "Estudiantes en tu grupo";
+}
+function renderThemes(){
+  var c=ctx(), prev=$("theme").value, l=themeList(c), h="";
+  h+='<optgroup label="Todos los niveles">'+THEMES.common.map(opt).join("")+'</optgroup>';
+  if((THEMES[c.lvl]||[]).length) h+='<optgroup label="'+cap(LVL[c.lvl])+'">'+THEMES[c.lvl].map(opt).join("")+'</optgroup>';
+  if(c.multi) h+='<optgroup label="Multigrado">'+THEMES.multi.map(opt).join("")+'</optgroup>';
+  h+='<option value="otro">Otro tema elegido por mi colectivo</option>';
+  $("theme").innerHTML=h;
+  var ok=prev==="otro" || l.some(function(x){ return x.id===prev; });
+  $("theme").value= ok && prev ? prev : l[0].id;
+  function opt(x){ return '<option value="'+x.id+'">'+esc(x.t)+'</option>'; }
+  $("themeOtherWrap").hidden = $("theme").value!=="otro";
+}
+function renderNeeds(){
+  var lvl=radioVal("lvl")||"pri", prev=checkedVals("need");
+  $("i1-needs").innerHTML='<legend>Lo que más necesita tu grupo ahora (elige hasta 3)</legend>'+NEEDS.base.map(function(n){
+    var lab=(NEEDS[lvl]&&NEEDS[lvl][n[0]]) ? NEEDS[lvl][n[0]][0] : n[1];
+    return '<input type="checkbox" name="need" id="need-'+n[0]+'" value="'+n[0]+'"'+(prev.indexOf(n[0])>=0?" checked":"")+'><label for="need-'+n[0]+'">'+esc(lab)+'</label>';
+  }).join("");
+}
+function needPhrase(k){
+  var lvl=radioVal("lvl")||"pri";
+  if(NEEDS[lvl] && NEEDS[lvl][k]) return NEEDS[lvl][k][1];
+  for(var i=0;i<NEEDS.base.length;i++){ if(NEEDS.base[i][0]===k) return NEEDS.base[i][2]; }
+  return k;
+}
+function renderThemeQ(){
+  var t=curTheme();
+  $("i1-q").innerHTML='<h4>Preguntas para pensar el tema</h4><p><em>'+esc(t.own?("Tema: "+t.t):t.t)+'</em></p>'+t.q.map(function(q){ return '<p>• '+esc(q)+'</p>'; }).join("");
+}
+function renderStatic(){
+  $("c1-themes").innerHTML=CTHEMES.map(function(t){
+    return '<div class="ctheme"><p class="ttl"><b>'+t.k+'</b>'+esc(t.s)+'</p><p class="src">Texto de la guía: “'+esc(t.t)+'”</p>'+
+      '<div><label for="c1-p-'+t.k+'">Mi postura por ahora</label><select id="c1-p-'+t.k+'">'+POSTURAS.map(function(p){ return '<option value="'+p[0]+'">'+p[1]+'</option>'; }).join("")+'</select></div>'+
+      '<div><label for="c1-r-'+t.k+'">Por qué, desde tu experiencia <span class="optional">opcional</span></label><textarea id="c1-r-'+t.k+'" maxlength="600"></textarea></div>'+
+      '<div><label for="c1-s-'+t.k+'">Lo que propondrías o pedirías <span class="optional">opcional</span></label><input type="text" id="c1-s-'+t.k+'" maxlength="240"></div></div>';
+  }).join("");
+  $("c2-res").innerHTML='<legend>Resultados del Anexo 1 que quieres presentar</legend>'+RESULTS.map(function(r,i){
+    var on=(i===0||i===3||i===4||i===9);
+    return '<input type="checkbox" name="c2res" id="c2r-'+i+'" value="'+i+'"'+(on?" checked":"")+'><label for="c2r-'+i+'">'+esc(r.s)+'</label>';
+  }).join("");
+  var h="";
+  for(var i=1;i<=4;i++) h+='<div class="vrow"><div><label for="c3-name-'+i+'" class="sr-only">Persona '+i+'</label><input type="text" id="c3-name-'+i+'" maxlength="60" placeholder="Persona '+i+'" aria-label="Persona propuesta '+i+'"></div><div><input type="number" id="c3-votes-'+i+'" min="0" max="200" inputmode="numeric" placeholder="Votos" aria-label="Votos de la persona '+i+'"></div></div>';
+  $("c3-rows").innerHTML=h;
+  $("i2-evid").innerHTML='<legend>¿Cómo sabrás si funciona?</legend>'+EVID.map(function(e,i){
+    return '<input type="checkbox" name="evid" id="ev-'+e[0]+'" value="'+e[0]+'"'+(i<2?" checked":"")+'><label for="ev-'+e[0]+'">'+esc(e[1])+'</label>';
+  }).join("");
+  i3Rows=0; $("i3-rows").innerHTML=""; for(var j=0;j<3;j++) addI3Row();
+}
+var i3Rows=0;
+function addI3Row(){
+  if(i3Rows>=8){ toast("Máximo 8 acuerdos"); return; }
+  i3Rows++; var i=i3Rows, d=document.createElement("div"); d.className="arow";
+  d.innerHTML='<div><label for="i3-a-'+i+'">Acuerdo '+i+'</label><input type="text" id="i3-a-'+i+'" maxlength="240" placeholder="Qué haremos"></div>'+
+    '<div><label for="i3-r-'+i+'">Responsable</label><input type="text" id="i3-r-'+i+'" maxlength="60" placeholder="Cargo o iniciales"></div>'+
+    '<div><label for="i3-f-'+i+'">Revisión</label><input type="date" id="i3-f-'+i+'"></div>';
+  $("i3-rows").appendChild(d);
+}
+
+function applySession(){
+  var c=ctx(), cons=c.sess.kind==="consulta";
+  $("prodConsulta").hidden=!cons; $("prodItin").hidden=cons;
+  $("themeWrap").hidden=cons;
+  renderDates(); renderAgenda();
+  var ns=$("sessNotice");
+  if(cons){
+    ns.innerHTML='<div class="notice ok"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-11"/></svg><div>'+
+      '<p><strong>Guía oficial publicada (20 oct 2026).</strong> La 2.ª sesión ordinaria, del viernes 30 de octubre, es distinta: la SEP la destina a la <strong>Consulta Nacional para la Construcción del Nuevo Sistema de las Maestras y los Maestros</strong> (Compromiso Presidencial 27, que sustituye a la USICAMM).</p>'+
+      '<p>Es la misma guía para preescolar, primaria y secundaria. Lo que pide: elegir moderación con votación, revisar resultados, que cada docente responda la Consulta y firmar el Acta. Los temas del Itinerario empiezan en la 3.ª sesión.</p></div></div>';
+  } else {
+    ns.innerHTML='<div class="notice warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 17h.01"/></svg><div>'+
+      '<p><strong>La guía de la '+ORD[c.sess.n]+' sesión ('+longDate(c.sess.date)+(c.sess.alt?", "+c.sess.alt:"")+') todavía no se publica.</strong> Desde la 3.ª sesión, cada colectivo trabaja el tema que eligió en su Itinerario del CTE.</p>'+
+      '<p>Esta estructura es una propuesta basada en las orientaciones por tema del ciclo 2025-2026, que no pedían productos fijos ni marcaban tiempos. Cuando salga la guía de tu tema, ajusta agenda y productos.</p></div></div>';
+    renderThemeQ();
+  }
+  renderSources(); buildPrompt(); persist();
+}
+
+/* ---------------- Generators ---------------- */
+function seedFor(id, extra){ return hash(id+"|"+variant[id]+"|"+extra); }
+
+function genC1(){
+  var c=ctx(), yrs=$("c1-yrs").value, parts=[], key=yrs+c.lvl+c.fn;
+  CTHEMES.forEach(function(t){ key+=$("c1-p-"+t.k).value+$("c1-r-"+t.k).value+$("c1-s-"+t.k).value; });
+  var r=rng(seedFor("c1", key));
+  var head=pick(r,["Mis notas para la Consulta Nacional (uso personal)","Notas personales para la Consulta Nacional","Lo que pienso llevar a la Consulta Nacional (notas personales)"]);
+  var who=FN[c.fn]+" de "+LVL[c.lvl]+(yrs?", con "+yrs+" de servicio":"");
+  var ctxLine=fill(pick(r,["Participo como {w}.","Escribo esto como {w}.","Escribo desde mi experiencia como {w}."]),{w:who});
+  parts.push(head, "Segunda Sesión Ordinaria del CTE · 30 de octubre de 2026", ctxLine, "");
+  var filled=0;
+  CTHEMES.forEach(function(t){
+    var p=$("c1-p-"+t.k).value, why=clean($("c1-r-"+t.k).value), sug=clean($("c1-s-"+t.k).value);
+    var plabel=POSTURAS.filter(function(x){ return x[0]===p; })[0][1];
+    parts.push("Tema "+t.k+". "+t.s);
+    parts.push(fill(pick(r,["Mi postura por ahora: {p}.","Hoy me ubico así: {p}.","Postura inicial: {p}."]),{p:low(plabel)}));
+    if(why){ filled++; parts.push(fill(pick(r,["Por qué lo pienso: {x}.","Lo digo desde mi experiencia: {x}.","Mis razones: {x}."]),{x:cap(why)})); }
+    if(sug){ filled++; parts.push(fill(pick(r,["Lo que propondría: {x}.","Mi propuesta o condición: {x}.","Para que funcione, yo pediría: {x}."]),{x:cap(sug)})); }
+    if(!why && !sug){
+      parts.push(pick(r,["Preguntas para pensarlo antes de responder:","Para decidir, me puedo preguntar:","Antes de responder, vale la pena pensar:"]));
+      pickN(r,t.q,2).forEach(function(q){ parts.push("• "+q); });
+    }
+    parts.push("");
+  });
+  parts.push(pick(r,["Recordatorio: respondo de forma individual en consultanacional.sep.gob.mx, con mi CURP, del 30 de octubre al 1 de noviembre de 2026, de 8:00 a 20:00 (centro de México).","Respondo yo, de forma individual, en consultanacional.sep.gob.mx con mi CURP. La plataforma abre del 30 de octubre al 1 de noviembre de 2026, de 8:00 a 20:00 (centro de México)."]));
+  return {text:parts.join("\n"), msg: filled ? "" : "Tip: escribe tus razones en al menos un tema; por ahora solo hay preguntas para pensar."};
+}
+
+function genC2(){
+  var c=ctx(), n=parseInt($("c2-n").value,10), min=+$("c2-min").value||20, sel=checkedVals("c2res").map(Number), mode=$("c2-mode").value, q=clean($("c2-q").value);
+  if(!sel.length) sel=[0];
+  var r=rng(seedFor("c2", [n,min,sel.join(","),mode,q,c.lvl].join("|")));
+  var tA=Math.max(1,Math.round(min*.1)), tC=Math.max(1,Math.round(min*.1)), tR=Math.max(2,Math.round(min*.45)), tK=Math.max(1,Math.round(min*.15)), tI=Math.max(1,min-tA-tC-tR-tK);
+  var L=[];
+  L.push(pick(r,["Guion de moderación: resultados del Cuestionario Diagnóstico","Guion para moderar la Consulta (presentación de resultados)","Mi guion como moderadora o moderador"]));
+  L.push("Tiempo total: "+min+" minutos"+(n>0?" · Colectivo: "+n+" integrantes":""));
+  L.push("Nota para mí: presento los datos sin opinar a favor ni en contra. Cada quien decide su respuesta en la Consulta.");
+  L.push("");
+  L.push("1. Apertura (~"+tA+" min)");
+  L.push(fill(pick(r,[
+    "Buenos días. Gracias por la confianza para moderar. {hoy}nuestra tarea es conocer los resultados del Cuestionario Diagnóstico, responder cada quien la Consulta Nacional y firmar el Acta.",
+    "Buenos días a todas y todos. Les agradezco que me eligieran. {hoy}vamos a revisar los resultados del diagnóstico, después cada quien responde la Consulta y al final firmamos el Acta.",
+    "Gracias por elegirme para moderar. {hoy}tenemos tres momentos: resultados del diagnóstico, Consulta individual y firma del Acta."
+  ]),{hoy: n>0 ? "Hoy somos "+n+" integrantes y " : "Hoy "}));
+  L.push("");
+  L.push("2. Contexto (~"+tC+" min)");
+  L.push(pick(r,[
+    "Del 26 al 28 de agosto, durante la Fase Intensiva, 393,696 maestras y maestros de 93,235 centros de trabajo respondieron el Cuestionario Diagnóstico. De ahí salieron los cinco temas de la Consulta de hoy.",
+    "En la Fase Intensiva (26 al 28 de agosto) respondieron el Cuestionario Diagnóstico 393,696 docentes de 93,235 centros de trabajo. La SEP usó esas respuestas para definir los cinco temas de esta Consulta.",
+    "El Cuestionario Diagnóstico se aplicó del 26 al 28 de agosto: participaron 393,696 docentes de 93,235 centros de trabajo. Con esos resultados se armaron los cinco temas que hoy se consultan."
+  ]));
+  L.push("");
+  L.push("3. Resultados (~"+tR+" min, unos "+Math.max(1,Math.round(tR/sel.length))+" min por dato)");
+  sel.forEach(function(i, k){
+    L.push(fill(pick(r,["Dato {k}. {t}","{k}) {t}","Resultado {k}: {t}"]),{k:k+1, t:RESULTS[i].t}));
+  });
+  L.push(q ? "Pregunta para el colectivo: "+cap(q) : pick(r,["Pregunta para el colectivo: ¿hay dudas sobre cómo leer estos datos?","Antes de seguir: ¿algún dato que quieran ver de nuevo?","¿Alguna duda sobre los datos antes de pasar a la Carpeta de trabajo?"]));
+  L.push("");
+  var modeTxt={proy:"en la proyección", imp:"en las copias impresas", cel:"en su celular"}[mode];
+  L.push("4. Carpeta de trabajo, Anexo 2 (~"+tK+" min)");
+  L.push(fill(pick(r,[
+    "La Carpeta de trabajo describe cómo funciona hoy el sistema para la carrera docente: admisión, promociones y reconocimiento. Les propongo revisarla {m} antes de responder, para opinar con información.",
+    "Ahora revisemos {m} la Carpeta de trabajo. Explica cómo opera hoy el sistema de carrera docente y sus procesos. Sirve para responder con información.",
+    "Para responder informados, revisemos {m} la Carpeta de trabajo: describe el sistema actual de admisión, promoción y reconocimiento."
+  ]),{m:modeTxt}));
+  L.push("");
+  L.push("5. Instrucciones para la Consulta (~"+tI+" min)");
+  L.push("• Cada quien responde de forma individual en consultanacional.sep.gob.mx, con su CURP.");
+  L.push("• Horario: del 30 de octubre al 1 de noviembre de 2026, de 8:00 a 20:00 (centro de México).");
+  L.push("• Sin conexión: respondan el Anexo 3 en papel y registren sus respuestas en la plataforma antes del cierre.");
+  L.push("• Mesa de ayuda: dudas.consultanacional@sep.gob.mx");
+  L.push("• Al terminar, revisamos el Acta en plenaria, la completamos, le damos lectura y la firmamos. La dirección la envía a la Supervisión.");
+  return {text:L.join("\n")};
+}
+
+function genC3(){
+  var cand=[];
+  for(var i=1;i<=4;i++){ var nm=cleanName($("c3-name-"+i).value), v=parseInt($("c3-votes-"+i).value,10); if(nm) cand.push({n:nm, v:isNaN(v)?0:v}); }
+  var pres=parseInt($("c3-pres").value,10), on=parseInt($("c3-on").value,10), pap=parseInt($("c3-pap").value,10), h1=$("c3-h1").value, h2=$("c3-h2").value, inc=clean($("c3-inc").value);
+  var r=rng(seedFor("c3", JSON.stringify([cand,pres,on,pap,h1,h2,inc])));
+  var L=[];
+  L.push(pick(r,["Datos para el Acta de la Consulta","Resumen para llenar el Acta de la Consulta","Datos de la sesión para el Acta"]));
+  L.push("Para transcribir al formato oficial (actaconsulta.sep.gob.mx). Sus campos pueden ser distintos.");
+  L.push("");
+  L.push("Fecha: 30 de octubre de 2026 · Segunda Sesión Ordinaria del CTE");
+  if(h1||h2) L.push("Horario: "+(h1?"de "+h1:"")+(h2?" a "+h2:""));
+  L.push("Integrantes presentes: "+(pres>0?pres:"[anotar]"));
+  L.push("");
+  var totalV=cand.reduce(function(a,b){ return a+b.v; },0);
+  if(cand.length){
+    var sorted=cand.slice().sort(function(a,b){ return b.v-a.v; });
+    var top=sorted.filter(function(x){ return x.v===sorted[0].v; });
+    L.push(pick(r,["Elección de moderación:","Votación para elegir moderadora o moderador:","Moderación de la Consulta:"]));
+    cand.forEach(function(x){ L.push("• "+x.n+": "+x.v+" voto"+(x.v===1?"":"s")); });
+    L.push("Total de votos: "+totalV+(pres>0?" de "+pres+" integrantes presentes":""));
+    if(top.length>1) L.push("Hubo empate entre "+joinY(top.map(function(x){ return x.n; }))+". [Anotar cómo se resolvió.]");
+    else L.push(fill(pick(r,["Resultó electa la persona {n}, con {v} votos.","Se eligió a {n} con {v} votos.","La moderación quedó a cargo de {n} ({v} votos)."]),{n:top[0].n, v:top[0].v}));
+    if(pres>0 && totalV>pres) L.push("Revisar: hay más votos que integrantes presentes.");
+  } else {
+    L.push("Elección de moderación: [anotar personas propuestas y votos]");
+  }
+  L.push("");
+  L.push(pick(r,["Participación en la Consulta durante la sesión:","Respuestas a la Consulta en la sesión:"]));
+  L.push("• En línea: "+(on>=0&&!isNaN(on)?on:"[anotar]"));
+  L.push("• En papel (Anexo 3): "+(pap>=0&&!isNaN(pap)?pap:"[anotar]")+(pap>0?". Deben registrarse en la plataforma antes del 1 de noviembre a las 20:00.":""));
+  if(pres>0 && !isNaN(on) && !isNaN(pap) && on+pap<pres) L.push("• Pendientes: "+(pres-on-pap)+" integrante"+(pres-on-pap===1?"":"s")+" por responder.");
+  L.push("");
+  L.push("Incidencias: "+(inc?cap(inc)+".":pick(r,["Ninguna.","Sin incidencias.","No se registraron incidencias."])));
+  L.push("");
+  L.push("Pasos finales: revisar el Acta en plenaria, completarla, darle lectura, firmarla y entregarla a la dirección para su envío a la Supervisión Escolar.");
+  return {text:L.join("\n")};
+}
+
+function genI1(){
+  var c=ctx(), t=curTheme(), needs=checkedVals("need").slice(0,3), other=clean($("i1-other").value), sit=clean($("i1-sit").value), ya=clean($("i1-ya").value), res=$("i1-res").value;
+  var r=rng(seedFor("i1", JSON.stringify([c.lvl,c.g,c.n,c.multi,c.fn,t.id,t.t,needs,other,sit,ya,res])));
+  var gp=groupPhrase(c), tn="«"+t.t+"»", L=[];
+  L.push(pick(r,["Mi reflexión sobre el tema","Reflexión personal para el CTE","El tema, visto desde mi grupo"])+": "+t.t);
+  L.push(ORD[c.sess.n]+" Sesión Ordinaria del CTE · "+longDate(c.sess.date));
+  L.push("");
+  var p=[];
+  p.push(fill(pick(r,[
+    "Pienso este tema desde {g}.",
+    "Mi referencia para el tema {t} es {g}.",
+    "Al leer el tema {t}, pienso de inmediato en {g}.",
+    "Lo que escribo parte de mi trabajo con {g}."
+  ]),{g:gp, t:tn}));
+  if(needs.length){
+    p.push(fill(pick(r,[
+      "Lo que más pide atención ahora tiene que ver con {n}.",
+      "Las necesidades más claras que observo tienen que ver con {n}.",
+      "Hoy mis prioridades están en {n}.",
+      "Al observar a mis estudiantes, lo que más necesitan está en {n}."
+    ]),{n:joinY(needs.map(needPhrase))}));
+  }
+  if(other) p.push(fill(pick(r,["Además: {x}.","Otro aspecto que observo: {x}.","También vale la pena decir: {x}."]),{x:low(other)}));
+  if(!needs.length && !other) p.push("[Escribe aquí qué necesita más tu grupo en relación con este tema.]");
+  L.push(p.join(" "));
+  L.push("");
+  L.push(sit ? fill(pick(r,["Un ejemplo reciente: {s}.","Lo vi con claridad hace poco: {s}.","Una situación concreta que lo muestra: {s}.","Para aterrizarlo en un caso: {s}."]),{s:low(sit)})
+             : "[Agrega un ejemplo concreto y reciente de tu grupo, sin nombres.]");
+  L.push("");
+  var RES={
+    ok:["Me ha dado buenos resultados y quiero sostenerlo.","Ha funcionado, así que vale la pena compartirlo con el colectivo.","Veo avances y me gustaría darle continuidad."],
+    mid:["Ha funcionado a medias: necesito ajustarlo.","Veo algunos avances, aunque no con todo el grupo.","Funciona en algunos momentos; me falta hacerlo más constante."],
+    no:["Todavía no veo cambios, por eso busco otras opciones.","Aún no da los resultados que espero.","Por ahora la situación no ha cambiado mucho."],
+    na:["Todavía no he probado una estrategia específica para esto.","Aún no he trabajado esto de forma intencionada.","Es algo que todavía no abordo de manera planeada."]
+  };
+  if(ya){
+    L.push(fill(pick(r,["Hasta ahora he intentado esto: {y}.","Lo que ya estoy haciendo: {y}.","Mi punto de partida es lo que ya hago: {y}."]),{y:low(ya)})+" "+pick(r,RES[res==="na"?"mid":res]));
+  } else {
+    L.push(pick(r,RES[res==="na"?"na":res]));
+  }
+  L.push("");
+  L.push(fill(pick(r,["Pregunta que quiero llevar al colectivo: {q}","Me gustaría pensarlo con el colectivo: {q}","Para el diálogo, propongo esta pregunta: {q}"]),{q:pick(r,t.q)}));
+  return {text:L.join("\n")};
+}
+
+function genI2(){
+  var c=ctx(), t=curTheme(), estr=clean($("i2-estr").value), quien=$("i2-quien").value, freq=$("i2-freq").value, dur=$("i2-dur").value, ev=checkedVals("evid"), senal=clean($("i2-senal").value), fecha=$("i2-fecha").value;
+  var needs=checkedVals("need").slice(0,3);
+  var r=rng(seedFor("i2", JSON.stringify([c.lvl,c.g,c.n,c.multi,t.id,estr,quien,freq,dur,ev,senal,fecha,needs])));
+  var QU={all:"todo el grupo", apoyo:"las y los estudiantes que requieren más apoyo", equipos:"equipos pequeños, por turnos", fam:"el grupo, con participación de las familias"};
+  var FQ={diario:"todos los días", "2-3":"dos o tres veces por semana", semanal:"una vez por semana"};
+  var nx=nextSess(c.sess.n);
+  var rev = fecha ? longDate(fecha) : (nx ? "la "+ORD[nx.n]+" sesión del CTE ("+longDate(nx.date)+")" : "la siguiente reunión del colectivo");
+  var L=[];
+  L.push(pick(r,["Mi estrategia para las próximas semanas","Plan breve para mi grupo","Lo que voy a probar con mi grupo"]));
+  L.push("Tema: "+t.t+" · "+gradeTxt(c)+(c.n?" · "+c.n+" estudiantes":""));
+  L.push("");
+  var lab=pick(r,[["Qué voy a probar","Con quiénes","Cuándo","Cómo sabré si funciona","Revisión"],["Mi estrategia","Para quiénes","Frecuencia y duración","Evidencias","Fecha de revisión"],["La acción","A quiénes va dirigida","Cada cuándo y por cuánto tiempo","Cómo daré seguimiento","Revisaré en"]]);
+  L.push(lab[0]+": "+(estr?cap(estr)+".":"[Describe en una o dos frases lo que vas a probar.]"));
+  if(needs.length) L.push(fill(pick(r,["Lo elijo porque se relaciona con {n}.","Responde a una necesidad que observo: {n}.","Atiende algo que mi grupo necesita: {n}."]),{n:needPhrase(needs[0])}));
+  L.push(lab[1]+": "+cap(QU[quien])+".");
+  L.push(lab[2]+": "+cap(FQ[freq])+", durante "+dur+" semanas.");
+  var evs=EVID.filter(function(e){ return ev.indexOf(e[0])>=0; }).map(function(e){ return e[2]; });
+  L.push(lab[3]+": "+(evs.length?cap(joinY(evs))+".":"[Elige cómo vas a saber si funciona.]"));
+  if(senal) L.push(fill(pick(r,["Señal de avance que espero: {s}.","Sabré que vamos bien si veo esto: {s}.","Lo que espero observar: {s}."]),{s:low(senal)}));
+  L.push(lab[4]+": "+rev+".");
+  L.push(pick(r,["Si no funciona, lo ajusto con lo que aprenda y lo comparto con el colectivo.","Si no da resultado, cambio la estrategia y llevo lo aprendido al colectivo.","Llevaré a esa sesión lo que funcionó y lo que no, para ajustarlo."]));
+  return {text:L.join("\n")};
+}
+
+function genI3(){
+  var c=ctx(), t=curTheme(), rows=[];
+  for(var i=1;i<=i3Rows;i++){ var a=clean(($("i3-a-"+i)||{}).value), re=clean(($("i3-r-"+i)||{}).value), f=($("i3-f-"+i)||{}).value; if(a) rows.push({a:a, r:re, f:f}); }
+  var pmc=clean($("i3-pmc").value), nx=nextSess(c.sess.n);
+  var r=rng(seedFor("i3", JSON.stringify([rows,pmc,t.id,c.sess.n])));
+  var L=[];
+  L.push(pick(r,["Acuerdos del colectivo","Acuerdos y compromisos de la sesión","Acuerdos tomados en el CTE"]));
+  L.push(ORD[c.sess.n]+" Sesión Ordinaria · "+longDate(c.sess.date)+" · Tema: "+t.t);
+  L.push("");
+  if(rows.length){
+    rows.forEach(function(x, k){
+      L.push((k+1)+". "+cap(x.a)+".");
+      L.push("   "+pick(r,["Responsable","Quién"])+": "+(x.r||"[anotar]")+" · "+pick(r,["Revisión","Fecha de revisión"])+": "+(x.f?longDate(x.f):(nx?longDate(nx.date):"[anotar]")));
+    });
+  } else {
+    L.push("[Anota los acuerdos tal como los tomó el colectivo.]");
+  }
+  L.push("");
+  if(pmc) L.push(fill(pick(r,["Relación con el Programa de Mejora Continua: {p}.","Estos acuerdos atienden esta parte del Programa de Mejora Continua: {p}.","Vínculo con el Programa de Mejora Continua: {p}."]),{p:low(pmc)}));
+  L.push(nx ? fill(pick(r,["Seguimiento: revisaremos avances en la {o} sesión ordinaria ({d}).","Daremos seguimiento en la {o} sesión ordinaria, el {d}.","En la {o} sesión ({d}) compartiremos avances y ajustes."]),{o:ORD[nx.n], d:longDate(nx.date)})
+            : "Seguimiento: valoraremos los avances al cierre del ciclo escolar.");
+  return {text:L.join("\n")};
+}
+
+var GEN={c1:genC1, c2:genC2, c3:genC3, i1:genI1, i2:genI2, i3:genI3};
+var TITLES={c1:"Mis notas para la Consulta Nacional", c2:"Guion para moderar y presentar resultados", c3:"Votación y datos para el Acta", i1:"Mi reflexión sobre el tema, desde mi grupo", i2:"Mi estrategia para las próximas semanas", i3:"Acuerdos del colectivo y seguimiento al PMC"};
+function runGen(id){
+  var o=GEN[id](), ta=$("out-"+id);
+  ta.value=o.text; autosize(ta); updateCount(id);
+  if(o.msg) toast(o.msg);
+  buildPrompt(); persist();
+}
+function autosize(t){ t.style.height="auto"; t.style.height=(t.scrollHeight+4)+"px"; }
+function updateCount(id){ var t=$("out-"+id), el=document.querySelector('[data-count="'+id+'"]'); if(el) el.textContent=t.value ? t.value.length+" caracteres" : ""; }
+
+/* ---------------- Export ---------------- */
+function visibleProds(){ var c=ctx(); return c.sess.kind==="consulta" ? ["c1","c2","c3"] : ["i1","i2","i3"]; }
+function headerLines(){
+  var c=ctx(), t=c.sess.kind==="consulta" ? "Consulta Nacional" : curTheme().t;
+  return [ORD[c.sess.n]+" Sesión Ordinaria del Consejo Técnico Escolar · "+longDate(c.sess.date)+(c.sess.alt?" ("+c.sess.alt+")":""), "Tema: "+t, "Nivel: "+cap(LVL[c.lvl])+" · "+gradeTxt(c)+(c.n?" · "+c.n+" estudiantes":"")];
+}
+function compileAll(){
+  var L=headerLines().concat([""]);
+  L.push("AGENDA");
+  agendaItems().forEach(function(i){ L.push((agChecks[i.k]?"[x] ":"[ ] ")+i.from+"–"+i.to+"  "+i.n+(i.opt?" (sugerido)":"")); });
+  L.push("");
+  var any=false;
+  visibleProds().forEach(function(id){
+    var v=$("out-"+id).value.trim();
+    if(v){ any=true; L.push("==== "+TITLES[id].toUpperCase()+" ===="); L.push(v); L.push(""); }
+  });
+  if(!any) L.push("(Aún no generas ningún producto.)");
+  L.push("Borradores hechos con Día Uno (IA). Revísalos y ajústalos: tú decides. Apoyo docente independiente, sin relación con la SEP.");
+  return L.join("\n");
+}
+function copyText(text, msg){
+  function fallback(){
+    var ta=document.createElement("textarea"); ta.value=text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+    var ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(ta); toast(ok ? (msg||"Copiado") : "No se pudo copiar: selecciona el texto y cópialo a mano");
+  }
+  try{
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(function(){ toast(msg||"Copiado"); }, fallback); }
+    else fallback();
+  }catch(e){ fallback(); }
+}
+function downloadTxt(){
+  var c=ctx(), blob=new Blob(["﻿"+compileAll()], {type:"text/plain;charset=utf-8"}), a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="CTE-"+c.sess.date+"-"+ORD[c.sess.n].replace(/\W/g,"")+"-sesion.txt";
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast("Descargado");
+}
+function buildPrint(){
+  var h=headerLines(), html='<h1>'+esc(h[0])+'</h1><p class="pmeta">'+esc(h[1])+'<br>'+esc(h[2])+'</p><h2>Agenda</h2><ul>';
+  agendaItems().forEach(function(i){ html+='<li>'+(agChecks[i.k]?"☑":"☐")+' <strong>'+i.from+'–'+i.to+'</strong> '+esc(i.n)+(i.opt?" (sugerido)":"")+'</li>'; });
+  html+='</ul>';
+  visibleProds().forEach(function(id){ var v=$("out-"+id).value.trim(); if(v) html+='<h2>'+esc(TITLES[id])+'</h2><pre>'+esc(v)+'</pre>'; });
+  html+='<p class="pfoot">Borradores hechos con Día Uno (IA). Revísalos y ajústalos: tú decides. Apoyo docente independiente, sin relación con la SEP.</p>';
+  $("printArea").innerHTML=html;
+}
+
+/* ---------------- Prompt builder ---------------- */
+function renderAiFor(){
+  var ids=visibleProds(), prev=$("aiFor").value;
+  $("aiFor").innerHTML=ids.map(function(id){ return '<option value="'+id+'">'+esc(TITLES[id])+'</option>'; }).join("");
+  if(ids.indexOf(prev)>=0) $("aiFor").value=prev;
+}
+function buildPrompt(){
+  renderAiFor();
+  var c=ctx(), id=$("aiFor").value, draft=$("out-"+id).value.trim(), P=[];
+  var ctxTxt="Soy "+FN[c.fn]+" de "+LVL[c.lvl]+" en México ("+gradeTxt(c)+(c.n?", "+c.n+" estudiantes":"")+").";
+  if(id==="c1"){
+    P.push("Actúa como un asistente de redacción neutral. "+ctxTxt+" El 30 de octubre de 2026 respondo de forma individual la Consulta Nacional de la SEP sobre el nuevo sistema de carrera docente (temas A a E).");
+    P.push("Te comparto mis notas. Ayúdame a ordenar y expresar con claridad MIS ideas, con mis propias palabras.");
+    P.push("Reglas: no me digas qué postura tomar; no agregues argumentos a favor ni en contra que yo no haya escrito; no inventes datos ni cifras. Si algo no está claro o se contradice, hazme hasta 3 preguntas en lugar de suponer. Español de México, tono sencillo.");
+  } else if(id==="c2"){
+    P.push("Actúa como apoyo para una persona que modera una sesión del Consejo Técnico Escolar. "+ctxTxt);
+    P.push("Te comparto mi guion para presentar los resultados del Cuestionario Diagnóstico (Anexo 1 de la SEP). Hazlo más claro y fácil de decir en voz alta, respetando los tiempos.");
+    P.push("Reglas: mantén exactamente las cifras; no agregues datos nuevos; mantén un tono neutral, sin opinar a favor ni en contra de ninguna opción. Español de México.");
+  } else if(id==="c3"){
+    P.push("Ayúdame a revisar estos datos para el Acta de una sesión del Consejo Técnico Escolar. Revisa que los números sean coherentes (votos, presentes, participación) y señala lo que falte. No inventes datos. Español de México.");
+  } else {
+    var t=curTheme();
+    P.push("Actúa como una colega docente con experiencia. "+ctxTxt+" En el Consejo Técnico Escolar trabajamos el tema: \""+t.t+"\".");
+    if(id==="i1") P.push("Te comparto mi reflexión. Mejora la redacción sin cambiar lo que observé y sugiere 2 preguntas que me ayuden a profundizar en mi práctica.");
+    if(id==="i2") P.push("Te comparto mi estrategia. Hazla más concreta y realista para mi grupo y sugiere 1 forma sencilla de registrar avances. Si propones cambios, explica por qué en una frase.");
+    if(id==="i3") P.push("Te comparto los acuerdos del colectivo. Redáctalos de forma clara y verificable (qué, quién, cuándo), sin agregar acuerdos nuevos.");
+    P.push("Reglas: no uses nombres de estudiantes; no inventes datos de mi grupo; si necesitas información, pregúntame. Español de México, tono sencillo.");
+  }
+  P.push("");
+  P.push(draft ? "Mi borrador:\n\"\"\"\n"+draft+"\n\"\"\"" : "[Primero genera tu borrador en la herramienta; aquí aparecerá.]");
+  $("prompt").value=P.join("\n");
+}
+
+/* ---------------- Sources box ---------------- */
+function renderSources(){
+  var c=ctx(), cons=c.sess.kind==="consulta", h="";
+  if(cons){
+    h+='<p><strong>Guía oficial:</strong> “Consulta Nacional para la Construcción del Nuevo Sistema de las Maestras y los Maestros. Material de apoyo. Segunda Sesión Ordinaria del Consejo Técnico Escolar, 30 de octubre de 2026”. SEP, octubre de 2026. Centros y escuelas de educación básica (todos los niveles).</p>';
+    h+='<ul class="facts">'+
+      '<li><span class="vbadge">Verificado</span><span>Es la <strong>2.ª sesión ordinaria</strong> del ciclo 2026-2027 (portada de la guía).</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>Agenda de 5 pasos: mensaje del Secretario; elección de moderación; resultados del Cuestionario Diagnóstico; Consulta Nacional; firma del Acta.</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>Los cinco temas A–E (textos citados tal cual), la plataforma consultanacional.sep.gob.mx del 30 oct al 1 nov de 2026 de 8:00 a 20:00, el uso de CURP, el Anexo 3 en papel si no hay conexión y la mesa de ayuda dudas.consultanacional@sep.gob.mx.</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>El Acta se descarga desde el 26 de octubre en actaconsulta.sep.gob.mx; se revisa en plenaria, se firma y la dirección la envía a la Supervisión. Resultados desde el 3 de noviembre en resultadosconsulta.sep.gob.mx.</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>Cifras del Anexo 1 (393,696 docentes, 93,235 centros, resultados de las 10 preguntas).</span></li>'+
+      '<li><span class="vbadge inf">Sugerencia</span><span>Los <strong>horarios</strong> de la agenda y el receso: la guía no fija tiempos.</span></li>'+
+      '<li><span class="vbadge inf">Sugerencia</span><span>Las notas personales, el guion de moderación y el resumen para el Acta son ayudas de Día Uno. El formato del Acta es el oficial; no lo vimos, así que sus campos pueden variar.</span></li>'+
+      '</ul>';
+    h+='<p><strong>Documentos oficiales</strong> (los enlaces vienen en la propia guía; el sitio de la SEP a veces no abre desde algunas redes):</p><ul class="wordbreak">'+
+      '<li><a href="https://gestion.cte.sep.gob.mx/insumos/docs/2627_s2_doc0_materiales_consulta.pdf" target="_blank" rel="noopener">Material de apoyo (guía de la sesión)</a></li>'+
+      '<li><a href="https://gestion.cte.sep.gob.mx/insumos/docs/2627_s2_doc1_anexo1_cuestionario_diagnostico.pdf" target="_blank" rel="noopener">Anexo 1. Resultados del Cuestionario Diagnóstico</a></li>'+
+      '<li><a href="https://gestion.cte.sep.gob.mx/insumos/docs/2627_s2_doc2_anexo2_carpeta_trabajo.pdf" target="_blank" rel="noopener">Anexo 2. Carpeta de trabajo</a></li>'+
+      '<li><a href="https://gestion.cte.sep.gob.mx/insumos/docs/2627_s2_doc3_anexo3_consulta_nacional.pdf" target="_blank" rel="noopener">Anexo 3. Cuestionario de la Consulta</a> (desde el 30 de octubre)</li>'+
+      '<li><a href="https://consultanacional.sep.gob.mx" target="_blank" rel="noopener">consultanacional.sep.gob.mx</a> · <a href="https://actaconsulta.sep.gob.mx" target="_blank" rel="noopener">actaconsulta.sep.gob.mx</a></li></ul>';
+  } else {
+    h+='<ul class="facts">'+
+      '<li><span class="vbadge">Verificado</span><span>Fechas de sesiones ordinarias según el calendario escolar 2026-2027 reportado en prensa. La 6.ª aparece como 26 de marzo o 30 de abril según la fuente: confírmala.</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>Desde la 3.ª sesión, cada colectivo trabaja los temas que eligió en su <strong>Itinerario del CTE</strong>. Lo acordó en la 1.ª sesión (25 sep 2026), a partir de una lista de temas que propone la SEP.</span></li>'+
+      '<li><span class="vbadge">Verificado</span><span>Lista de temas propuestos (todos los niveles, preescolar, primaria, secundaria y multigrado), según la infografía de las Orientaciones de la 1.ª sesión, pp. 15-17. La tomamos de una reproducción en un sitio docente.</span></li>'+
+      '<li><span class="vbadge inf">Supuesto</span><span>Agenda y productos: los documentos por tema de 2025-2026 tenían propósito, ideas centrales, insumos y revisión del Programa de Mejora Continua, sin productos obligatorios ni tiempos. Esta estructura es nuestra propuesta.</span></li>'+
+      '<li><span class="vbadge inf">Supuesto</span><span>Las preguntas para pensar cada tema son de Día Uno, no de la SEP.</span></li>'+
+      '</ul>';
+    h+='<p>Revisa la guía de tu tema en <a href="https://gestion.cte.sep.gob.mx/insumos/" target="_blank" rel="noopener">gestion.cte.sep.gob.mx/insumos</a> cuando se publique.</p>';
+  }
+  h+='<p>Lo que publique tu autoridad educativa estatal o tu supervisión tiene prioridad sobre esta herramienta.</p>';
+  $("srcBody").innerHTML=h;
+}
+
+/* ---------------- Privacy ---------------- */
+var CURP=/\b[A-Z][AEIOUX][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HMX][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z\d]\d\b/i;
+function checkPrivacy(){
+  var found=[].slice.call(document.querySelectorAll('#main input[type=text], #main textarea:not([readonly])')).some(function(el){ return CURP.test(el.value); });
+  $("curpWarn").hidden=!found;
+}
+
+/* ---------------- Persistence (opt-in, per device) ---------------- */
+var STORE="diauno-cte-v1";
+function collect(){
+  var o={v:{}, c:{}, r:{}};
+  [].slice.call(document.querySelectorAll('#main input, #main select, #main textarea')).forEach(function(el){
+    if(!el.id || el.id==="prompt" || el.id==="remember") return;
+    if(el.type==="checkbox"){ if(el.dataset.ag) return; o.c[el.id]=el.checked; }
+    else if(el.type==="radio"){ if(el.checked) o.r[el.name]=el.value; }
+    else o.v[el.id]=el.value;
+  });
+  o.ag=agChecks; o.i3=i3Rows; o.variant=variant;
+  return o;
+}
+function persist(){
+  try{
+    if(!$("remember").checked){ localStorage.removeItem(STORE); return; }
+    localStorage.setItem(STORE, JSON.stringify(collect()));
+  }catch(e){}
+}
+function restore(){
+  var raw=null;
+  try{ raw=localStorage.getItem(STORE); }catch(e){ return false; }
+  if(!raw) return false;
+  var o; try{ o=JSON.parse(raw); }catch(e){ return false; }
+  $("remember").checked=true;
+  if(o.r && o.r.lvl){ var rr=$("lvl-"+o.r.lvl); if(rr) rr.checked=true; }
+  renderGrades();
+  if(o.c){ if("multi" in o.c) $("multi").checked=o.c.multi; }
+  renderThemes(); renderNeeds();
+  while(i3Rows<(o.i3||3)) addI3Row();
+  if(o.v){ Object.keys(o.v).forEach(function(k){ var el=$(k); if(el && el.type!=="checkbox"){ el.value=o.v[k]; } }); }
+  if(o.v && o.v.theme){ $("theme").value=o.v.theme; }
+  if(o.c){ Object.keys(o.c).forEach(function(k){ var el=$(k); if(el && el.type==="checkbox") el.checked=!!o.c[k]; }); }
+  agChecks=o.ag||{}; if(o.variant) variant=o.variant;
+  $("themeOtherWrap").hidden = $("theme").value!=="otro";
+  return true;
+}
+
+/* ---------------- UI wiring ---------------- */
+var toastT;
+function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 2600); }
+
+document.addEventListener("click", function(e){
+  var b=e.target.closest("[data-gen],[data-regen]");
+  if(!b) return;
+  var id=b.getAttribute("data-gen")||b.getAttribute("data-regen");
+  if(b.hasAttribute("data-regen")) variant[id]++;
+  runGen(id);
+});
+document.addEventListener("change", function(e){
+  var el=e.target;
+  if(el.dataset && el.dataset.ag){ agChecks[el.dataset.ag]=el.checked; el.closest("li").classList.toggle("done", el.checked); updateProgress(); persist(); return; }
+  if(el.name==="need"){ var n=checkedVals("need"); if(n.length>3){ el.checked=false; toast("Elige hasta 3; si hay más, usa “Otra necesidad”"); } }
+});
+$("main").addEventListener("input", function(e){
+  var el=e.target;
+  if(el.dataset && el.dataset.out){ autosize(el); updateCount(el.dataset.out); if(el.dataset.out===$("aiFor").value) buildPrompt(); }
+  checkPrivacy(); persist();
+});
+$("main").addEventListener("change", function(){ persist(); });
+$("sess").addEventListener("change", function(){ applySession(); });
+[].slice.call(document.querySelectorAll('input[name=lvl]')).forEach(function(r){ r.addEventListener("change", function(){ renderGrades(); renderThemes(); renderNeeds(); applySession(); }); });
+$("multi").addEventListener("change", function(){ renderThemes(); applySession(); });
+$("grade").addEventListener("change", buildPrompt);
+$("nStu").addEventListener("input", buildPrompt);
+$("fn").addEventListener("change", buildPrompt);
+$("theme").addEventListener("change", function(){ $("themeOtherWrap").hidden = $("theme").value!=="otro"; renderThemeQ(); buildPrompt(); });
+$("themeOther").addEventListener("input", function(){ renderThemeQ(); });
+$("start").addEventListener("change", renderAgenda);
+$("start").addEventListener("input", renderAgenda);
+$("dur").addEventListener("change", renderAgenda);
+$("agReset").addEventListener("click", function(){ agendaItems().forEach(function(i){ delete agChecks[i.k]; }); renderAgenda(); persist(); });
+$("i3-add").addEventListener("click", function(){ addI3Row(); persist(); });
+$("aiFor").addEventListener("change", buildPrompt);
+$("copyPrompt").addEventListener("click", function(){ buildPrompt(); copyText($("prompt").value, "Prompt copiado"); });
+$("aiBox").addEventListener("toggle", function(){ if(this.open){ buildPrompt(); autosize($("prompt")); } });
+$("copyAll").addEventListener("click", function(){ copyText(compileAll(), "Agenda y productos copiados"); });
+$("dlTxt").addEventListener("click", downloadTxt);
+$("printBtn").addEventListener("click", function(){ buildPrint(); try{ window.print(); }catch(err){ toast("Tu navegador no permitió imprimir desde aquí. Usa “Descargar .txt”."); } });
+window.addEventListener("beforeprint", buildPrint);
+$("remember").addEventListener("change", function(){ persist(); toast(this.checked ? "Se guardará solo en este dispositivo" : "Listo: no se guarda nada"); });
+$("setForm").addEventListener("submit", function(e){ e.preventDefault(); });
+$("themeBtn").addEventListener("click", function(){
+  var root=document.documentElement, cur=root.getAttribute("data-theme");
+  if(!cur){ cur=window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  var next=cur==="dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  try{ localStorage.setItem("diauno-theme", next); }catch(e){}
+});
+
+/* ---------------- Init ---------------- */
+renderSessions();
+renderGrades();
+renderThemes();
+renderNeeds();
+renderStatic();
+var restored=restore();
+if(!restored){ /* defaults already set */ }
+applySession();
+visibleProds().concat(["c1","c2","c3","i1","i2","i3"]).forEach(function(id){ var t=$("out-"+id); if(t.value){ autosize(t); updateCount(id); } });
+checkPrivacy();
+})();
+</script>
+</body>
+</html>
