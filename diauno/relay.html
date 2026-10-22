@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>relay</title><body>relay
+<script>
+(async()=>{const v=new URLSearchParams(location.search).get('v');const allowed=['https://www.tiktok.com','https://studio.youtube.com'];
+const b=await (await fetch('/media/v'+v+'.mp4')).blob();
+if(window.opener){for(const o of allowed){try{window.opener.postMessage({diauno:v,blob:b},o)}catch(e){}}}
+document.body.textContent='sent '+b.size;setTimeout(()=>window.close(),3000);})();
+</script>
