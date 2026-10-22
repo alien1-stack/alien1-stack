@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420" role="img"><title>Argón, El Juez: alienígena verde esmeralda con visor dorado tipo búho y un cronómetro</title><defs>
+  <radialGradient id="g-body" cx="38%" cy="28%" r="80%">
+    <stop offset="0" stop-color="#3FC48E"/><stop offset=".55" stop-color="#159A69"/><stop offset="1" stop-color="#0C6B49"/>
+  </radialGradient>
+  <linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFD978"/><stop offset="1" stop-color="#D49A22"/>
+  </linearGradient>
+  <radialGradient id="g-glow" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="#6FF2BC" stop-opacity=".85"/><stop offset="1" stop-color="#6FF2BC" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<g class="argon">
+  <ellipse cx="200" cy="398" rx="104" ry="12" fill="#000" opacity=".12"/>
+  <ellipse cx="200" cy="380" rx="70" ry="13" fill="url(#g-glow)"/>
+  <!-- hover base -->
+  <path d="M140 352 L 260 352 L 248 370 Q 200 380 152 370 Z" fill="#0A5139"/>
+  <rect x="150" y="364" width="100" height="5" rx="2.5" fill="#6FF2BC" opacity=".8"/>
+  <!-- crest -->
+  <rect x="170" y="112" width="60" height="20" rx="10" fill="url(#g-gold)"/>
+  <circle cx="200" cy="122" r="5" fill="#0C6B49"/>
+  <!-- body -->
+  <path d="M130 354 L 270 354 C 290 354 300 342 300 322 L 300 200 C 300 152 260 128 200 128 C 140 128 100 152 100 200 L 100 322 C 100 342 110 354 130 354 Z" fill="url(#g-body)"/>
+  <ellipse cx="150" cy="160" rx="30" ry="12" transform="rotate(-22 150 160)" fill="#fff" opacity=".22"/>
+  <!-- owl-like gold visor -->
+  <path d="M128 170 Q 155 152 184 168" stroke="url(#g-gold)" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M216 172 L 272 170" stroke="url(#g-gold)" stroke-width="8" stroke-linecap="round"/>
+  <rect x="190" y="202" width="20" height="12" rx="5" fill="url(#g-gold)"/>
+  <circle cx="162" cy="214" r="35" fill="#0B2B20" stroke="url(#g-gold)" stroke-width="10"/>
+  <circle cx="238" cy="214" r="35" fill="#0B2B20" stroke="url(#g-gold)" stroke-width="10"/>
+  <path d="M146 214 A 16 16 0 0 0 178 214 Z" fill="#FFD866"/>
+  <path d="M222 214 A 16 16 0 0 0 254 214 Z" fill="#FFD866"/>
+  <path d="M140 200 A 26 26 0 0 1 156 190" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>
+  <path d="M216 200 A 26 26 0 0 1 232 190" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".35"/>
+  <!-- mouth grille with LED smirk -->
+  <rect x="174" y="262" width="52" height="20" rx="10" fill="#0B2B20"/>
+  <path d="M184 273 Q 200 278 216 268" stroke="#FFD866" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <!-- chest panel -->
+  <rect x="152" y="296" width="96" height="40" rx="12" fill="#0E7A53"/>
+  <g fill="#6FF2BC"><rect x="166" y="310" width="16" height="12" rx="3"/><rect x="192" y="310" width="16" height="12" rx="3"/></g>
+  <rect x="218" y="310" width="16" height="12" rx="3" fill="#FFD866"/>
+  <!-- left arm + checklist -->
+  <path d="M104 290 L 82 300" stroke="#0A5139" stroke-width="12" stroke-linecap="round"/>
+  <g transform="rotate(-8 58 300)">
+    <rect x="30" y="258" width="58" height="76" rx="7" fill="#FFF8E8" stroke="#B4811B" stroke-width="3"/>
+    <rect x="47" y="251" width="24" height="13" rx="4" fill="url(#g-gold)"/>
+    <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M38 280 l4 4 l7 -8" stroke="#159A69" stroke-width="3"/>
+      <path d="M54 280 h26" stroke="#C9BFA6" stroke-width="3"/>
+      <path d="M38 298 l4 4 l7 -8" stroke="#159A69" stroke-width="3"/>
+      <path d="M54 298 h22" stroke="#C9BFA6" stroke-width="3"/>
+      <path d="M38 316 l4 4 l7 -8" stroke="#159A69" stroke-width="3"/>
+      <path d="M54 316 h24" stroke="#C9BFA6" stroke-width="3"/>
+    </g>
+  </g>
+  <circle cx="84" cy="300" r="10" fill="url(#g-gold)"/>
+  <!-- right arm + stopwatch -->
+  <path d="M296 262 L 324 238" stroke="#0A5139" stroke-width="12" stroke-linecap="round"/>
+  <rect x="331" y="150" width="14" height="12" rx="3" fill="url(#g-gold)"/>
+  <rect x="326" y="146" width="24" height="7" rx="3.5" fill="url(#g-gold)"/>
+  <rect x="362" y="166" width="9" height="12" rx="3" transform="rotate(40 366 172)" fill="url(#g-gold)"/>
+  <circle cx="338" cy="196" r="33" fill="#FFFBEF" stroke="url(#g-gold)" stroke-width="8"/>
+  <path d="M338 196 L 338 172 A 24 24 0 0 1 362 196 Z" fill="#159A69" opacity=".3"/>
+  <g stroke="#B4811B" stroke-width="2.5" stroke-linecap="round"><path d="M338 168 v4"/><path d="M366 196 h-4"/><path d="M338 224 v-4"/><path d="M310 196 h4"/></g>
+  <path d="M338 196 L 338 176 M338 196 L 355 186" stroke="#0B2B20" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="338" cy="196" r="3.5" fill="#0B2B20"/>
+  <circle cx="326" cy="236" r="10" fill="url(#g-gold)"/>
+</g></svg>
