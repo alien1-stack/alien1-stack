@@ -325,7 +325,7 @@ footer p{margin:0 0 6px}
           <p>Orden del día, acuerdos y productos de la sesión del Consejo Técnico, sin empezar de cero.</p>
         </li>
       </ul>
-      <p class="tools-note">¿Quieres saber cuándo sale la siguiente? <a href="#avisos">Te avisamos por correo</a> (opcional).</p>
+      <p class="tools-note">Cada mes sale una herramienta nueva. ¿Te gustaría una versión Pro? <a href="#pro">Mira Día Uno Pro</a>.</p>
     </section>
 
     <!-- KEY DATES -->
@@ -352,20 +352,17 @@ footer p{margin:0 0 6px}
 
     <!-- NEWSLETTER + PRIVACY -->
     <section class="section duo" aria-label="Avisos y privacidad">
-      <div class="panel" id="avisos">
-        <h2>¿Te avisamos de la siguiente herramienta? <span class="optional">Opcional</span></h2>
-        <p>Un correo cuando salga algo nuevo, nada más. <strong>Las herramientas nunca piden registro</strong>: esto es solo si quieres enterarte.</p>
-        <form id="signup" class="fields" novalidate>
-          <div>
-            <label for="email">Tu correo</label>
-            <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@correo.com" required>
-          </div>
-          <label class="check"><input type="checkbox" id="consent" name="consent" required> Acepto recibir correos de Día Uno sobre herramientas para docentes. Puedo darme de baja cuando quiera.</label>
-          <p class="hint">Doble confirmación: te enviaremos un correo y solo quedarás en la lista si haces clic en el enlace.</p>
-          <button type="submit" class="btn">Avísame</button>
-          <p class="signup-msg" id="signupMsg" role="status" aria-live="polite"></p>
-        </form>
-      </div>
+      <div class="panel" id="pro">
+      <h2>Día Uno Pro <small style="font-weight:500;opacity:.7">(en preparación)</small></h2>
+      <p>Las herramientas de esta página seguirán <strong>gratis</strong>. Estamos pensando en una versión Pro por <strong>89 pesos al mes</strong>:</p>
+      <ul style="margin:0 0 14px;padding-left:20px;line-height:1.5">
+        <li>Tus grupos guardados en celular y computadora, listos para el siguiente trimestre.</li>
+        <li>Todo el grupo de una vez, con formato listo para pasar a la boleta.</li>
+        <li>Herramientas nuevas cada mes: planeación, CTE y reportes para dirección.</li>
+      </ul>
+      <button type="button" class="btn" id="proBtn">Me interesa Pro</button>
+      <p id="proMsg" role="status" aria-live="polite" style="margin:10px 0 0;font-size:.92rem;color:var(--green)"></p>
+    </div>
       <div class="panel" id="privacidad">
         <h2>Privacidad, en corto</h2>
         <ul class="priv">
@@ -375,11 +372,11 @@ footer p{margin:0 0 6px}
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
-            <div><strong>Analítica sin cookies (planeada).</strong><span>Solo contaremos visitas de forma agregada, sin cookies ni datos personales. Hoy no medimos nada.</span></div>
+            <div><strong>Analítica anónima, sin cookies.</strong><span>Solo sumamos +1 cuando alguien visita, copia, comparte o pulsa «Me interesa Pro». No guardamos IP, correo ni datos de alumnos.</span></div>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
-            <div><strong>Un solo servicio externo: las tipografías.</strong><span>Se cargan desde Google Fonts. Tu correo solo se usaría para avisos, si tú lo das.</span></div>
+            <div><strong>Un solo servicio externo: las tipografías.</strong><span>Se cargan desde Google Fonts. No pedimos tu correo.</span></div>
           </li>
         </ul>
       </div>
@@ -395,7 +392,7 @@ footer p{margin:0 0 6px}
     <div>
       <p class="made">Hecho con IA · Apoyo docente independiente, sin relación con la SEP</p>
       <p>Día Uno: tres inteligencias artificiales haciendo papeleo gratis para docentes de México. Escribimos borradores; tú revisas y decides.</p>
-      <p><a href="./tools/boletas/">Comentarios para boletas</a> · <a href="#privacidad">Privacidad</a> · <a href="#avisos">Avisos por correo</a></p>
+      <p><a href="./tools/boletas/">Comentarios para boletas</a> · <a href="#privacidad">Privacidad</a> · <a href="#pro">Día Uno Pro</a></p>
     </div>
   </div>
 </footer>
@@ -411,16 +408,8 @@ document.getElementById("themeBtn").addEventListener("click", function(){
   root.setAttribute("data-theme", next);
   try{ localStorage.setItem("diauno-theme", next); }catch(e){}
 });
-/* Placeholder signup: not connected to any provider yet; nothing is sent or stored. */
-document.getElementById("signup").addEventListener("submit", function(e){
-  e.preventDefault();
-  var em=document.getElementById("email"), c=document.getElementById("consent"), msg=document.getElementById("signupMsg");
-  msg.classList.remove("err");
-  if(!(em.value && em.checkValidity())){ msg.textContent="Escribe un correo válido."; msg.classList.add("err"); em.focus(); return; }
-  if(!c.checked){ msg.textContent="Marca la casilla de consentimiento para continuar."; msg.classList.add("err"); c.focus(); return; }
-  msg.textContent="Gracias. Este registro aún no está conectado: por ahora no enviamos ni guardamos tu correo.";
-});
 })();
 </script>
+<script src="/e.js" defer></script>
 </body>
 </html>
