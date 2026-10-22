@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MUSD Peg Desk</title>
+<meta name="description" content="Redeem MUSD for $1 of BTC in one click, with sizes and hints verified by simulation before you sign. Borrower Defense shows every MUSD loan where it sits in the redemption queue. Live peg, depeg simulator and redemption queue, read straight from Mezo in your browser.">
+<meta property="og:title" content="MUSD Peg Desk: redeem MUSD at $1, defend your loan">
+<meta property="og:description" content="The peg's defense, without the block explorer: live peg signal, simulated one-click redemptions, Borrower Defense, depeg scenarios, queue transparency.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f7f6f3;--ink:#17151c;--mute:#6c6878;--card:#fff;--line:#e6e3dc;--pos:#0f8a5f;--neg:#c8323f;--warn:#a86a12;--acc:#e8173f;--acc-ink:#fff;--track:#efece6;--chip:#f1efe9;--sim:#6b4fd8}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0d0c10;--ink:#f4f2f7;--mute:#9b97a6;--card:#17161c;--line:#2a2832;--pos:#43d396;--neg:#ff6b78;--warn:#f2bd57;--acc:#ff3b62;--acc-ink:#fff;--track:#24222b;--chip:#211f27;--sim:#a48bff}}
+  :root[data-theme="dark"]{--bg:#0d0c10;--ink:#f4f2f7;--mute:#9b97a6;--card:#17161c;--line:#2a2832;--pos:#43d396;--neg:#ff6b78;--warn:#f2bd57;--acc:#ff3b62;--acc-ink:#fff;--track:#24222b;--chip:#211f27;--sim:#a48bff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Geist,system-ui,sans-serif}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+  h1{font-size:clamp(28px,5vw,40px);margin:0;letter-spacing:-.02em}
+  h2{font-size:17px;margin:0 0 10px;letter-spacing:-.01em}
+  h3{font-size:14px;margin:14px 0 6px}
+  .sub{color:var(--mute);margin:4px 0 0;max-width:720px}
+  .mono{font-family:"Geist Mono",ui-monospace,monospace}
+  .live{font-family:"Geist Mono",monospace;font-size:12px;color:var(--mute)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pos);margin-right:6px;animation:p 1.6s infinite}
+  .dot.off{background:var(--neg);animation:none}
+  @keyframes p{50%{opacity:.3}}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+  .seg button{border:0;background:none;color:var(--mute);padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+  .seg button.on{background:var(--ink);color:var(--bg)}
+  #scen button.on:not([data-s="live"]){background:var(--sim);color:#fff}
+  .btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:600}
+  .btn.small{padding:5px 10px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .scenbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+  .scenbar .lbl{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+  .scenbar input{width:96px;flex:none;min-width:0}
+  .simtag{display:inline-block;font:600 11px/1 Geist,system-ui,sans-serif;letter-spacing:.08em;color:#fff;background:var(--sim);border-radius:6px;padding:4px 7px;vertical-align:2px;margin-right:6px}
+  .signal{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--mute);border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:16px}
+  .signal.open{border-left-color:var(--pos)} .signal.band{border-left-color:var(--mute)} .signal.risk{border-left-color:var(--neg)}
+  .signal.simul{border-left-color:var(--sim);background:color-mix(in srgb,var(--sim) 7%,var(--card))}
+  .signal small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:0 0 14px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;min-width:0}
+  .kpi span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+  .kpi b{display:block;font-family:"Geist Mono",monospace;font-size:21px;font-weight:500;margin-top:2px}
+  .kpi i{font-style:normal;font-size:12px;color:var(--mute)}
+  .kpi.good b{color:var(--pos)} .kpi.bad b{color:var(--neg)} .kpi.warn b{color:var(--warn)} .kpi.simk b{color:var(--sim)}
+  .grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-bottom:14px}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+  .card.simcard{border-color:color-mix(in srgb,var(--sim) 45%,var(--line));background:color-mix(in srgb,var(--sim) 5%,var(--card))}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  input[type=text]{flex:1;min-width:140px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px 12px;font:16px "Geist Mono",monospace}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 2px}
+  .chip{border:1px solid var(--line);background:var(--chip);border-radius:99px;padding:3px 10px;font:12px "Geist Mono",monospace;cursor:pointer;color:var(--ink)}
+  .chip.part{background:transparent;border-style:dashed}
+  .plan{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;font-size:14px}
+  .plan .big{font-size:18px}
+  .note{font-size:13px;color:var(--mute);margin:6px 0 0}
+  .warnbox{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:8px}
+  .okbox{background:color-mix(in srgb,var(--pos) 11%,transparent);border:1px solid color-mix(in srgb,var(--pos) 35%,transparent);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:8px;word-break:break-word}
+  .errbox{background:color-mix(in srgb,var(--neg) 11%,transparent);border:1px solid color-mix(in srgb,var(--neg) 35%,transparent);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:8px;word-break:break-word}
+  .tablewrap{overflow-x:auto;margin:0 -4px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}
+  th{color:var(--mute);font-weight:500;font-size:12px}
+  th:first-child,td:first-child,th.l,td.l{text-align:left}
+  td{font-family:"Geist Mono",monospace}
+  td.tw{white-space:normal;font-family:Geist,system-ui,sans-serif;min-width:150px}
+  tr.me td{background:color-mix(in srgb,var(--acc) 10%,transparent)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .mute{color:var(--mute)}
+  .bar{position:relative;width:90px;height:7px;background:var(--track);border-radius:99px;display:inline-block;vertical-align:middle;margin-left:8px}
+  .bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--pos)}
+  .bar.hot i{background:var(--neg)} .bar.warm i{background:var(--warn)}
+  .pill{font-family:Geist,system-ui,sans-serif;font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+  .pill.bad{color:var(--neg);border-color:color-mix(in srgb,var(--neg) 40%,transparent)}
+  .pill.ok{color:var(--pos);border-color:color-mix(in srgb,var(--pos) 40%,transparent)}
+  .pill.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+  section.card{margin-bottom:14px}
+  .xray{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin-top:6px}
+  .xray div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+  .xray span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+  .xray b{font-family:"Geist Mono",monospace;font-weight:500;word-break:break-word}
+  .verdict{border-radius:12px;padding:10px 12px;margin:10px 0 4px;font-size:15px;border:1px solid var(--line);border-left:4px solid var(--mute)}
+  .verdict.hot{border-left-color:var(--neg)} .verdict.warm{border-left-color:var(--warn)} .verdict.calm{border-left-color:var(--pos)}
+  .verdict small{display:block;color:var(--mute);font-size:13px}
+  .qbar{position:relative;height:16px;background:var(--track);border-radius:99px;margin:26px 0 30px}
+  .qbar .ahead{position:absolute;left:0;top:0;bottom:0;border-radius:99px 0 0 99px;background:color-mix(in srgb,var(--neg) 55%,transparent)}
+  .qbar .you{position:absolute;top:-4px;bottom:-4px;width:4px;margin-left:-2px;background:var(--ink);border-radius:2px}
+  .qbar .mk{position:absolute;top:-22px;font:11px "Geist Mono",monospace;color:var(--mute);white-space:nowrap}
+  .qbar .mk.r{transform:translateX(calc(-100% + 4px))} .qbar .mk.lft{transform:translateX(-4px)}
+  .qbar .mk.b{top:22px}
+  .qbar .tick{position:absolute;top:0;bottom:0;width:2px;background:var(--sim)}
+  .checks{list-style:none;padding:0;margin:6px 0 0;font-size:13px}
+  .checks li{display:grid;grid-template-columns:22px 1fr;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .checks li:last-child{border-bottom:0}
+  .checks .st{font-weight:600;text-align:center}
+  .checks .st.ok{color:var(--pos)} .checks .st.bad{color:var(--neg)} .checks .st.warn{color:var(--warn)} .checks .st.pend{color:var(--mute)}
+  .checks code,.cd code{font-family:"Geist Mono",monospace;font-size:12px;word-break:break-all}
+  .checks .d{color:var(--mute)}
+  details.presign{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)}
+  details.presign summary{cursor:pointer;font-weight:600;font-size:14px}
+  .mf{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute);margin-top:6px;flex-wrap:wrap}
+  .mf input{width:80px;flex:none;min-width:0;padding:5px 8px;font-size:14px}
+  details.drawer{margin-bottom:14px}
+  details.drawer>summary{cursor:pointer;font-weight:600;font-size:17px;letter-spacing:-.01em}
+  .clist{display:grid;gap:8px;margin-top:10px}
+  .crow{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--bg);min-width:0}
+  .crow .top{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+  .crow .addr{font:12px "Geist Mono",monospace;word-break:break-all;color:var(--mute)}
+  .crow .fns{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .fn{font:11.5px "Geist Mono",monospace;border:1px solid var(--line);border-radius:6px;padding:1px 6px;background:var(--card)}
+  .fn.w{border-color:var(--acc);color:var(--acc)}
+  .cd{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;font-size:13px}
+  .cd pre{white-space:pre-wrap;word-break:break-all;font:12px/1.5 "Geist Mono",monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0}
+  footer{color:var(--mute);font-size:12.5px;margin-top:20px;line-height:1.6}
+  footer code{font-family:"Geist Mono",monospace;font-size:11.5px;word-break:break-all}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>MUSD Peg Desk</h1>
+      <p class="sub">Redeem MUSD for $1 of BTC in one click, with sizes and hints verified by simulation before you sign. Borrowers see exactly where their loan sits in the redemption queue. Everything is read straight from Mezo in your browser.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Network">
+        <button id="net-testnet" type="button">Testnet</button>
+        <button id="net-mainnet" type="button">Mainnet</button>
+      </div>
+      <button class="btn" id="btnConnect" type="button">Connect wallet</button>
+    </div>
+  </header>
+  <div class="live" id="status"><span class="dot"></span>connecting…</div>
+  <div style="height:10px"></div>
+
+  <div class="scenbar">
+    <span class="lbl">MUSD price</span>
+    <div class="seg" id="scen" role="group" aria-label="Peg scenario">
+      <button type="button" data-s="live" class="on">Live</button>
+      <button type="button" data-s="0.985">Sim $0.985</button>
+      <button type="button" data-s="0.970">Sim $0.970</button>
+      <button type="button" data-s="custom">Sim custom</button>
+    </div>
+    <input type="text" id="scenCustom" class="hide" inputmode="decimal" value="0.950" aria-label="Custom simulated MUSD price">
+  </div>
+  <div class="signal band" id="signal">Reading the peg…</div>
+  <section class="card simcard hide" id="simcard">
+    <h2><span class="simtag">SIMULATION</span>Depeg scenario</h2>
+    <div id="simbody"></div>
+  </section>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <div class="card" id="redeem">
+      <h2>Redeem MUSD → BTC</h2>
+      <div class="row">
+        <input type="text" id="amt" inputmode="decimal" placeholder="MUSD amount" value="" aria-label="MUSD amount">
+        <button class="btn" id="btnSim" type="button">Dry-run</button>
+        <button class="btn primary" id="btnSend" type="button">Redeem</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="plan" id="plan"><span class="mute">Loading the queue…</span></div>
+      <div id="simres"></div>
+      <details class="presign" id="presign" open>
+        <summary>Pre-sign checks</summary>
+        <label class="mf">Max redemption fee <input type="text" id="maxfee" inputmode="decimal" value="1.00" aria-label="Maximum redemption fee in percent">% <span>(Peg Desk refuses to send above this)</span></label>
+        <ul class="checks" id="checks"><li><span class="st pend">·</span><span class="d">Waiting for the plan…</span></li></ul>
+      </details>
+    </div>
+    <div class="card" id="arb">
+      <h2>Peg arbitrage, live quotes</h2>
+      <div id="arbbody" class="mute">Quoting the MUSD/BTC pool…</div>
+      <p class="note">Redeem arb: buy MUSD with BTC on the Mezo MUSD/BTC pool, redeem it for BTC at $1 minus the redemption fee. Mint-and-sell: borrow MUSD (borrowing fee) and sell it on the pool; interest and locked collateral not included. Pool quotes include the pool fee and price impact.</p>
+    </div>
+  </div>
+
+  <section class="card" id="xraycard">
+    <h2 id="xraytitle">Borrower Defense</h2>
+    <p class="note" style="margin:-4px 0 8px">Redemptions take BTC from the loans at the front of the queue, at $1 per MUSD. Check any MUSD loan: how much MUSD must be redeemed before it is hit, and what moves it back. Read-only.</p>
+    <form class="row" id="defform">
+      <input type="text" id="defAddr" placeholder="Borrower address 0x…" aria-label="Borrower address" autocomplete="off" spellcheck="false">
+      <button class="btn" type="submit">Check loan</button>
+    </form>
+    <div id="xray"></div>
+  </section>
+
+  <section class="card">
+    <h2>Redemption queue <span class="pill" id="qcount"></span></h2>
+    <p class="note" style="margin:-4px 0 8px">Redemptions take BTC from the loan with the lowest collateral ratio at or above 110% first, in this exact on-chain order (<span class="mono">SortedTroves</span>). "MUSD ahead" is how much must be redeemed before that loan is touched.</p>
+    <div class="tablewrap"><table id="queue"><thead><tr><th>#</th><th class="l">Borrower</th><th>Ratio</th><th>Debt MUSD</th><th>Collateral BTC</th><th>Rate</th><th>MUSD ahead</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Recent redemptions <span class="pill" id="hsum"></span></h2>
+    <div class="tablewrap"><table id="history"><thead><tr><th class="l">When</th><th>MUSD redeemed</th><th>BTC out</th><th>Fee BTC</th><th class="l">Tx</th></tr></thead><tbody><tr><td class="l mute" colspan="5">Loading…</td></tr></tbody></table></div>
+  </section>
+
+  <details class="card drawer" id="contracts">
+    <summary>Contracts &amp; calldata</summary>
+    <p class="note">Every Mezo contract this page reads, the functions it called in this session (live counters), and the exact transaction your wallet would sign.</p>
+    <div id="cbody"></div>
+  </details>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script>
+"use strict";
+const NETS = {
+  testnet: { key:"testnet", label:"Mezo testnet", chainId:31611, rpc:"https://rpc.test.mezo.org", explorer:"https://explorer.test.mezo.org", api:"https://api.explorer.test.mezo.org/api/v2", app:"https://testnet.mezo.org",
+    TM:"0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0", HH:"0x4e4cBA3779d56386ED43631b4dCD6d8EacEcBCF6", ST:"0x722E4D24FD6Ff8b0AC679450F3D91294607268fA", BO:"0xCdF7028ceAB81fA0C6971208e83fa7872994beE5", PF:"0x86bCF0841622a5dAC14A313a15f96A95421b9366", MUSD:"0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503", POOL:"0xd16A5Df82120ED8D626a1a15232bFcE2366d6AA9", POOLF:"0x4947243CC818b627A5D06d14C4eCe7398A23Ce1A", canSend:true },
+  mainnet: { key:"mainnet", label:"Mezo mainnet", chainId:31612, rpc:"https://mainnet.mezo.public.validationcloud.io", explorer:"https://explorer.mezo.org", api:"https://api.explorer.mezo.org/api/v2", app:"https://mezo.org",
+    TM:"0x94AfB503dBca74aC3E4929BACEeDfCe19B93c193", HH:"0xD267b3bE2514375A075fd03C3D9CBa6b95317DC3", ST:"0x8C5DB4C62BF29c1C4564390d10c20a47E0b2749f", BO:"0x44b1bac67dDA612a41a58AAf779143B181dEe031", PF:"0xc5aC5A8892230E0A3e1c473881A2de7353fFcA88", MUSD:"0xdD468A1DDc392dcdbEf6db6e34E89AA338F9F186", POOL:"0x52e604c44417233b6CcEDDDc0d640A405Caacefb", POOLF:"0x83FE469C636C4081b87bA5b3Ae9991c6Ed104248", canSend:false },
+};
+const BTC_TOKEN = "0x7b7C000000000000000000000000000000000000";
+const MULTICALL = "0xcA11bde05977b3631167028862bE2a173976CA11";
+const E18 = 10n**18n, NICR_PRECISION = 10n**20n, MCR = 11n*10n**17n;
+const PARTIAL_BUFFER = 10n**18n;     // keep 1 MUSD above the minimum debt so interest drift cannot cancel the partial
+const MIN_PARTIAL = 10n**18n;        // partial legs under 1 MUSD are dropped (dust)
+const FULL_MARGIN = 5n*10n**16n;     // +0.05 MUSD so a full loan stays "full" while interest accrues during signing; the excess is not redeemed
+const HINT_SKEW_PPB = 100n;          // centre the NICR hint in TroveManager's narrow partial-redemption acceptance window
+const PRESETS = [0.985, 0.970];
+const GAS_PER_LOAN = 170000n, GAS_BASE = 300000n;   // measured on testnet: ~161k gas per loan touched
+
+const qs = new URLSearchParams(location.search);
+const net = NETS[qs.get("net")==="mainnet" ? "mainnet" : "testnet"];
+const xrayParam = qs.get("wallet");
+const provider = new ethers.JsonRpcProvider(net.rpc, { chainId: net.chainId, name: net.key }, { staticNetwork: true });
+
+const I = {
+  TM: new ethers.Interface(["function getTroveOwnersCount() view returns (uint256)","function getTroveFromTroveOwnersArray(uint256) view returns (address)","function getEntireDebtAndColl(address) view returns (uint256 coll,uint256 principal,uint256 interest,uint256 pendingCollateral,uint256 pendingPrincipal,uint256 pendingInterest)","function getCurrentICR(address,uint256) view returns (uint256)","function getNominalICR(address) view returns (uint256)","function getTroveInterestRate(address) view returns (uint16)","function getTCR(uint256) view returns (uint256)","function checkRecoveryMode(uint256) view returns (bool)","function redeemCollateral(uint256 _amount,address _firstRedemptionHint,address _upperPartialRedemptionHint,address _lowerPartialRedemptionHint,uint256 _partialRedemptionHintNICR,uint256 _maxIterations)","event Redemption(uint256 _attemptedAmount,uint256 _actualAmount,uint256 _collateralSent,uint256 _collateralFee)"]),
+  ST: new ethers.Interface(["function getLast() view returns (address)","function getPrev(address) view returns (address)","function getSize() view returns (uint256)","function findInsertPosition(uint256,address,address) view returns (address,address)"]),
+  HH: new ethers.Interface(["function getRedemptionHints(uint256,uint256,uint256) view returns (address,uint256,uint256)"]),
+  BO: new ethers.Interface(["function redemptionRate() view returns (uint256)","function proposedRedemptionRate() view returns (uint256)","function proposedRedemptionRateTime() view returns (uint256)","function borrowingRate() view returns (uint256)","function minNetDebt() view returns (uint256)","function MUSD_GAS_COMPENSATION() view returns (uint256)"]),
+  PF: new ethers.Interface(["function fetchPrice() view returns (uint256)"]),
+  ERC20: new ethers.Interface(["function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)"]),
+  POOL: new ethers.Interface(["function getReserves() view returns (uint256,uint256,uint256)","function token0() view returns (address)","function getAmountOut(uint256,address) view returns (uint256)"]),
+  POOLF: new ethers.Interface(["function getFee(address,bool) view returns (uint256)"]),
+  MC: new ethers.Interface(["function aggregate3((address target,bool allowFailure,bytes callData)[] calls) view returns ((bool success,bytes returnData)[])"]),
+};
+const REDEMPTION_TOPIC = I.TM.getEvent("Redemption").topicHash;   // keccak256("Redemption(uint256,uint256,uint256,uint256)")
+const CONTRACTS = [
+  ["MUSD", "MUSD token", "ERC-20 supply and balances; the asset a redemption burns"],
+  ["TM", "TroveManager", "the redemption engine: loans, ratios (ICR/NICR), TCR, recovery mode, Redemption events, and redeemCollateral (the only write)"],
+  ["ST", "SortedTroves", "the redemption order: getLast/getPrev walk, findInsertPosition for the partial hint"],
+  ["HH", "HintHelpers", "getRedemptionHints: cross-check of the first redemption hint"],
+  ["BO", "BorrowerOperations", "redemption rate (and any pending governance change), borrowing rate, minimum net debt, gas compensation"],
+  ["PF", "PriceFeed", "fetchPrice: the BTC price TroveManager uses for redemptions"],
+  ["POOL", "MUSD/BTC pool", "reserves and getAmountOut: the market price of MUSD and the arbitrage quotes"],
+  ["POOLF", "Pool factory", "getFee: the live pool fee"],
+  ["MC", "Multicall3", "batches every read into a few RPC calls"],
+];
+const addrOf = (k) => (k === "MC" ? MULTICALL : net[k]);
+
+// ---------- helpers ----------
+const $ = (s) => document.querySelector(s);
+const f = (x, d=2) => Number(x).toLocaleString("en-US", { minimumFractionDigits:d, maximumFractionDigits:d });
+const toNum = (wei, dec=18) => Number(ethers.formatUnits(wei, dec));
+const usd = (x, d=2) => "$" + f(x, d);
+const compact = (x) => Intl.NumberFormat("en-US", { notation:"compact", maximumFractionDigits:2 }).format(x);
+const short = (a) => a.slice(0,6) + "…" + a.slice(-4);
+const addrLink = (a, label) => `<a href="${net.explorer}/address/${a}" target="_blank" rel="noopener">${label || short(a)}</a>`;
+const txLink = (h) => `<a href="${net.explorer}/tx/${h}" target="_blank" rel="noopener">${h.slice(0,10)}…</a>`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const weiOf = (x) => (Number.isFinite(x) && x > 0 ? ethers.parseEther(x.toFixed(6)) : 0n);
+function reason(e) {
+  const m = e?.revert?.args?.[0] || e?.reason || e?.info?.error?.message || e?.shortMessage || e?.message || String(e);
+  return String(m).replace(/^execution reverted:?\s*/i, "").slice(0, 220);
+}
+
+// ---------- state ----------
+const S = { troves: [], account: null, lastPlan: null, scen: null, calls: new Map(), hist: null, defAddr: null, planSeq: 0, sim: null, maxLegs: 50, gasLimit: null };
+
+function rec(to, fn, n = 1) { const k = to.toLowerCase() + "|" + fn; S.calls.set(k, (S.calls.get(k) || 0) + n); }
+async function call1(to, i, fn, args = [], from) {
+  rec(to, fn);
+  const raw = await provider.call(from ? { to, from, data: i.encodeFunctionData(fn, args) } : { to, data: i.encodeFunctionData(fn, args) });
+  return i.decodeFunctionResult(fn, raw);
+}
+async function multi(calls, chunk = 150) {
+  const out = [];
+  for (let i = 0; i < calls.length; i += chunk) {
+    const part = calls.slice(i, i + chunk);
+    part.forEach((c) => rec(c.to, c.fn)); rec(MULTICALL, "aggregate3");
+    const data = I.MC.encodeFunctionData("aggregate3", [part.map((c) => [c.to, true, c.i.encodeFunctionData(c.fn, c.args || [])])]);
+    const raw = await provider.call({ to: MULTICALL, data });
+    const [res] = I.MC.decodeFunctionResult("aggregate3", raw);
+    res.forEach((r, k) => { const c = part[k]; out.push(r.success ? c.i.decodeFunctionResult(c.fn, r.returnData) : null); });
+  }
+  return out;
+}
+
+async function loadSystem() {
+  const r = await multi([
+    { to: net.PF, i: I.PF, fn: "fetchPrice" },
+    { to: net.TM, i: I.TM, fn: "getTroveOwnersCount" },
+    { to: net.MUSD, i: I.ERC20, fn: "totalSupply" },
+    { to: net.BO, i: I.BO, fn: "redemptionRate" },
+    { to: net.BO, i: I.BO, fn: "borrowingRate" },
+    { to: net.BO, i: I.BO, fn: "minNetDebt" },
+    { to: net.BO, i: I.BO, fn: "MUSD_GAS_COMPENSATION" },
+    { to: net.ST, i: I.ST, fn: "getLast" },
+    { to: net.POOL, i: I.POOL, fn: "getReserves" },
+    { to: net.POOL, i: I.POOL, fn: "token0" },
+    { to: net.POOLF, i: I.POOLF, fn: "getFee", args: [net.POOL, false] },
+    { to: net.BO, i: I.BO, fn: "proposedRedemptionRate" },
+    { to: net.BO, i: I.BO, fn: "proposedRedemptionRateTime" },
+  ]);
+  if (!r[0]) throw new Error("PriceFeed did not answer (oracle stale?)");
+  const sys = { price: r[0][0], owners: Number(r[1][0]), supply: r[2][0], redRate: r[3][0], borRate: r[4][0], minNet: r[5][0],
+    gasComp: r[6] ? r[6][0] : 200n * E18, last: r[7][0], reserves: r[8], token0: r[9][0], poolFeeBps: r[10] ? Number(r[10][0]) : null,
+    propRate: r[11] ? r[11][0] : null, propTime: r[12] ? Number(r[12][0]) : 0 };
+  const r2 = await multi([
+    { to: net.TM, i: I.TM, fn: "getTCR", args: [sys.price] },
+    { to: net.TM, i: I.TM, fn: "checkRecoveryMode", args: [sys.price] },
+    ...Array.from({ length: sys.owners }, (_, k) => ({ to: net.TM, i: I.TM, fn: "getTroveFromTroveOwnersArray", args: [k] })),
+  ]);
+  sys.tcr = r2[0] ? r2[0][0] : 0n; sys.recovery = r2[1] ? r2[1][0] : false;
+  const owners = r2.slice(2).map((x) => x && x[0]).filter(Boolean);
+  const per = [];
+  for (const o of owners) per.push(
+    { to: net.ST, i: I.ST, fn: "getPrev", args: [o] },
+    { to: net.TM, i: I.TM, fn: "getEntireDebtAndColl", args: [o] },
+    { to: net.TM, i: I.TM, fn: "getCurrentICR", args: [o, sys.price] },
+    { to: net.TM, i: I.TM, fn: "getTroveInterestRate", args: [o] },
+    { to: net.TM, i: I.TM, fn: "getNominalICR", args: [o] });
+  const r3 = await multi(per, 160);
+  const map = new Map();
+  owners.forEach((o, k) => {
+    const prev = r3[5*k], d = r3[5*k+1], icr = r3[5*k+2], rate = r3[5*k+3], nicr = r3[5*k+4];
+    if (!d) return;
+    map.set(o.toLowerCase(), { owner: o, prev: prev ? prev[0] : ethers.ZeroAddress, coll: d.coll, principal: d.principal, interest: d.interest, icr: icr ? icr[0] : 0n, rate: rate ? Number(rate[0]) : 0,
+      nicr: nicr ? nicr[0] : (d.principal > 0n ? (d.coll * NICR_PRECISION) / d.principal : 0n) });
+  });
+  // walk the sorted list from the lowest NICR (getLast) upward via getPrev, exactly as redeemCollateral does
+  const ordered = []; let cur = sys.last; const seen = new Set();
+  while (cur && cur !== ethers.ZeroAddress && !seen.has(cur.toLowerCase())) {
+    seen.add(cur.toLowerCase());
+    const t = map.get(cur.toLowerCase()); if (!t) break;
+    ordered.push(t); cur = t.prev;
+  }
+  let ahead = 0n, eligible = 0;
+  for (const t of ordered) {
+    t.debt = t.principal + t.interest; t.net = t.debt - sys.gasComp; t.eligible = t.icr >= MCR;
+    t.ahead = ahead; if (t.eligible) { ahead += t.net > 0n ? t.net : 0n; eligible++; }
+  }
+  sys.redeemable = ahead; sys.eligible = eligible;
+  S.sys = sys; S.troves = ordered;
+  return sys;
+}
+
+// ---------- the redemption planner (mirrors TroveManager.redeemCollateral step by step) ----------
+function planRedemption(amountWei, cap = true) {
+  const { price, minNet, redRate } = S.sys;
+  let remaining = amountWei, first = null, nicr = 0n, partial = null, iter = 0, capped = false;
+  const legs = [];
+  for (const t of S.troves) {
+    if (t.eligible && cap && legs.length >= S.maxLegs) { capped = true; break; }   // one transaction must fit in a block
+    iter++;
+    if (!t.eligible) continue;
+    if (!first) first = t.owner;
+    if (t.net > remaining) {
+      const room = t.net - minNet - PARTIAL_BUFFER;
+      const lot = remaining < room ? remaining : room;
+      if (room > 0n && lot >= MIN_PARTIAL) {
+        const newColl = t.coll - (lot * E18) / price;
+        const principalAdj = lot >= t.interest ? lot - t.interest : 0n;
+        const base = (newColl * NICR_PRECISION) / (t.principal - principalAdj);
+        nicr = base + (base * HINT_SKEW_PPB) / 1000000000n;
+        remaining -= lot; partial = t; legs.push({ t, lot, full: false, after: t.net - lot });
+      }
+      break;
+    }
+    remaining -= t.net; legs.push({ t, lot: t.net, full: true, after: 0n });
+    if (remaining === 0n) break;
+  }
+  const filled = amountWei - remaining;
+  const collDrawn = (filled * E18) / price;
+  const fee = (collDrawn * redRate) / E18;
+  const lastFull = legs.length > 0 && legs[legs.length - 1].full;
+  const send = lastFull ? filled + FULL_MARGIN : filled;   // nicr stays 0 when the last leg is full: the 0.05 spill is cancelled on-chain, never redeemed
+  return { amount: amountWei, filled, send, first, nicr: lastFull ? 0n : nicr, partial: lastFull ? null : partial, legs, iter, btcOut: collDrawn - fee, fee, capped };
+}
+
+// valid sizes: every full-loan boundary, plus the largest valid partial on the next loan
+function validSizes(maxLegs = 4) {
+  const out = []; let acc = 0n;
+  for (const t of S.troves) {
+    if (!t.eligible) continue;
+    const room = t.net - S.sys.minNet - PARTIAL_BUFFER;
+    if (room > 0n) out.push({ v: acc + room, label: "partial" });
+    acc += t.net; out.push({ v: acc, label: "full" });
+    if (out.length >= maxLegs * 2) break;
+  }
+  return out;
+}
+
+// hint pipeline: SortedTroves.findInsertPosition for the partial leg + HintHelpers first-hint cross-check, then the calldata
+async function prepareTx(p) {
+  let up = ethers.ZeroAddress, low = ethers.ZeroAddress;
+  if (p.nicr > 0n && p.partial) [up, low] = await call1(net.ST, I.ST, "findInsertPosition", [p.nicr, p.partial.owner, p.partial.owner]);
+  try { const h = await call1(net.HH, I.HH, "getRedemptionHints", [p.send, S.sys.price, 50]); p.hhFirst = h[0]; } catch { p.hhFirst = null; }
+  const maxIter = BigInt(p.iter + 3);
+  const args = [p.send, p.first, up, low, p.nicr, maxIter];
+  p.tx = { to: net.TM, data: I.TM.encodeFunctionData("redeemCollateral", args), up, low, maxIter, args };
+  return p.tx;
+}
+async function buildTx(p) { return p.tx || prepareTx(p); }
+
+function feeGuard() {
+  const cap = Number(($("#maxfee").value || "").replace(",", "."));
+  const live = toNum(S.sys.redRate) * 100;
+  const pending = S.sys.propRate != null && S.sys.propRate !== S.sys.redRate && S.sys.propTime > 0 ? toNum(S.sys.propRate) * 100 : null;
+  return { cap, live, pending, ok: Number.isFinite(cap) && cap > 0 && live <= cap + 1e-12 };
+}
+
+// ---------- market + scenario math ----------
+function poolFee() { return S.sys.poolFeeBps != null ? S.sys.poolFeeBps / 10000 : 0.003; }
+function poolQuote() {
+  const { reserves, token0, price } = S.sys;
+  const musdIs0 = token0.toLowerCase() === net.MUSD.toLowerCase();
+  const rM = toNum(musdIs0 ? reserves[0] : reserves[1]), rB = toNum(musdIs0 ? reserves[1] : reserves[0]);
+  return { mid: (rB * toNum(price)) / rM, rM, rB };
+}
+// MUSD that arbitrageurs buy (and redeem) before the redeem edge closes, if the volatile (x*y=k) pool sat at pSim with today's depth
+function depegVolume(pSim) {
+  const { rM, rB } = poolQuote(), P = toNum(S.sys.price);
+  const pT = (1 - toNum(S.sys.redRate)) * (1 - poolFee());
+  if (!(rM > 0 && rB > 0) || !(pSim < pT)) return { vol: 0, pT };
+  const k = rM * rB;
+  return { vol: Math.sqrt((k * P) / pSim) - Math.sqrt((k * P) / pT), pT };
+}
+
+// ---------- rendering ----------
+function renderTop(sys) {
+  const px = toNum(sys.price), red = 1 - toNum(sys.redRate), bor = toNum(sys.borRate);
+  const q = poolQuote(); S.mid = q.mid;
+  const mid = S.scen ?? q.mid, simul = S.scen != null;
+  const tcr = toNum(sys.tcr) * 100;
+  const gap = (mid - 1) * 100;
+  $("#kpis").innerHTML = [
+    ["BTC price (Mezo oracle)", usd(px, 0), "PriceFeed.fetchPrice()", ""],
+    [simul ? "MUSD price (simulated)" : "MUSD on Mezo pool", "$" + mid.toFixed(4), simul ? `SIMULATION · live $${q.mid.toFixed(4)}` : (gap >= 0 ? "+" : "") + gap.toFixed(2) + "% vs $1", simul ? "simk" : Math.abs(gap) > 1 ? "warn" : "good"],
+    ["Redeem 1 MUSD for", usd(red, 4), "of BTC · " + (toNum(sys.redRate) * 100).toFixed(2) + "% redemption fee", ""],
+    ["System collateral ratio", tcr.toFixed(0) + "%", sys.recovery ? "RECOVERY MODE" : "normal mode (≥150%)", sys.recovery ? "bad" : "good"],
+    ["Redeemable now", compact(toNum(sys.redeemable)) + " MUSD", sys.eligible + (sys.eligible === 1 ? " loan" : " loans") + " ≥110% ratio", ""],
+    ["MUSD supply (" + (net.key) + ")", compact(toNum(sys.supply)), sys.owners + (sys.owners === 1 ? " active loan" : " active loans"), ""],
+  ].map(([k, v, s, c]) => `<div class="kpi ${c}"><span>${k}</span><b>${v}</b><i>${s}</i></div>`).join("");
+
+  const sig = $("#signal");
+  const fee = poolFee();
+  const redeemEdge = ((red * (1 - fee)) / mid - 1) * 100;   // after pool fee, before price impact
+  const mintEdge = ((mid * (1 - fee)) / (1 + bor) - 1) * 100;
+  const tag = simul ? `<span class="simtag">SIMULATION</span>` : "";
+  const word = simul ? "is set to" : "trades at";
+  let cls;
+  if (toNum(sys.tcr) < 1.1) { cls = "risk"; sig.innerHTML = `Redemptions are paused: the system ratio is below 110%.<small>TroveManager rejects redeemCollateral while TCR &lt; MCR.</small>`; }
+  else if (redeemEdge > 0) { cls = "open"; sig.innerHTML = `${tag}MUSD ${word} <b>$${mid.toFixed(4)}</b>, below the $${red.toFixed(4)} redemption value. <b>Redeem arb is open</b> (about +${redeemEdge.toFixed(2)}% after the pool fee, before price impact).<small>Buy MUSD on the pool, redeem it below. Every redemption pushes MUSD back toward $1, and takes BTC from the loans at the front of the queue.</small>`; }
+  else if (mintEdge > 0) { cls = "open"; sig.innerHTML = `${tag}MUSD ${word} <b>$${mid.toFixed(4)}</b>, above $1. <b>Mint-and-sell is open</b> (about +${mintEdge.toFixed(2)}% after fees, before interest).<small>Borrow MUSD against BTC on <a href="${net.app}" target="_blank" rel="noopener">Mezo</a> and sell it on the pool. Selling pulls MUSD back toward $1.</small>`; }
+  else { cls = "band"; sig.innerHTML = `${tag}MUSD ${word} <b>$${mid.toFixed(4)}</b>: inside the no-arbitrage band ($${(red * (1 - fee)).toFixed(4)} – $${((1 + bor) / (1 - fee)).toFixed(4)} after fees).<small>The peg is holding. Redemptions still work for anyone who wants BTC for MUSD at $1 minus the fee. Try a depeg scenario above to see who gets redeemed.</small>`; }
+  sig.className = "signal " + (simul ? "simul" : cls);
+}
+
+async function renderArb() {
+  const sys = S.sys, px = sys.price, red = E18 - sys.redRate;
+  const sizes = [100n, 1000n, 10000n].map((x) => x * E18);
+  const calls = [];
+  for (const m of sizes) {
+    const btcIn = (m * E18) / px;
+    calls.push({ to: net.POOL, i: I.POOL, fn: "getAmountOut", args: [btcIn, BTC_TOKEN] });
+    calls.push({ to: net.POOL, i: I.POOL, fn: "getAmountOut", args: [m, net.MUSD] });
+  }
+  const r = await multi(calls);
+  const rows = sizes.map((m, k) => {
+    const btcIn = (m * E18) / px;
+    const musdOut = r[2*k] ? r[2*k][0] : 0n;
+    const btcBack = (((musdOut * E18) / px) * red) / E18;
+    const redeemPct = btcIn > 0n ? (Number(btcBack) / Number(btcIn) - 1) * 100 : NaN;
+    const btcOutSell = r[2*k+1] ? r[2*k+1][0] : 0n;
+    const usdOut = toNum(btcOutSell) * toNum(px);
+    const mintPct = (usdOut / (toNum(m) * (1 + toNum(sys.borRate))) - 1) * 100;
+    const cls = (x) => (x > 0 ? "pos" : "neg");
+    return `<tr><td>${compact(toNum(m))} MUSD</td><td class="${cls(redeemPct)}">${redeemPct >= 0 ? "+" : ""}${redeemPct.toFixed(2)}%</td><td class="${cls(mintPct)}">${mintPct >= 0 ? "+" : ""}${mintPct.toFixed(2)}%</td></tr>`;
+  }).join("");
+  $("#arbbody").innerHTML = `<div class="tablewrap"><table><thead><tr><th>Size</th><th>Redeem arb</th><th>Mint-and-sell</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">Live, never simulated. Pool: ${addrLink(net.POOL, "MUSD/BTC volatile pool")} · fee ${S.sys.poolFeeBps != null ? (S.sys.poolFeeBps / 100).toFixed(2) + "%" : "n/a"} · depth ${compact(poolQuote().rM)} MUSD / ${f(poolQuote().rB, 2)} BTC</p>`;
+}
+
+function renderSim() {
+  const card = $("#simcard");
+  if (S.scen == null) { card.classList.add("hide"); return; }
+  card.classList.remove("hide");
+  const pSim = S.scen, P = toNum(S.sys.price), fee = poolFee(), q = poolQuote();
+  const { vol, pT } = depegVolume(pSim);
+  let html = `<p class="note" style="margin-top:-4px">Only the MUSD market price is hypothetical ($${pSim.toFixed(4)} instead of the live $${q.mid.toFixed(4)}). Everything else is live from ${esc(net.label)}: oracle ${usd(P, 0)}, ${(toNum(S.sys.redRate) * 100).toFixed(2)}% redemption fee, ${(fee * 100).toFixed(2)}% pool fee, the queue, minimum debt, and the same planner and hints as the Redeem panel.</p>`;
+  if (!(pSim < pT)) {
+    html += `<div class="verdict calm">At $${pSim.toFixed(4)} redeeming is not profitable (it pays below ≈ $${pT.toFixed(4)}), so no loans get redeemed by arbitrage.</div>`;
+    $("#simbody").innerHTML = html; return;
+  }
+  const volWei = weiOf(Math.min(vol, toNum(S.sys.redeemable)));
+  const mp = planRedemption(volWei, false);
+  const loansHit = mp.legs.length, closes = mp.legs.filter((l) => l.full).length, ntx = Math.ceil(loansHit / S.maxLegs);
+  const first = planRedemption(volWei);
+  html += `<div class="verdict hot">Arbitrage would redeem about <b class="mono">${compact(vol)} MUSD</b> before MUSD is back at ≈ $${pT.toFixed(4)}${vol > toNum(S.sys.redeemable) ? ` — more than the ${compact(toNum(S.sys.redeemable))} MUSD redeemable today, so <b>every eligible loan</b> would be hit` : ``}.<small>That hits the first <b>${loansHit}</b> loan${loansHit === 1 ? "" : "s"} in the queue (${closes} closed, ${loansHit - closes} trimmed), in about ${ntx} transaction${ntx === 1 ? "" : "s"} of ≤ ${S.maxLegs} loans (block gas limit). Estimate: a constant-product pool at today's depth (${compact(q.rM)} MUSD / ${f(q.rB, 2)} BTC), no other venues, no gas.</small></div>`;
+  const sizes = validSizes(6).filter((s) => s.label === "full").slice(0, 3).map((s) => s.v);
+  if (volWei > 0n) sizes.push(volWei);
+  const rows = sizes.map((v) => {
+    const p = planRedemption(v, v !== volWei);
+    const cost = (toNum(p.filled) * pSim) / (1 - fee), value = toNum(p.btcOut) * P, pr = value - cost;
+    return `<tr><td>${f(toNum(p.filled), 0)}${v === volWei ? ` <span class="pill">market, ${ntx} tx</span>` : ""}</td><td>${usd(cost)}</td><td>${toNum(p.btcOut).toFixed(6)}</td><td>${usd(value)}</td><td class="${pr >= 0 ? "pos" : "neg"}">${pr >= 0 ? "+" : ""}${usd(pr)} (${((pr / cost) * 100).toFixed(2)}%)</td><td>${p.legs.length}</td></tr>`;
+  }).join("");
+  html += `<h3>For redeemers: profit per size (real fee and queue math)</h3><div class="tablewrap"><table><thead><tr><th>Redeem MUSD</th><th>Buy cost</th><th>BTC out</th><th>BTC value</th><th>Profit</th><th>Loans</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">Buy cost = MUSD × simulated price ÷ (1 − pool fee), without price impact. BTC out uses the live redemption fee and the live queue.</p>
+    <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="simLoad">Plan the first transaction (${compact(toNum(first.filled))} MUSD) in the Redeem panel</button></div>`;
+  const me = S.defAddr && S.troves.find((t) => t.owner.toLowerCase() === S.defAddr.toLowerCase());
+  html += `<h3>For borrowers</h3><p class="note" style="margin-top:0">${me ? (me.eligible && me.ahead < volWei ? `<b class="neg">Your loan ${short(me.owner)} would be redeemed</b>: only ${f(toNum(me.ahead), 0)} MUSD sits ahead of it. See Borrower Defense below for how to move back.` : `<b class="pos">Your loan ${short(me.owner)} would not be reached</b>: ${f(toNum(me.ahead), 0)} MUSD sits ahead of it.`) : `Loans with less than ${compact(toNum(volWei))} MUSD ahead of them would be redeemed. Enter an address in Borrower Defense to check one.`}</p>`;
+  $("#simbody").innerHTML = html;
+  $("#simLoad").onclick = () => { $("#amt").value = (Math.ceil(toNum(first.filled) * 100) / 100).toFixed(2); renderPlan(); $("#redeem").scrollIntoView({ behavior: "smooth", block: "start" }); };
+}
+
+function icrBar(icr) {
+  const v = toNum(icr) * 100, w = Math.max(3, Math.min(100, ((v - 100) / 150) * 100));
+  const c = v < 110 ? "hot" : v < 150 ? "warm" : "";
+  return `<span class="bar ${c}"><i style="width:${w}%"></i></span>`;
+}
+
+function renderQueue() {
+  const me = (S.defAddr || "").toLowerCase();
+  const rows = []; let i = 0;
+  for (const t of S.troves) {
+    i++;
+    if (rows.length >= 25 && t.owner.toLowerCase() !== me) continue;
+    const v = toNum(t.icr) * 100;
+    rows.push(`<tr class="${t.owner.toLowerCase() === me ? "me" : ""}"><td>${i}</td><td class="l">${addrLink(t.owner)}${t.eligible ? "" : ' <span class="pill bad">below 110%: liquidatable</span>'}</td>
+      <td class="${v < 110 ? "neg" : v < 150 ? "warn" : ""}">${v.toFixed(1)}%${icrBar(t.icr)}</td><td>${f(toNum(t.debt), 0)}</td><td>${f(toNum(t.coll), 4)}</td><td>${(t.rate / 100).toFixed(2)}%</td><td>${t.eligible ? f(toNum(t.ahead), 0) : "–"}</td></tr>`);
+  }
+  $("#queue tbody").innerHTML = rows.join("") || `<tr><td class="l mute" colspan="7">No active loans.</td></tr>`;
+  $("#qcount").textContent = `${S.troves.length} loans · showing ${Math.min(25, S.troves.length)}`;
+}
+
+function renderChips() {
+  const vs = validSizes(); const ordered = [...vs.filter((s) => s.label === "full"), ...vs.filter((s) => s.label !== "full")];
+  $("#chips").innerHTML = ordered.map((s) => `<button class="chip${s.label === "full" ? "" : " part"}" type="button" data-full="${s.label === "full" ? 1 : 0}" data-v="${(Math.ceil(toNum(s.v) * 100) / 100).toFixed(2)}" title="${s.label === "full" ? "Closes whole loans: does not depend on the BTC price" : "Ends with a partial trim: best-effort, fails if the oracle ticks before the block"}">${f(toNum(s.v), 0)} <span class="mute">${s.label === "full" ? "full" : "partial · best-effort"}</span></button>`).join("");
+  document.querySelectorAll("#chips .chip").forEach((b) => b.onclick = () => { $("#amt").value = b.dataset.v; renderPlan(); });
+}
+
+async function renderPlan() {
+  const seq = ++S.planSeq;
+  const out = $("#plan");
+  let amount;
+  try { amount = ethers.parseEther(($("#amt").value || "0").replace(/,/g, "").trim()); } catch { out.innerHTML = '<span class="neg">Enter a number.</span>'; S.lastPlan = null; renderChecks(null); return; }
+  if (!S.lastPlan || S.lastPlan.amount !== amount) $("#simres").innerHTML = "";
+  if (amount <= 0n) { out.innerHTML = '<span class="mute">Enter how much MUSD to redeem.</span>'; S.lastPlan = null; renderChecks(null); return; }
+  const p = planRedemption(amount); S.lastPlan = p;
+  if (p.filled === 0n) { out.innerHTML = `<div class="warnbox">Nothing can be filled at this size: the next loan (${p.first ? short(p.first) : "none"}) must keep at least ${f(toNum(S.sys.minNet), 0)} MUSD of debt. Pick one of the valid sizes above.</div>`; renderChecks(p); return; }
+  const px = toNum(S.sys.price);
+  const legs = p.legs.map((l) => `${l.full ? "closes" : "trims"} ${addrLink(l.t.owner)} by ${f(toNum(l.lot), 2)}`).join(" · ");
+  let html = `<div class="big">You burn <b class="mono">${f(toNum(p.filled), 2)} MUSD</b> → receive <b class="mono">${toNum(p.btcOut).toFixed(8)} BTC</b> <span class="mute">(≈ ${usd(toNum(p.btcOut) * px)})</span></div>
+    <p class="note">Fee ${toNum(p.fee).toFixed(8)} BTC · ${p.legs.length} loan${p.legs.length > 1 ? "s" : ""}: ${legs}</p>`;
+  const lastLeg = p.legs.at(-1);
+  if (!lastLeg.full) html += p.legs.length > 1
+    ? `<div class="warnbox">The last leg is a partial trim and is best-effort: if the BTC oracle ticks before your transaction lands, the chain skips it. The full loans still fill and the rest of your MUSD stays in your wallet.</div>`
+    : `<div class="warnbox">This is a partial trim only. TroveManager accepts a partial only if the BTC oracle has barely moved since the hint was computed, so on a busy oracle it can fail with “Unable to redeem any amount” (you only lose gas). Peg Desk recomputes the hint right before you sign. The <b>full</b> sizes above never depend on the price.</div>`;
+  if (p.capped && amount - p.filled >= MIN_PARTIAL) html += `<div class="warnbox">Capped at <b>${p.legs.length} loans</b> per transaction: Mezo's block gas limit (${S.gasLimit ? compact(Number(S.gasLimit)) : "10M"}) fits about ${S.maxLegs} loans (~160k gas each). Redeem the rest in a second transaction.</div>`;
+  else if (!p.capped && amount - p.filled >= MIN_PARTIAL) html += `<div class="warnbox">Trimmed from ${f(toNum(amount), 2)} to <b>${f(toNum(p.filled), 2)}</b> MUSD: the rest would push loan ${short(p.legs.at(-1).t.owner)} below the ${f(toNum(S.sys.minNet), 0)} MUSD minimum and the chain would cancel it.</div>`;
+  out.innerHTML = html;
+  renderChecks(p);
+  try { await prepareTx(p); } catch (e) { p.txErr = reason(e); }
+  if (seq !== S.planSeq) return;
+  renderChecks(p); renderContracts();
+}
+
+function renderChecks(p) {
+  const el = $("#checks");
+  if (!p || !S.sys) { el.innerHTML = `<li><span class="st pend">·</span><span class="d">Enter an amount to see the checks.</span></li>`; return; }
+  const items = [];
+  const add = (st, title, d) => items.push(`<li><span class="st ${st}">${{ ok: "✓", bad: "✗", warn: "!", pend: "·" }[st]}</span><span><b>${title}</b><br><span class="d">${d}</span></span></li>`);
+  const tcr = toNum(S.sys.tcr) * 100;
+  add(tcr >= 110 ? "ok" : "bad", "System ratio ≥ 110%", `TroveManager.getTCR = ${tcr.toFixed(0)}% (redeemCollateral reverts below 110%)`);
+  if (p.filled === 0n) { add("bad", "Size fills on-chain", `0 MUSD would fill; pick a valid size`); el.innerHTML = items.join(""); return; }
+  add("ok", "Size fills on-chain", `${f(toNum(p.filled), 2)} MUSD across ${p.legs.length} loan${p.legs.length > 1 ? "s" : ""}, planned by walking SortedTroves from getLast() like redeemCollateral; sizes verified by simulation`);
+  const hh = p.hhFirst === undefined ? "checking HintHelpers…" : p.hhFirst == null ? "HintHelpers did not answer" : p.hhFirst.toLowerCase() === p.first.toLowerCase() ? "matches HintHelpers.getRedemptionHints ✓" : `HintHelpers suggests ${short(p.hhFirst)}; TroveManager re-validates the hint on-chain`;
+  add(p.hhFirst === undefined ? "pend" : "ok", "First redemption hint", `<code>${short(p.first)}</code> · ${hh}`);
+  const pl = p.legs.at(-1);
+  if (pl.full) add("ok", "Partial hint", `none needed: the last leg closes a whole loan, so the NICR hint is 0 and the result does not depend on the BTC price`);
+  else add(p.tx ? "ok" : "pend", "Partial hint (NICR + insert position)", `NICR <code>${p.nicr}</code> (centred in the acceptance window) · SortedTroves.findInsertPosition → upper <code>${p.tx ? short(p.tx.up) : "…"}</code>, lower <code>${p.tx ? short(p.tx.low) : "…"}</code>`);
+  const minNet = toNum(S.sys.minNet);
+  if (pl.full) add("ok", "Minimum debt (minNetDebt)", `BorrowerOperations.minNetDebt = ${f(minNet, 0)} MUSD · no loan is left below it (all legs close fully)`);
+  else add(pl.after >= S.sys.minNet ? "ok" : "bad", "Minimum debt (minNetDebt)", `loan ${short(pl.t.owner)} keeps ${f(toNum(pl.after), 2)} MUSD net debt ≥ ${f(minNet, 0)} required (+1 MUSD buffer for accruing interest)`);
+  const g = feeGuard();
+  add(g.ok ? (g.pending != null && g.pending > g.cap ? "warn" : "ok") : "bad", "Max fee guard", `live redemptionRate ${g.live.toFixed(2)}% ${g.ok ? "≤" : ">"} your cap ${Number.isFinite(g.cap) ? g.cap.toFixed(2) : "?"}%${g.pending != null ? ` · governance proposed ${g.pending.toFixed(2)}% (7-day timelock from ${new Date(S.sys.propTime * 1000).toISOString().slice(0, 10)})` : " · no pending governance change"}. redeemCollateral has no fee-cap argument, so Peg Desk re-reads the rate right before signing and refuses above your cap`);
+  add("ok", "maxIterations + gas", `<code>${p.tx ? p.tx.maxIter : BigInt(p.iter + 3)}</code> (loans walked + 3) · ${p.legs.length} of max ${S.maxLegs} loans per transaction (block gas limit ${S.gasLimit ? Number(S.gasLimit).toLocaleString("en-US") : "?"})`);
+  if (S.account) add(S.bal == null ? "pend" : S.bal >= p.send ? "ok" : "bad", "Your MUSD balance", S.bal == null ? "checked on Redeem" : `${f(toNum(S.bal), 2)} MUSD ${S.bal >= p.send ? "covers" : "does not cover"} ${f(toNum(p.send), 2)}`);
+  else add("pend", "Your MUSD balance", `connect a wallet to check (Dry-run uses a real MUSD holder instead)`);
+  const sim = S.sim && S.sim.amount === p.amount ? S.sim : null;
+  add(sim ? (sim.ok ? "ok" : "bad") : "pend", "eth_call simulation", sim ? (sim.ok ? `passed at ${sim.at} as ${sim.who}, gas ≈ ${f(sim.gas, 0)}` : `reverted: ${esc(sim.err)}`) : `press Dry-run (Redeem always simulates first)`);
+  add(p.tx ? "ok" : "pend", "Calldata", p.tx ? `<code>redeemCollateral</code> ${p.tx.data.slice(0, 10)} · ${(p.tx.data.length - 2) / 2} bytes → TroveManager ${short(net.TM)} · <a href="#contracts" id="seeCd">decoded below</a>` : (p.txErr ? esc(p.txErr) : "encoding…"));
+  el.innerHTML = items.join("");
+  const sc = $("#seeCd"); if (sc) sc.onclick = () => { $("#contracts").open = true; };
+}
+
+async function pickHolder(minWei) {
+  try {
+    const r = await fetch(`${net.api}/tokens/${net.MUSD}/holders`).then((x) => x.json());
+    const h = r.items.find((x) => !x.address.is_contract && BigInt(x.value) >= minWei);
+    return h ? h.address.hash : null;
+  } catch { return null; }
+}
+
+async function dryRun() {
+  const res = $("#simres");
+  res.innerHTML = '<p class="note">Reading fresh prices and hints…</p>';
+  try { await loadSystem(); } catch (e) { res.innerHTML = `<div class="errbox">${esc(reason(e))}</div>`; return; }
+  await renderPlan(); const p = S.lastPlan;
+  if (!p || p.filled === 0n) return;
+  res.innerHTML = '<p class="note">Simulating against the live chain…</p>';
+  let from = S.account, who = "your wallet";
+  if (!from) { from = await pickHolder(p.send); who = "a real MUSD holder (read-only dry-run, nothing is signed)"; }
+  if (!from) { res.innerHTML = '<div class="errbox">No wallet connected and no sample holder found.</div>'; return; }
+  try {
+    const tx = await buildTx(p);
+    rec(net.TM, "redeemCollateral (eth_call)");
+    await provider.call({ to: tx.to, data: tx.data, from });
+    const gas = await provider.estimateGas({ to: tx.to, data: tx.data, from });
+    S.sim = { amount: p.amount, ok: true, gas: Number(gas), who: short(from), at: new Date().toLocaleTimeString() };
+    const g = feeGuard();
+    res.innerHTML = `<div class="okbox"><b>Dry-run passed</b> as ${who} ${addrLink(from)}: the chain accepts this redemption now. Gas ≈ ${f(Number(gas), 0)}. Hints: first ${short(p.first)}, NICR ${p.nicr}, upper ${short(tx.up)}, lower ${short(tx.low)}.</div>${g.ok ? "" : `<div class="warnbox">Your max-fee guard (${g.cap}%) is below the live ${g.live.toFixed(2)}% rate: Redeem will refuse to send.</div>`}`;
+  } catch (e) {
+    S.sim = { amount: p.amount, ok: false, err: reason(e), at: new Date().toLocaleTimeString() };
+    res.innerHTML = `<div class="errbox"><b>Dry-run reverted</b> as ${who}: ${esc(reason(e))}</div>`;
+  }
+  renderChecks(p); renderContracts();
+}
+
+async function connect() {
+  if (!window.ethereum) { $("#simres").innerHTML = '<div class="errbox">No browser wallet found. Install MetaMask (or any EIP-1193 wallet), or use Dry-run.</div>'; return; }
+  const [a] = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const hex = "0x" + net.chainId.toString(16);
+  try { await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] }); }
+  catch (e) {
+    if (e && (e.code === 4902 || /unrecognized|not added/i.test(e.message || "")))
+      await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: hex, chainName: net.label, nativeCurrency: { name: "Bitcoin", symbol: "BTC", decimals: 18 }, rpcUrls: [net.rpc], blockExplorerUrls: [net.explorer] }] });
+  }
+  S.account = ethers.getAddress(a);
+  $("#btnConnect").textContent = short(S.account);
+  setDefense(S.account, false);
+  renderChecks(S.lastPlan);
+}
+
+async function send() {
+  const res = $("#simres");
+  if (!net.canSend) { res.innerHTML = '<div class="warnbox">Sending is enabled on testnet in this version. On mainnet, use Dry-run to check a redemption first.</div>'; return; }
+  if (!S.account) await connect();
+  if (!S.account) return;
+  res.innerHTML = '<p class="note">Refreshing the queue so the hints are fresh…</p>';
+  await loadSystem(); await renderPlan(); const p = S.lastPlan;
+  if (!p || p.filled === 0n) return;
+  const g = feeGuard();
+  if (!g.ok) { res.innerHTML = `<div class="errbox"><b>Not sent: max-fee guard.</b> The live redemption rate is ${g.live.toFixed(2)}%, above your cap of ${Number.isFinite(g.cap) ? g.cap : "?"}%. Raise the cap only if you accept the higher fee.</div>`; return; }
+  try {
+    S.bal = (await call1(net.MUSD, I.ERC20, "balanceOf", [S.account]))[0];
+    renderChecks(p);
+    if (S.bal < p.send) { res.innerHTML = `<div class="errbox">Your wallet holds ${f(toNum(S.bal), 2)} MUSD; this redemption needs ${f(toNum(p.send), 2)}. Get test MUSD by borrowing on <a href="${net.app}" target="_blank" rel="noopener">testnet.mezo.org</a>.</div>`; return; }
+    const tx = await buildTx(p);
+    rec(net.TM, "redeemCollateral (eth_call)");
+    await provider.call({ to: tx.to, data: tx.data, from: S.account });
+    const gas = await provider.estimateGas({ to: tx.to, data: tx.data, from: S.account });
+    S.sim = { amount: p.amount, ok: true, gas: Number(gas), who: short(S.account), at: new Date().toLocaleTimeString() }; renderChecks(p);
+    const bp = new ethers.BrowserProvider(window.ethereum);
+    const signer = await bp.getSigner();
+    rec(net.TM, "redeemCollateral (send)");
+    const sent = await signer.sendTransaction({ to: tx.to, data: tx.data, gasLimit: (gas * 13n) / 10n });
+    res.innerHTML = `<div class="okbox">Sent ${txLink(sent.hash)}. Waiting for the block…</div>`;
+    const rc = await provider.waitForTransaction(sent.hash, 1, 120000);
+    const ev = rc && rc.logs.map((l) => { try { return I.TM.parseLog(l); } catch { return null; } }).find((x) => x && x.name === "Redemption");
+    res.innerHTML = ev ? `<div class="okbox"><b>Redeemed ${f(toNum(ev.args[1]), 2)} MUSD</b> for ${toNum(ev.args[2]).toFixed(8)} BTC (fee ${toNum(ev.args[3]).toFixed(8)}). ${txLink(sent.hash)}</div>` : `<div class="errbox">Transaction ${txLink(sent.hash)} status ${rc ? rc.status : "unknown"}.</div>`;
+    refresh();
+  } catch (e) {
+    const rejected = e && (e.code === 4001 || e.code === "ACTION_REJECTED" || e?.info?.error?.code === 4001);
+    res.innerHTML = rejected ? `<div class="warnbox">Signature rejected in the wallet. Nothing was sent.</div>` : `<div class="errbox">Not sent: ${esc(reason(e))}</div>`;
+  }
+}
+
+// ---------- Borrower Defense ----------
+function setDefense(addr, pushUrl = true) {
+  if (!addr || !ethers.isAddress(addr)) { $("#xray").innerHTML = `<div class="errbox">That is not a valid address.</div>`; return; }
+  S.defAddr = ethers.getAddress(addr); $("#defAddr").value = S.defAddr;
+  if (pushUrl) { const u = new URL(location.href); u.searchParams.set("wallet", S.defAddr); history.replaceState(null, "", u); }
+  renderQueue(); renderDefense(); renderSim();
+}
+
+function defenseTargets(t) {
+  const out = [];
+  const largest = S.hist && S.hist.length ? S.hist.reduce((m, x) => (x > m ? x : m), 0n) : 0n;
+  if (largest > 0n) out.push({ label: `Clear the largest of the last ${S.hist.length} redemptions`, L: largest });
+  for (const s of PRESETS) { const v = depegVolume(s).vol; if (v > 0) out.push({ label: `Clear a $${s.toFixed(3)} depeg (≈ ${compact(v)} MUSD redeemed)`, L: weiOf(v) }); }
+  if (S.scen != null && !PRESETS.includes(S.scen)) { const v = depegVolume(S.scen).vol; if (v > 0) out.push({ label: `Clear the simulated $${S.scen.toFixed(3)} depeg`, L: weiOf(v) }); }
+  out.push({ label: "Move back past the next 3 loans", pass: 3 });
+  // for each target, find the loan we must overtake (others only, in queue order)
+  const others = S.troves.filter((x) => x !== t);
+  const res = [];
+  for (const tg of out) {
+    let cum = 0n, passed = 0, j = null, behind = null;
+    for (const o of others) {
+      if (!o.eligible) continue;
+      if (o.nicr <= t.nicr) { cum += o.net; continue; }  // already ahead of us
+      cum += o.net; passed++; j = o;
+      if (tg.pass ? passed >= tg.pass : cum >= tg.L) { behind = cum; break; }
+    }
+    if (!tg.pass && t.ahead >= tg.L) { res.push({ ...tg, already: true }); continue; }
+    if (!j) { res.push({ ...tg, none: true }); continue; }
+    const req = j.nicr + j.nicr / 10000n + 1n;                      // a hair above the loan to overtake
+    const addColl = (req * t.principal) / NICR_PRECISION - t.coll + 1n;
+    const newPrincipal = (t.coll * NICR_PRECISION) / req;
+    const repay = t.principal - newPrincipal + t.interest;           // repayments pay interest first, then principal
+    const newNet = t.debt - repay - S.sys.gasComp;
+    const reach = behind != null ? behind : cum;
+    res.push({ ...tg, j, addColl, repay, repayOk: newNet >= S.sys.minNet, newAhead: reach, short: behind == null });
+  }
+  return res;
+}
+
+async function renderDefense() {
+  const addr = S.defAddr;
+  if (!S.sys) return;
+  const elig = S.troves.filter((t) => t.eligible);
+  const v1 = weiOf(depegVolume(PRESETS[0]).vol), v2 = weiOf(depegVolume(PRESETS[1]).vol), small = 100000n * E18;
+  const exA = elig[0], exB = elig.find((t) => t.ahead > v1 && t.ahead < v2 && t.debt < small), exC = elig.find((t) => t.ahead > v2 && t.debt < small);
+  const examples = [exA && `<a href="#" data-a="${exA.owner}">the front of the queue</a>`, exB && `<a href="#" data-a="${exB.owner}">exposed in a $0.970 depeg</a>`, exC && `<a href="#" data-a="${exC.owner}">well back</a>`].filter(Boolean).join(", ");
+  const hookEx = () => document.querySelectorAll("#xray [data-a]").forEach((a) => a.onclick = (e) => { e.preventDefault(); setDefense(a.dataset.a); });
+  if (!addr) { $("#xray").innerHTML = `<p class="note">Enter a borrower address or connect a wallet.${examples ? ` Examples: a loan at ${examples}.` : ""}</p>`; hookEx(); return; }
+  $("#xraytitle").innerHTML = `Borrower Defense · ${addrLink(addr)}`;
+  const [bal, btc] = await Promise.all([
+    call1(net.MUSD, I.ERC20, "balanceOf", [addr]).then((r) => r[0]).catch(() => 0n),
+    provider.getBalance(addr).catch(() => 0n)]);
+  if (addr !== S.defAddr) return;
+  const idx = S.troves.findIndex((t) => t.owner.toLowerCase() === addr.toLowerCase());
+  const cells = [["MUSD balance", f(toNum(bal), 2)], ["BTC balance", toNum(btc).toFixed(6)]];
+  if (idx < 0) {
+    cells.push(["Loan", "no active loan"]);
+    $("#xray").innerHTML = `<div class="xray">${cells.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div><p class="note">No open MUSD loan for this address on ${esc(net.label)}.${examples ? ` Try a loan at ${examples}.` : ""}</p>`;
+    hookEx(); return;
+  }
+  const t = S.troves[idx], px = toNum(S.sys.price);
+  const liq = (toNum(t.debt) * 1.1) / toNum(t.coll);
+  const eligIdx = S.troves.filter((x) => x.eligible).indexOf(t);
+  cells.push(["Collateral ratio", (toNum(t.icr) * 100).toFixed(1) + "%"], ["Liquidation BTC price", usd(liq, 0) + ` (${((1 - liq / px) * 100).toFixed(1)}% away)`],
+    ["Redemption order", `#${idx + 1} of ${S.troves.length}`], ["MUSD redeemed before you", t.eligible ? f(toNum(t.ahead), 0) : "– (below 110%)"],
+    ["Debt / collateral", `${f(toNum(t.debt), 0)} MUSD / ${toNum(t.coll).toFixed(4)} BTC`], ["Interest rate", (t.rate / 100).toFixed(2) + "%"]);
+  let html = `<div class="xray">${cells.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`;
+  if (!t.eligible) {
+    html += `<div class="verdict hot"><b>Below 110%: this loan is a liquidation risk, not a redemption target.</b><small>Redemptions skip it; liquidators do not. Add collateral or repay on <a href="${net.app}" target="_blank" rel="noopener">${esc(net.app.replace("https://", ""))}</a>.</small></div>`;
+    $("#xray").innerHTML = html; return;
+  }
+  const largest = S.hist && S.hist.length ? S.hist.reduce((m, x) => (x > m ? x : m), 0n) : 0n;
+  const vols = PRESETS.map((s) => ({ s, v: depegVolume(s).vol }));
+  const hitBy = vols.filter((x) => x.v > 0 && weiOf(x.v) > t.ahead).map((x) => "$" + x.s.toFixed(3));
+  const lvl = t.ahead === 0n || (largest > 0n && largest > t.ahead) ? "hot" : hitBy.length ? "warm" : "calm";
+  const head = { hot: "Front of the line", warm: "Exposed in a depeg", calm: "Well back in the queue" }[lvl];
+  const why = t.ahead === 0n ? "Yours is the first loan any redemption hits."
+    : largest > t.ahead ? `A single redemption the size of the largest recent one (${f(toNum(largest), 0)} MUSD) would reach your loan.`
+    : hitBy.length ? `No recent redemption was big enough to reach you, but a ${hitBy.join(" or ")} depeg would.`
+    : `Neither recent redemptions nor a $0.970 depeg would reach your loan at today's pool depth.`;
+  html += `<div class="verdict ${lvl}"><b>${head}:</b> ${f(toNum(t.ahead), 0)} MUSD must be redeemed before your loan is touched (#${eligIdx + 1} of ${S.sys.eligible} redeemable loans).<small>${why}</small></div>`;
+  // queue bar
+  const all = toNum(S.sys.redeemable) || 1;
+  const total = Math.min(all, Math.max(toNum(t.ahead) * 1.35, ...vols.map((x) => x.v * 1.25), toNum(largest) * 1.5, 1000));
+  const pos = (x) => Math.max(0, Math.min(100, (x / total) * 100));
+  const marks = vols.filter((x) => x.v > 0 && x.v <= total).map((x) => `<span class="tick" style="left:${pos(x.v)}%"></span><span class="mk b ${pos(x.v) > 50 ? "r" : "lft"}" style="left:${pos(x.v)}%">$${x.s.toFixed(3)}</span>`).join("");
+  html += `<div class="qbar" role="img" aria-label="Your position in the redemption queue"><span class="ahead" style="width:${pos(toNum(t.ahead))}%"></span>${marks}<span class="you" style="left:${pos(toNum(t.ahead))}%"></span><span class="mk ${pos(toNum(t.ahead)) > 50 ? "r" : "lft"}" style="left:${pos(toNum(t.ahead))}%">you · ${compact(toNum(t.ahead))} ahead</span></div>
+    <p class="note">Bar = the first ${compact(total)} MUSD of the queue${total < all ? ` (of ${compact(all)} MUSD redeemable)` : ""}, front on the left. Red = MUSD ahead of you. Purple ticks: estimated redemptions in a $0.985 / $0.970 depeg${vols.some((x) => x.v > total) ? " (off the bar = beyond its end)" : ""}.</p>`;
+  // what moves you back
+  const rows = defenseTargets(t).map((r) => {
+    if (r.already) return `<tr><td class="l tw">${r.label}</td><td class="l tw pos" colspan="3">already clear ✓</td></tr>`;
+    if (r.none) return `<tr><td class="l tw">${r.label}</td><td class="l tw mute" colspan="3">no loan left to overtake: you are already at the back</td></tr>`;
+    const btcUsd = toNum(r.addColl) * px;
+    return `<tr><td class="l tw">${r.label}${r.short ? ' <span class="pill warn">back of queue, still exposed</span>' : ""}</td><td>${compact(toNum(r.newAhead))}</td><td>+${toNum(r.addColl).toFixed(6)} BTC<br><span class="mute">≈ ${usd(btcUsd, 0)}</span></td><td>${r.repayOk ? f(toNum(r.repay), 0) + " MUSD" : '<span class="mute">not possible (min debt)</span>'}</td></tr>`;
+  }).join("");
+  html += `<h3>What moves you back</h3><div class="tablewrap"><table><thead><tr><th class="l">Goal</th><th>MUSD ahead after</th><th>Add collateral</th><th>or repay</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">Order is set by nominal ratio (TroveManager.getNominalICR = collateral ÷ principal), not by price, so adding BTC or repaying moves you back; a price move does not. Make the change on <a href="${net.app}" target="_blank" rel="noopener">${esc(net.app.replace("https://", ""))}</a>. Being redeemed is not a liquidation: your debt is paid with your BTC at the oracle price and you keep the rest, but you lose that BTC exposure.</p>`;
+  $("#xray").innerHTML = html;
+}
+
+async function renderHistory() {
+  try {
+    const r = await fetch(`${net.api}/addresses/${net.TM}/logs?topic=${REDEMPTION_TOPIC}`).then((x) => x.json());
+    const items = (r.items || []).slice(0, 12);
+    const blocks = await Promise.all(items.map((x) => provider.getBlock(x.block_number).catch(() => null)));
+    S.hist = [];
+    const rows = items.map((x, k) => {
+      const v = x.decoded.parameters.map((p) => BigInt(p.value));
+      S.hist.push(v[1]);
+      const ts = blocks[k] ? new Date(blocks[k].timestamp * 1000).toISOString().slice(0, 16).replace("T", " ") : "#" + x.block_number;
+      return `<tr><td class="l">${ts}</td><td>${f(toNum(v[1]), 2)}</td><td>${toNum(v[2]).toFixed(6)}</td><td>${toNum(v[3]).toFixed(6)}</td><td class="l">${txLink(x.transaction_hash || x.tx_hash)}</td></tr>`;
+    });
+    $("#history tbody").innerHTML = rows.join("") || `<tr><td class="l mute" colspan="5">No redemptions yet.</td></tr>`;
+    const sum = S.hist.reduce((a, b) => a + b, 0n);
+    $("#hsum").textContent = `${items.length} latest · ${compact(toNum(sum))} MUSD`;
+    renderDefense();
+  } catch (e) { $("#history tbody").innerHTML = `<tr><td class="l mute" colspan="5">Explorer API unavailable: ${esc(reason(e))}</td></tr>`; }
+}
+
+function renderContracts() {
+  const rows = CONTRACTS.map(([k, name, role]) => {
+    const a = addrOf(k); const al = a.toLowerCase();
+    const fns = [...S.calls].filter(([key]) => key.startsWith(al + "|")).map(([key, n]) => { const fn = key.split("|")[1]; return `<span class="fn ${/redeemCollateral/.test(fn) ? "w" : ""}">${esc(fn)} ×${n}</span>`; }).join("");
+    return `<div class="crow"><div class="top"><b>${name}</b><span class="addr">${addrLink(a, a)}</span></div><div class="note" style="margin:2px 0 0">${role}</div><div class="fns">${fns || '<span class="mute" style="font-size:12px">not called yet</span>'}</div></div>`;
+  }).join("");
+  const p = S.lastPlan;
+  let cd = `<div class="cd"><b>Transaction your wallet would sign</b>`;
+  if (p && p.tx) {
+    const names = ["_amount", "_firstRedemptionHint", "_upperPartialRedemptionHint", "_lowerPartialRedemptionHint", "_partialRedemptionHintNICR", "_maxIterations"];
+    const vals = p.tx.args.map((v, i) => `${names[i]} = ${typeof v === "bigint" ? v.toString() + (i === 0 ? ` (${f(toNum(v), 2)} MUSD)` : "") : v}`);
+    cd += `<pre>to: ${p.tx.to} (TroveManager, ${esc(net.label)}, chain ${net.chainId})
+function: redeemCollateral(uint256,address,address,address,uint256,uint256)  selector ${p.tx.data.slice(0, 10)}
+${vals.join("\n")}</pre>
+      <details><summary class="note" style="cursor:pointer">Raw calldata (${(p.tx.data.length - 2) / 2} bytes)</summary><pre id="rawcd">${p.tx.data}</pre><button class="btn small" type="button" id="copyCd">Copy calldata</button></details>`;
+  } else cd += `<p class="note">Enter a redeemable amount to see it.</p>`;
+  cd += `</div>`;
+  $("#cbody").innerHTML = `<div class="clist">${rows}</div>${cd}`;
+  const c = $("#copyCd"); if (c) c.onclick = async () => { try { await navigator.clipboard.writeText(p.tx.data); c.textContent = "Copied"; } catch { c.textContent = "Select and copy above"; } };
+}
+
+function renderFoot() {
+  $("#foot").innerHTML = `<b>How it works.</b> Everything is read in your browser from ${esc(net.label)} (RPC <code>${esc(net.rpc)}</code>, batched through Multicall3) and the public explorer API. No backend, no keys, no tracking. The redemption planner walks <code>SortedTroves</code> from the lowest ratio exactly as <code>TroveManager.redeemCollateral</code> does, trims the last partial so the loan keeps the minimum debt, and computes the NICR hint itself. Every redemption is simulated with <code>eth_call</code> before your wallet signs. Depeg scenarios change only the MUSD market price and are always labelled SIMULATION. Full contract list in “Contracts &amp; calldata”.<br>
+  Independent open-source tool built for the Mezo Buildathon. Not affiliated with Mezo. Testnet sends only in this version; not financial advice.`;
+}
+
+async function refresh() {
+  try {
+    const sys = await loadSystem();
+    const blk = await provider.getBlock("latest"); const bn = blk.number;
+    if (blk.gasLimit) { S.gasLimit = blk.gasLimit; const m = Number((blk.gasLimit * 9n / 10n - GAS_BASE) / GAS_PER_LOAN); S.maxLegs = Math.max(5, Math.min(200, m)); }
+    $("#status").innerHTML = `<span class="dot"></span>${esc(net.label)} · block ${bn.toLocaleString("en-US")} · updated ${new Date().toLocaleTimeString()}`;
+    renderTop(sys); renderQueue(); renderChips(); renderSim();
+    if (!$("#amt").value) { const c = document.querySelector('#chips .chip[data-full="1"]'); if (c) $("#amt").value = c.dataset.v; }   // default: the first size that always fills
+    await Promise.all([renderPlan(), renderArb(), renderDefense()]);
+    renderContracts();
+  } catch (e) { $("#status").innerHTML = `<span class="dot off"></span>${esc(net.label)} unreachable: ${esc(reason(e))}`; }
+}
+
+// ---------- scenario control ----------
+function setScenario(s, pushUrl = true) {
+  let v = null;
+  if (s === "custom") { $("#scenCustom").classList.remove("hide"); v = Number(($("#scenCustom").value || "").replace(",", ".")); if (!(v > 0.5 && v < 1.5)) { $("#scenCustom").style.borderColor = "var(--neg)"; return; } $("#scenCustom").style.borderColor = ""; }
+  else { $("#scenCustom").classList.add("hide"); if (s !== "live") v = Number(s); }
+  S.scen = v;
+  document.querySelectorAll("#scen button").forEach((b) => b.classList.toggle("on", b.dataset.s === s));
+  if (pushUrl) { const u = new URL(location.href); if (v == null) u.searchParams.delete("scenario"); else u.searchParams.set("scenario", String(v)); history.replaceState(null, "", u); }
+  if (S.sys) { renderTop(S.sys); renderSim(); renderDefense(); }
+}
+
+// ---------- wire up ----------
+$("#net-" + net.key).classList.add("on");
+for (const k of ["testnet", "mainnet"]) $("#net-" + k).onclick = () => { const u = new URL(location.href); if (k === "mainnet") u.searchParams.set("net", "mainnet"); else u.searchParams.delete("net"); u.searchParams.delete("wallet"); location.href = u.toString(); };
+if (qs.get("amt")) $("#amt").value = qs.get("amt");
+if (!net.canSend) $("#btnSend").textContent = "Redeem (testnet only)";
+$("#btnConnect").onclick = () => connect().catch((e) => { $("#simres").innerHTML = `<div class="errbox">${esc(reason(e))}</div>`; });
+$("#btnSim").onclick = dryRun;
+$("#btnSend").onclick = send;
+let tmr; $("#amt").addEventListener("input", () => { clearTimeout(tmr); tmr = setTimeout(renderPlan, 350); });
+$("#maxfee").addEventListener("input", () => renderChecks(S.lastPlan));
+document.querySelectorAll("#scen button").forEach((b) => b.onclick = () => setScenario(b.dataset.s));
+let tmr2; $("#scenCustom").addEventListener("input", () => { clearTimeout(tmr2); tmr2 = setTimeout(() => setScenario("custom"), 300); });
+$("#defform").addEventListener("submit", (e) => { e.preventDefault(); setDefense($("#defAddr").value.trim()); });
+{ const sp = qs.get("scenario"); if (sp) { const m = PRESETS.find((x) => Math.abs(x - Number(sp)) < 1e-9); if (m != null) setScenario(m.toFixed(3), false); else { $("#scenCustom").value = sp; setScenario("custom", false); } } }
+if (xrayParam && ethers.isAddress(xrayParam)) { S.defAddr = ethers.getAddress(xrayParam); $("#defAddr").value = S.defAddr; }
+renderFoot();
+refresh().then(renderHistory);
+setInterval(refresh, 45000);
+window.__pegdesk = { S, loadSystem, provider, planRedemption, validSizes, buildTx, prepareTx, dryRun, refresh, net, depegVolume, defenseTargets, setScenario, setDefense, feeGuard };
+</script>
+</body>
+</html>
