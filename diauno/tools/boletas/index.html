@@ -402,18 +402,16 @@ footer p{margin:0 0 6px}
         Compartir con mis compañeros
       </a>
     </div>
-    <div class="panel">
-      <h2>¿Te avisamos de la siguiente herramienta?</h2>
-      <p>Cada mes publicamos una herramienta gratis para el trabajo administrativo docente. Un correo cuando salga, nada más.</p>
-      <form id="signup" class="fields" novalidate>
-        <div>
-          <label for="email">Tu correo</label>
-          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@correo.com" required>
-        </div>
-        <label class="check"><input type="checkbox" id="consent" name="consent" required> Acepto recibir correos de Día Uno sobre herramientas para docentes. Puedo darme de baja cuando quiera.</label>
-        <button type="submit" class="btn">Avísame</button>
-        <p class="signup-msg" id="signupMsg" role="status" aria-live="polite"></p>
-      </form>
+    <div class="panel" id="pro">
+      <h2>Día Uno Pro <small style="font-weight:500;opacity:.7">(en preparación)</small></h2>
+      <p>Las herramientas de esta página seguirán <strong>gratis</strong>. Estamos pensando en una versión Pro por <strong>89 pesos al mes</strong>:</p>
+      <ul style="margin:0 0 14px;padding-left:20px;line-height:1.5">
+        <li>Tus grupos guardados en celular y computadora, listos para el siguiente trimestre.</li>
+        <li>Todo el grupo de una vez, con formato listo para pasar a la boleta.</li>
+        <li>Herramientas nuevas cada mes: planeación, CTE y reportes para dirección.</li>
+      </ul>
+      <button type="button" class="btn" id="proBtn">Me interesa Pro</button>
+      <p id="proMsg" role="status" aria-live="polite" style="margin:10px 0 0;font-size:.92rem;color:var(--green)"></p>
     </div>
   </section>
 </div>
@@ -1236,13 +1234,6 @@ $("copyAll").addEventListener("click", copyAll);
 $("csv").addEventListener("click", downloadCSV);
 $("regen").addEventListener("click", generate);
 $("copyPrompt").addEventListener("click", function(){ if($("prompt").value) copyText($("prompt").value, "Prompt copiado"); else toast("Primero escribe los comentarios"); });
-$("signup").addEventListener("submit", function(e){
-  e.preventDefault();
-  var em=$("email"), ok=em.value && em.checkValidity(), c=$("consent").checked, msg=$("signupMsg");
-  if(!ok){ msg.textContent="Escribe un correo válido."; em.focus(); return; }
-  if(!c){ msg.textContent="Marca la casilla de consentimiento para continuar."; $("consent").focus(); return; }
-  msg.textContent="Gracias. Este registro aún no está conectado: por ahora no enviamos ni guardamos tu correo.";
-});
 
 updateGradeNote();
 if(!restore()){ addRow(); addRow(); addRow(); }
@@ -1250,5 +1241,6 @@ if(!restore()){ addRow(); addRow(); addRow(); }
 /* Exposed for automated checks only */
 })();
 </script>
+<script src="/e.js" defer></script>
 </body>
 </html>
