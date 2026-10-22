@@ -5,6 +5,7 @@
   function s(k){try{localStorage.setItem(k,"1")}catch(e){}}
   function ev(n){try{var u="/e/"+n;if(navigator.sendBeacon&&navigator.sendBeacon(u))return;fetch(u,{method:"POST",keepalive:true}).catch(function(){})}catch(e){}}
   function once(n){if(!g("du_"+n)){s("du_"+n);ev(n)}}
+  if(g("du_staff"))return; /* our own browsers are excluded */
   if(/bot|crawl|spider|headless|preview|lighthouse/i.test(navigator.userAgent||""))return;
   ev("view_"+P); once("visitor");
   var src="";
